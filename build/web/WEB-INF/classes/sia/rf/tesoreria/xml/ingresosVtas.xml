@@ -1,0 +1,34 @@
+<dml>
+<submodulo id="catalogos">
+<select id="rfTrCuentasBancarias">
+select 
+  ID_CUENTA,NUM_CUENTA,ENTIDAD,ID_BANCO,NOMBRE_CTA,UNIDAD_EJECUTORA,ID_TIPO_CTA,ID_TIPO_PROGRAMA,OPERACION_CENTRAL,ID_ESTATUS_CTA_PROG,AMBITO,PROCESAR,FECHA_OPERACION,FECHA_FIN_OPERACION  
+from  
+  RF_TR_CUENTAS_BANCARIAS 
+where  
+  id_cuenta in (:cuentas)  
+</select>
+</submodulo>
+<submodulo id="reportes">
+ <select id="ingresosVentaAdministrativos">
+select  cb.id_cuenta, cb.num_cuenta, cb.nombre_cta, fecha_hora, 
+       decode(clave_trans_recla,null,' ',clave_trans_recla) || ' ' || decode(descripcion,null,' ',descripcion) descripcion,
+       nvl(decode(id_tipo_trans,'D',monto,0),0) cargo, nvl(decode(id_tipo_trans,'C',monto,0),0) abono, 
+       decode(mov.referencia,null,' ',mov.referencia) referencia, r.id_cuenta, r.referencia 
+from RF_TR_MOVIMIENTOS_CUENTA mov, RF_TR_CUENTAS_BANCARIAS cb, RF_TR_REFENCIAS_IXV r 
+where mov.id_cuenta = cb.id_cuenta and  mov.id_cuenta = r.id_cuenta and  substr(mov.referencia,1,10) = r.referencia and 
+      (mov.fecha_hora >= to_date(':fechaInicial','yyyy-mm-dd') AND  mov.fecha_hora &lt; to_date(':fechaFinal','yyyy-mm-dd')+1) and 
+      mov.id_cuenta in (:idCuentas)
+</select>
+<select id="referenciasInvalidas">
+select cb.id_cuenta, cb.num_cuenta, cb.nombre_cta, fecha_hora, mov.id_cuenta,
+       decode(clave_trans_recla,null,' ',clave_trans_recla) || ' ' || decode(descripcion,null,' ',descripcion) descripcion,
+       nvl(decode(id_tipo_trans,'C',monto,0),0) abono, 
+       decode(mov.referencia,null,' ',mov.referencia) referencia 
+from RF_TR_MOVIMIENTOS_CUENTA mov, RF_TR_CUENTAS_BANCARIAS cb 
+where mov.id_cuenta = cb.id_cuenta and mov.id_tipo_trans = 'C' and  
+      (mov.fecha_hora >= to_date(':fechaInicial','yyyy-mm-dd') AND  mov.fecha_hora &lt; to_date(':fechaFinal','yyyy-mm-dd')+1) and 
+      mov.id_cuenta in (:idCuentas) and substr(mov.referencia,1,10) not in (select referencia from RF_TR_REFENCIAS_IXV)
+</select>
+</submodulo>
+</dml>

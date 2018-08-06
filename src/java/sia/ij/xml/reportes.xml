@@ -1,0 +1,22 @@
+<dml>
+  <submodulo id="reportesIJ">
+    <select id="organismos-regional">
+     Select ij.iddRegional, og.idorganismo, og.organismo
+     from ij_ti_juridico ij, ij_tr_externos ex, ij_tc_externos et, ij_tc_organismo og
+     where ij.idjuridico = ex.idjuridico and ex.idexternos = et.idexternos and et.idOrganismo = og.idOrganismo
+     :pidRegional
+     group by ij.iddRegional, og.idorganismo, og.organismo
+    </select>
+    <select id="aniopropuesta-lista">
+    Select p.anio
+    from ij_ti_propuesta p
+    group by p.anio
+    order by p.anio desc
+    </select>
+    <select id="propuesta-lista">
+    select p.idpropuesta, p.numpropuesta, p.descobjeto from ij_ti_propuesta p
+      :where
+    order by p.numpropuesta
+    </select>
+  </submodulo>
+</dml>

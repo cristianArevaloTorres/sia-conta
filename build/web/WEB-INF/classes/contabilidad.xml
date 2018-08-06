@@ -1,0 +1,2906 @@
+<dml>
+<submodulo id="chequesNominativos">
+  <select id="imprimirCheques">
+select a.* from (
+select oc.id_operacion,''||cn.id_cheque_nominativo||'' id_cheque_nominativo, cn.portador beneficiario, to_char(ABS(cn.importe),'999,999,999.99') importe, to_char(cxl.fecha_status,'dd/mm/yyyy') fecha_pago, oc.consecutivo operacion_pago,
+tp.desc_singular tipo_operacion,
+od.descripcion origen_operacion, bc.cuenta cuenta_bancaria, cn.num_cheque,  bc.id_cuenta,to_char(cxl.fecha_status,'mm') mes, cxl.id_tipo_beneficiario, 'CXL3' tipo_registro
+from sapfin_pa.rf_tc_origen_docto od,
+sapfin_pa.rf_tr_operaciones_cheques oc,
+sapfin_pa.rf_tr_cheque_nominativo cn,
+sapfin_pa.rf_tc_tipos_pago tp,
+sapfin_pa.rf_tr_cxl cxl,
+sapfin_pa.rf_tc_beneficiario_cuenta bc,
+rf_tesoreria.rf_tr_cuentas_bancarias cb
+where od.id_origen=oc.origen and  oc.id_operacion=cn.id_operacion
+and tp.tipo_cxl=oc.tipo_operacion
+and oc.id_operacion=cxl.id_cxl
+and cxl.id_cuenta_inegi=bc.id_cuenta_bene
+and bc.id_cuenta=cb.id_cuenta
+and cxl.id_tipo_beneficiario = 3
+and oc.ejercicio=:ejercicio
+and oc.tipo_operacion in ('D','F','R','P')
+and cxl.id_status = 5
+and cn.num_cheque is null
+and oc.num_cheque is null
+union
+select oc.id_operacion, 'PR' id_cheque_nominativo, decode(ben.tipo_persona,'F', ben.nombre||' '||ben.ap_paterno||' '||ben.ap_materno,ben.razon_social) beneficiario, to_char(oc.importe_neto,'999,999,999.99') importe, to_char(cxl.fecha_status,'dd/mm/yyyy') fecha_pago, oc.consecutivo operacion_pago,
+tp.desc_singular tipo_operacion,
+od.descripcion origen_operacion, bc.cuenta cuenta_bancaria, oc.num_cheque,  bc.id_cuenta,to_char(cxl.fecha_status,'mm') mes, cxl.id_tipo_beneficiario, 'CXL1' tipo_registro
+from sapfin_pa.rf_tc_origen_docto od,
+sapfin_pa.rf_tr_operaciones_cheques oc,
+sapfin_pa.RF_TC_BENEFICIARIO ben,
+sapfin_pa.rf_tc_tipos_pago tp,
+sapfin_pa.rf_tr_cxl cxl,
+sapfin_pa.rf_tc_beneficiario_cuenta bc,
+rf_tesoreria.rf_tr_cuentas_bancarias cb
+where od.id_origen=oc.origen 
+and tp.tipo_cxl=oc.tipo_operacion
+and oc.id_operacion=cxl.id_cxl
+and cxl.id_cuenta_inegi=bc.id_cuenta_bene
+and cxl.id_beneficiario = ben.id_beneficiario
+and bc.id_cuenta=cb.id_cuenta
+and cxl.id_tipo_beneficiario = 1
+and oc.ejercicio=:ejercicio
+and oc.tipo_operacion in ('D','F','R','P')
+and cxl.id_status = 5
+and oc.num_cheque is null
+AND CXL.ID_BENEFICIARIO!=4833
+union
+select oc.id_operacion, 'SP' id_cheque_nominativo, emp.nombres||' '||emp.apellido_pat||' '||emp.apellido_mat beneficiario, to_char(oc.importe_neto,'999,999,999.99') importe, to_char(cxl.fecha_status,'dd/mm/yyyy') fecha_pago, oc.consecutivo operacion_pago,
+tp.desc_singular tipo_operacion,
+od.descripcion origen_operacion, bc.cuenta cuenta_bancaria, oc.num_cheque,  bc.id_cuenta,to_char(cxl.fecha_status,'mm') mes, cxl.id_tipo_beneficiario, 'CXL2' tipo_registro
+from sapfin_pa.rf_tc_origen_docto od,
+sapfin_pa.rf_tr_operaciones_cheques oc,
+SIA_ADMIN.RH_TV_EMPLEADOS_NOMBRES emp,
+sapfin_pa.rf_tc_tipos_pago tp,
+sapfin_pa.rf_tr_cxl cxl,
+sapfin_pa.rf_tc_beneficiario_cuenta bc,
+rf_tesoreria.rf_tr_cuentas_bancarias cb
+where od.id_origen=oc.origen
+and tp.tipo_cxl=oc.tipo_operacion
+and oc.id_operacion=cxl.id_cxl
+and cxl.id_cuenta_inegi=bc.id_cuenta_bene
+and cxl.id_beneficiario=emp.num_empleado
+and bc.id_cuenta=cb.id_cuenta
+and cxl.id_tipo_beneficiario = 2
+and oc.ejercicio=:ejercicio
+and oc.tipo_operacion in ('D','F','R','P')
+and cxl.id_status = 5
+and oc.num_cheque is null
+union
+select oc.id_operacion,''||cn.id_cheque_nominativo||'' id_cheque_nominativo, cn.portador beneficiario, to_char(cn.importe,'999,999,999.99') importe, to_char(ofr.fecha_pago,'dd/mm/yyyy') fecha_pago, oc.consecutivo operacion_pago,
+ tp.desc_singular tipo_operacion,
+od.descripcion origen_operacion, bc.cuenta cuenta_bancaria,  cn.num_cheque, bc.id_cuenta, to_char(ofr.fecha_pago,'mm') mes, 4 id_tipo_beneficiario, 'OFR' tipo_registro
+from sapfin_pa.rf_tc_origen_docto od,
+sapfin_pa.rf_tr_operaciones_cheques oc,
+sapfin_pa.rf_tr_cheque_nominativo cn,
+sapfin_pa.rf_tc_tipos_pago tp,
+sapfin_pa.rf_tr_ofr ofr,
+sapfin_pa.rf_tc_beneficiario_cuenta bc,
+rf_tesoreria.rf_tr_cuentas_bancarias cb
+where od.id_origen=oc.origen and  oc.id_operacion=cn.id_operacion
+and decode(tp.tipo_cxl,'T','S',tp.tipo_cxl)=oc.tipo_operacion
+and ofr.id_cuenta_cheques=bc.id_cuenta_bene
+and oc.id_operacion=ofr.id_ofr
+and bc.id_cuenta=cb.id_cuenta
+and oc.ejercicio=:ejercicio
+and oc.tipo_operacion = 'S'
+and ofr.id_status=4
+and cn.num_cheque is null
+) a
+where a.id_cuenta=:idCuenta
+and a.mes=:mes
+:ordenar
+
+  </select>
+  <select  id="cuentasBancarias">
+select cb.id_cuenta, cb.num_cuenta, cb.nombre_cta, cc.nombre_cta nombre_ctac
+from rf_tesoreria.rf_tr_cuentas_bancarias cb,
+rf_tc_cuentas_cheques cc
+where cb.id_cuenta=cc.id_cuenta
+and cc.unidad_ejecutora=:unidad
+and cc.entidad=:entidad
+and cc.ambito=:ambito
+and cc.estatus_cheque_id=1
+and cc.cuenta_cheques_id not in(9999)
+and cc.cuenta_cheques_id not in (115)      
+  </select>
+<select id="verificaCheques">
+select :campos,
+rtrim(xmlagg(xmlelement(e, operacion_pago || ',')).extract('//text()'),',') operacion_pago, 
+rtrim(xmlagg(xmlelement(e, concepto || ',')).extract('//text()'),',') concepto, 
+rtrim(xmlagg(xmlelement(e, id_origen || ',')).extract('//text()'),',') id_origen_con, tipo_registro,
+to_char(sum(importe),'999,999,999.99') total, sum(importe) importe, sum(no_cheque) total_cheque from (
+  SELECT OC.ID_OPERACION,
+         1 ID_CHEQUE_NOMINATIVO,
+                   NVL(DECODE (
+                      BEN.TIPO_PERSONA,
+                      'F',    BEN.NOMBRE
+                           || ' '
+                           || BEN.AP_PATERNO
+                           || ' '
+                           || BEN.AP_MATERNO,
+                      BEN.RAZON_SOCIAL), EMP.NOMBRES || ' ' || EMP.APELLIDO_PAT || ' ' || EMP.APELLIDO_MAT) 
+                      BENEFICIARIO,
+    TO_CHAR (SYSDATE, 'dd/mm/yyyy') FECHA_PAGO,
+--    TO_CHAR (CXL.FECHA_STATUS, 'dd/mm/yyyy') FECHA_PAGO,
+         EXTRACT(YEAR FROM SYSDATE) EJERCICIO,
+         --OC.EJERCICIO,
+         OC.CONSECUTIVO OPERACION_PAGO,
+         TP.DESC_SINGULAR TIPO_OPERACION,
+         TP.TIPO_CXL ID_TIPO_OPERACION,
+         OD.DESCRIPCION ORIGEN_OPERACION,
+         OD.ID_ORIGEN,
+         BC.CUENTA CUENTA_BANCARIA,
+         OC.IMPORTE_NETO IMPORTE,
+         '1' NO_CHEQUE,
+         CXL.OBS_UE CONCEPTO,
+         BC.ID_CUENTA,
+         'CXL1' TIPO_REGISTRO,
+         CXL.CONSECUTIVO REFERENCIA,
+         REPLACE ( (SELECT FP.CUENTA_CONTABLE
+                      FROM RF_CONTA_IFT.RF_TC_FORMAS_PRESUPUESTALES FP
+                     WHERE FP.ID_FORMAS_PRESUPUESTALES = 5),
+                  '{CAPITULO}',
+                  SUBSTR (PP.PARTIDA, 1, 1) || '000')
+            AS CC_PRESUP_PAGADO,
+                   SUM (
+                      CASE
+                         WHEN CDM.ID_CXL_DET IS NULL
+                         THEN
+                            DOCORECOS.IMPORTE_BRUTO
+                         ELSE
+                            CASE
+                               WHEN CON.TIPO_CONC = 'D'
+                               THEN
+                                  0
+                               ELSE
+                                  CASE
+                                     WHEN CDM.MONTO = 0 THEN CDMC.MONTO
+                                     ELSE CDM.MONTO
+                                  END
+                            END
+                      END)
+            AS IMPORTE_PRESUP_PAGADO,
+         REPLACE ( (SELECT FP.CUENTA_CONTABLE
+                      FROM RF_CONTA_IFT.RF_TC_FORMAS_PRESUPUESTALES FP
+                     WHERE FP.ID_FORMAS_PRESUPUESTALES = 4),
+                  '{CAPITULO}',
+                  SUBSTR (PP.PARTIDA, 1, 1) || '000')
+            AS CC_PRESUP_EJERCIDO,
+         SUM (
+            CASE
+               WHEN CDM.ID_CXL_DET IS NULL
+               THEN
+                  DOCORECOS.IMPORTE_BRUTO
+               ELSE
+                  CASE
+                     WHEN CON.TIPO_CONC = 'D'
+                     THEN
+                        0
+                     ELSE
+                        CASE
+                           WHEN CDM.MONTO = 0 THEN CDMC.MONTO
+                           ELSE CDM.MONTO
+                        END
+                  END
+            END)
+            AS IMPORTE_PRESUP_EJERCIDO,
+         REPLACE ( (SELECT FP.CUENTA_CONTABLE
+                      FROM RF_CONTA_IFT.RF_TC_FORMAS_PRESUPUESTALES FP
+                     WHERE FP.ID_FORMAS_PRESUPUESTALES = 3),
+                  '{CAPITULO}',
+                  SUBSTR (PP.PARTIDA, 1, 1) || '000')
+            AS CC_PRESUP_DEVENGADO,
+         SUM (
+            CASE
+               WHEN CDM.ID_CXL_DET IS NULL
+               THEN
+                  DOCORECOS.IMPORTE_BRUTO
+               ELSE
+                  CASE
+                     WHEN CON.TIPO_CONC = 'D'
+                     THEN
+                        0
+                     ELSE
+                        CASE
+                           WHEN CDM.MONTO = 0 THEN CDMC.MONTO
+                           ELSE CDM.MONTO
+                        END
+                  END
+            END)
+            AS IMPORTE_PRESUP_DEVENGADO,
+         FC.CUENTA_CONTABLE AS CC_CXP_CP,
+         OC.IMPORTE_NETO IMPORTE_CXP_CP,
+         FA.CUENTA_CONTABLE AS CC_ACTIVO,
+         OC.IMPORTE_NETO IMPORTE_ACTIVO
+    FROM SAPFIN_PA.RF_TC_ORIGEN_DOCTO OD
+         INNER JOIN SAPFIN_PA.RF_TR_OPERACIONES_CHEQUES OC
+            ON OD.ID_ORIGEN = OC.ORIGEN
+         INNER JOIN SAPFIN_PA.RF_TC_TIPOS_PAGO TP
+            ON TP.TIPO_CXL = OC.TIPO_OPERACION
+         INNER JOIN SAPFIN_PA.RF_TR_CXL CXL
+            ON OC.ID_OPERACION = CXL.ID_CXL
+                   left JOIN SAPFIN_PA.RF_TC_BENEFICIARIO BEN
+                      ON CXL.ID_BENEFICIARIO = BEN.ID_BENEFICIARIO
+                   left JOIN SIA_ADMIN.rh_tr_empleados emp
+                      ON CXL.ID_BENEFICIARIO = emp.num_empleado
+                      and ben.id_beneficiario is null
+         INNER JOIN SAPFIN_PA.RF_TC_BENEFICIARIO_CUENTA BC
+            ON CXL.ID_CUENTA_INEGI = BC.ID_CUENTA_BENE
+         LEFT JOIN SAPFIN_PA.RF_TR_CXL_DET CD
+            ON CXL.ID_CXL = CD.ID_CXL
+         LEFT JOIN SAPFIN_PA.RF_TR_CXL_DET_ME CDM
+            ON CD.ID_CXL_DET = CDM.ID_CXL_DET
+         LEFT JOIN SAPFIN_PA.RF_TR_CXL_DET_ME_CON CDMC
+            ON CDM.ID_CXL_DET_ME = CDMC.ID_CXL_DET_ME
+         LEFT JOIN SAPFIN_PA.RF_TC_CONCEPTOS CON
+            ON CDMC.ID_CONCEPTO = CON.ID_CONCEPTO
+         LEFT JOIN (  SELECT CONSULTA.ID_DOCORECO,
+                             CONSULTA.CLAVE_PRESUPUESTARIA_ID,
+                             SUM (CONSULTA.IMPORTE_BRUTO) AS IMPORTE_BRUTO,
+                             SUM (CONSULTA.IMPORTE_NETO) AS IMPORTE_NETO
+                        FROM (SELECT DOCORECO.ID_DOCORECO,
+                                     DOCCOMP.CLAVE_PRESUPUESTARIA_ID,
+                                     TIPO.SIGNO
+                                     * (  DOCCOMP.IMPORTE
+                                        + DOCCOMP.IVA
+                                        + DOCCOMP.OTROS
+                                        + DOCCOMP.IMPORTE_TASA0
+                                        + DOCCOMP.IMPORTE_EXENTO
+                                        + DOCCOMP.IMPORTE_IEPS
+                                        - DOCCOMP.PENALIZACION)
+                                        AS IMPORTE_BRUTO,
+                                     TIPO.SIGNO
+                                     * ( (  DOCCOMP.IMPORTE
+                                          + DOCCOMP.IVA
+                                          + DOCCOMP.OTROS
+                                          + DOCCOMP.IMPORTE_TASA0
+                                          + DOCCOMP.IMPORTE_EXENTO
+                                          + DOCCOMP.IMPORTE_IEPS
+                                          - DOCCOMP.PENALIZACION)
+                                        - (SELECT SUM (NVL (IMPUESTOS.MONTO, 0))
+                                             FROM    SAPFIN_PA.RF_TR_DOC_COMP DOCTO
+                                                  LEFT JOIN
+                                                     SAPFIN_PA.RF_TR_DOC_COMP_DET IMPUESTOS
+                                                  ON IMPUESTOS.ID_DOC_COMP =
+                                                        DOCTO.ID_DOC_COMP
+                                            WHERE DOCTO.ID_DOC_COMP =
+                                                     DOCCOMP.ID_DOC_COMP))
+                                        AS IMPORTE_NETO
+                                FROM SAPFIN_PA.RF_TR_DOCORECO DOCORECO
+                                     INNER JOIN SAPFIN_PA.RF_TR_DOC_COMP DOCCOMP
+                                        ON DOCCOMP.ID_DOCORECO =
+                                              DOCORECO.ID_DOCORECO
+                                     INNER JOIN SAPFIN_PA.RF_TC_TIPO_DOC_COMP TIPO
+                                        ON TIPO.ID_TIPO_DOCTO =
+                                              DOCCOMP.ID_TIPO_DOCTO
+                               WHERE DOCORECO.DOCUMENTO IS NOT NULL) CONSULTA
+                    GROUP BY CONSULTA.ID_DOCORECO,
+                             CONSULTA.CLAVE_PRESUPUESTARIA_ID) DOCORECOS
+            ON CD.ID_DOCUMENTO = DOCORECOS.ID_DOCORECO
+               AND CDMC.ID_CXL_DET_ME IS NULL
+         LEFT JOIN SAPFIN_PA.RF_TC_CLAVES_PRESUPUESTARIAS CP
+            ON CDM.CLAVE_PRESUPUESTARIA_ID = CP.CLAVE_PRESUPUESTARIA_ID
+               OR (DOCORECOS.CLAVE_PRESUPUESTARIA_ID =
+                      CP.CLAVE_PRESUPUESTARIA_ID
+                   AND CDM.CLAVE_PRESUPUESTARIA_ID IS NULL)
+         LEFT JOIN SAPFIN_PA.RF_TC_PARTIDAS_PRESUPUESTALES PP
+            ON CP.ID_PARTIDA = PP.ID_PARTIDA
+         INNER JOIN RF_CONTA_IFT.RF_TC_FORMAS_CXP_CP FC
+            ON FC.CAPITULOS LIKE '%' || SUBSTR (PP.PARTIDA, 1, 1) || '000%'
+               AND CASE
+                      WHEN CXL.ID_TIPO_BENEFICIARIO = 1 THEN 'P'
+                      WHEN CXL.ID_TIPO_BENEFICIARIO = 2 THEN 'S'
+                      ELSE 'E'
+                   END = FC.TIPO_PROVEEDOR
+         INNER JOIN RF_CONTA_IFT.RF_TC_FORMAS_ACTIVOS FA
+            ON BC.ID_BANCO = FA.ID_BANCO AND BC.CUENTA = FA.CUENTA
+   WHERE CXL.ID_TIPO_BENEFICIARIO in (1,2,3)
+    and (:condicionPR or :condicionSP)
+    GROUP BY OC.ID_OPERACION,
+         BEN.TIPO_PERSONA,
+         BEN.NOMBRE,
+         BEN.AP_PATERNO,
+         BEN.AP_MATERNO,
+         BEN.RAZON_SOCIAL,
+                   EMP.NOMBRES,
+                   EMP.APELLIDO_PAT,
+                   EMP.APELLIDO_MAT,
+         CXL.FECHA_STATUS,
+         OC.EJERCICIO,
+         OC.CONSECUTIVO,
+         TP.DESC_SINGULAR,
+         TP.TIPO_CXL,
+         OD.DESCRIPCION,
+         OD.ID_ORIGEN,
+         BC.CUENTA,
+         OC.IMPORTE_NETO,
+         CXL.OBS_UE,
+         BC.ID_CUENTA,
+         PP.PARTIDA,
+         CXL.CONSECUTIVO,
+         FC.CUENTA_CONTABLE,
+         FA.CUENTA_CONTABLE
+)
+group by  :camposGrupo
+:ordenar
+</select>
+<select id="verificaChequesD">
+select :camposD from
+(select :campos,
+rtrim(xmlagg(xmlelement(e, operacion_pago || ',')).extract('//text()'),',') operacion_pago, 
+rtrim(xmlagg(xmlelement(e, concepto || ',')).extract('//text()'),',') concepto, 
+rtrim(xmlagg(xmlelement(e, id_origen || ',')).extract('//text()'),',') id_origen_con, 
+to_char(abs(sum(importe)),'999,999,999.99') total, abs(sum(importe)) importe, sum(no_cheque) total_cheque from (
+  SELECT unique OC.ID_OPERACION,
+         NVL(CN.ID_CHEQUE_NOMINATIVO, OC.ID_OPERACION) ID_CHEQUE_NOMINATIVO,
+                      NVL(CN.PORTADOR,NVL(TRIM(NVL (
+                      BEN.RAZON_SOCIAL, BEN.NOMBRE
+                           || ' '
+                           || BEN.AP_PATERNO
+                           || ' '
+                           || BEN.AP_MATERNO)), EMP.NOMBRES || ' ' || EMP.APELLIDO_PAT || ' ' || EMP.APELLIDO_MAT)) BENEFICIARIO,
+    TO_CHAR (SYSDATE, 'dd/mm/yyyy') FECHA_PAGO,
+         EXTRACT(YEAR FROM SYSDATE) EJERCICIO,
+         OC.CONSECUTIVO OPERACION_PAGO,
+         TP.DESC_SINGULAR TIPO_OPERACION,
+         TP.TIPO_CXL ID_TIPO_OPERACION,
+         OD.DESCRIPCION ORIGEN_OPERACION,
+         OD.ID_ORIGEN,
+         BC.CUENTA CUENTA_BANCARIA,
+         NVL(CN.IMPORTE, OC.IMPORTE_NETO) IMPORTE, /*OC.IMPORTE_NETO*/
+         '1' NO_CHEQUE,
+         CXL.OBS_UE CONCEPTO,
+         BC.ID_CUENTA,
+         'CXL1' TIPO_REGISTRO,
+         CXL.CONSECUTIVO REFERENCIA,
+         REPLACE ( (SELECT FP.CUENTA_CONTABLE
+                      FROM RF_CONTA_IFT.RF_TC_FORMAS_PRESUPUESTALES FP
+                     WHERE FP.ID_FORMAS_PRESUPUESTALES = 5),
+                  '{CAPITULO}',
+                  SUBSTR (PP.PARTIDA, 1, 1) || '000')
+            AS CC_PRESUP_PAGADO,
+                   SUM (
+                      CASE
+                         WHEN CDM.ID_CXL_DET IS NULL
+                         THEN
+                            DOCORECOS.IMPORTE_BRUTO
+                         ELSE
+                            CASE
+                               WHEN CON.TIPO_CONC = 'D'
+                               THEN
+                                  0
+                               ELSE
+                                  CASE
+                                     WHEN CDM.MONTO = 0 THEN CDMC.MONTO
+                                     ELSE CDM.MONTO
+                                  END
+                            END
+                      END)
+            AS IMPORTE_PRESUP_PAGADO,
+         REPLACE ( (SELECT FP.CUENTA_CONTABLE
+                      FROM RF_CONTA_IFT.RF_TC_FORMAS_PRESUPUESTALES FP
+                     WHERE FP.ID_FORMAS_PRESUPUESTALES = 4),
+                  '{CAPITULO}',
+                  SUBSTR (PP.PARTIDA, 1, 1) || '000')
+            AS CC_PRESUP_EJERCIDO,
+         SUM (
+            CASE
+               WHEN CDM.ID_CXL_DET IS NULL
+               THEN
+                  DOCORECOS.IMPORTE_BRUTO
+               ELSE
+                  CASE
+                     WHEN CON.TIPO_CONC = 'D'
+                     THEN
+                        0
+                     ELSE
+                        CASE
+                           WHEN CDM.MONTO = 0 THEN CDMC.MONTO
+                           ELSE CDM.MONTO
+                        END
+                  END
+            END)
+            AS IMPORTE_PRESUP_EJERCIDO,
+         REPLACE ( (SELECT FP.CUENTA_CONTABLE
+                      FROM RF_CONTA_IFT.RF_TC_FORMAS_PRESUPUESTALES FP
+                     WHERE FP.ID_FORMAS_PRESUPUESTALES = 3),
+                  '{CAPITULO}',
+                  SUBSTR (PP.PARTIDA, 1, 1) || '000')
+            AS CC_PRESUP_DEVENGADO,
+         SUM (
+            CASE
+               WHEN CDM.ID_CXL_DET IS NULL
+               THEN
+                  DOCORECOS.IMPORTE_BRUTO
+               ELSE
+                  CASE
+                     WHEN CON.TIPO_CONC = 'D'
+                     THEN
+                        0
+                     ELSE
+                        CASE
+                           WHEN CDM.MONTO = 0 THEN CDMC.MONTO
+                           ELSE CDM.MONTO
+                        END
+                  END
+            END)
+            AS IMPORTE_PRESUP_DEVENGADO,
+         FC.CUENTA_CONTABLE AS CC_CXP_CP,
+         ABS(NVL(CN.IMPORTE,OC.IMPORTE_NETO)) IMPORTE_CXP_CP, /*OC.IMPORTE_NETO*/
+         FA.CUENTA_CONTABLE AS CC_ACTIVO,
+         ABS(NVL(CN.IMPORTE, OC.IMPORTE_NETO)) IMPORTE_ACTIVO /*OC.IMPORTE_NETO*/
+    FROM SAPFIN_PA.RF_TC_ORIGEN_DOCTO OD
+         INNER JOIN SAPFIN_PA.RF_TR_OPERACIONES_CHEQUES OC
+            ON OD.ID_ORIGEN = OC.ORIGEN
+         LEFT JOIN SAPFIN_PA.RF_TR_CHEQUE_NOMINATIVO CN
+            ON OC.ID_OPERACION = CN.ID_OPERACION
+            --:condicionINE
+         INNER JOIN SAPFIN_PA.RF_TC_TIPOS_PAGO TP
+            ON TP.TIPO_CXL = OC.TIPO_OPERACION
+         INNER JOIN SAPFIN_PA.RF_TR_CXL CXL
+            ON OC.ID_OPERACION = CXL.ID_CXL
+                   left JOIN SAPFIN_PA.RF_TC_BENEFICIARIO BEN
+                      ON CXL.ID_BENEFICIARIO = BEN.ID_BENEFICIARIO
+                   left JOIN SIA_ADMIN.rh_tr_empleados emp
+                      ON CXL.ID_BENEFICIARIO = emp.num_empleado
+                      and ben.id_beneficiario is null
+         INNER JOIN SAPFIN_PA.RF_TC_BENEFICIARIO_CUENTA BC
+            ON CXL.ID_CUENTA_INEGI = BC.ID_CUENTA_BENE
+         LEFT JOIN SAPFIN_PA.RF_TR_CXL_DET CD
+            ON CXL.ID_CXL = CD.ID_CXL
+         LEFT JOIN SAPFIN_PA.RF_TR_CXL_DET_ME CDM
+            ON CD.ID_CXL_DET = CDM.ID_CXL_DET
+         LEFT JOIN SAPFIN_PA.RF_TR_CXL_DET_ME_CON CDMC
+            ON CDM.ID_CXL_DET_ME = CDMC.ID_CXL_DET_ME
+         LEFT JOIN SAPFIN_PA.RF_TC_CONCEPTOS CON
+            ON CDMC.ID_CONCEPTO = CON.ID_CONCEPTO
+         LEFT JOIN (  SELECT CONSULTA.ID_DOCORECO,
+                             CONSULTA.CLAVE_PRESUPUESTARIA_ID,
+                             SUM (CONSULTA.IMPORTE_BRUTO) AS IMPORTE_BRUTO,
+                             SUM (CONSULTA.IMPORTE_NETO) AS IMPORTE_NETO
+                        FROM (SELECT DOCORECO.ID_DOCORECO,
+                                     DOCCOMP.CLAVE_PRESUPUESTARIA_ID,
+                                     TIPO.SIGNO
+                                     * (  DOCCOMP.IMPORTE
+                                        + DOCCOMP.IVA
+                                        + DOCCOMP.OTROS
+                                        + DOCCOMP.IMPORTE_TASA0
+                                        + DOCCOMP.IMPORTE_EXENTO
+                                        + DOCCOMP.IMPORTE_IEPS
+                                        - DOCCOMP.PENALIZACION)
+                                        AS IMPORTE_BRUTO,
+                                     TIPO.SIGNO
+                                     * ( (  DOCCOMP.IMPORTE
+                                          + DOCCOMP.IVA
+                                          + DOCCOMP.OTROS
+                                          + DOCCOMP.IMPORTE_TASA0
+                                          + DOCCOMP.IMPORTE_EXENTO
+                                          + DOCCOMP.IMPORTE_IEPS
+                                          - DOCCOMP.PENALIZACION)
+                                        - (SELECT SUM (NVL (IMPUESTOS.MONTO, 0))
+                                             FROM    SAPFIN_PA.RF_TR_DOC_COMP DOCTO
+                                                  LEFT JOIN
+                                                     SAPFIN_PA.RF_TR_DOC_COMP_DET IMPUESTOS
+                                                  ON IMPUESTOS.ID_DOC_COMP =
+                                                        DOCTO.ID_DOC_COMP
+                                            WHERE DOCTO.ID_DOC_COMP =
+                                                     DOCCOMP.ID_DOC_COMP))
+                                        AS IMPORTE_NETO
+                                FROM SAPFIN_PA.RF_TR_DOCORECO DOCORECO
+                                     INNER JOIN SAPFIN_PA.RF_TR_DOC_COMP DOCCOMP
+                                        ON DOCCOMP.ID_DOCORECO =
+                                              DOCORECO.ID_DOCORECO
+                                     INNER JOIN SAPFIN_PA.RF_TC_TIPO_DOC_COMP TIPO
+                                        ON TIPO.ID_TIPO_DOCTO =
+                                              DOCCOMP.ID_TIPO_DOCTO
+                               WHERE DOCORECO.DOCUMENTO IS NOT NULL) CONSULTA
+                    GROUP BY CONSULTA.ID_DOCORECO,
+                             CONSULTA.CLAVE_PRESUPUESTARIA_ID) DOCORECOS
+            ON CD.ID_DOCUMENTO = DOCORECOS.ID_DOCORECO
+               AND CDMC.ID_CXL_DET_ME IS NULL
+         LEFT JOIN SAPFIN_PA.RF_TC_CLAVES_PRESUPUESTARIAS CP
+            ON CDM.CLAVE_PRESUPUESTARIA_ID = CP.CLAVE_PRESUPUESTARIA_ID
+               OR (DOCORECOS.CLAVE_PRESUPUESTARIA_ID =
+                      CP.CLAVE_PRESUPUESTARIA_ID
+                   AND CDM.CLAVE_PRESUPUESTARIA_ID IS NULL)
+         LEFT JOIN SAPFIN_PA.RF_TC_PARTIDAS_PRESUPUESTALES PP
+            ON CP.ID_PARTIDA = PP.ID_PARTIDA
+         INNER JOIN RF_CONTA_IFT.RF_TC_FORMAS_CXP_CP FC
+            ON FC.CAPITULOS LIKE '%' || SUBSTR (PP.PARTIDA, 1, 1) || '000%'
+               AND CASE
+                      WHEN CXL.ID_TIPO_BENEFICIARIO = 1 THEN 'P'
+                      WHEN CXL.ID_TIPO_BENEFICIARIO = 2 THEN 'S'
+                      ELSE 'E'
+                   END = FC.TIPO_PROVEEDOR
+         INNER JOIN RF_CONTA_IFT.RF_TC_FORMAS_ACTIVOS FA
+            ON BC.ID_BANCO = FA.ID_BANCO AND BC.CUENTA = FA.CUENTA
+   WHERE CXL.ID_TIPO_BENEFICIARIO in (1,2,3)
+    and (:condicionPR or :condicionSP)
+    GROUP BY OC.ID_OPERACION,
+         BEN.TIPO_PERSONA,
+         BEN.NOMBRE,
+         BEN.AP_PATERNO,
+         BEN.AP_MATERNO,
+         BEN.RAZON_SOCIAL,
+                   EMP.NOMBRES,
+                   EMP.APELLIDO_PAT,
+                   EMP.APELLIDO_MAT,
+         CN.PORTADOR,
+         CN.ID_CHEQUE_NOMINATIVO,
+         CXL.FECHA_STATUS,
+         OC.EJERCICIO,
+         OC.CONSECUTIVO,
+         TP.DESC_SINGULAR,
+         TP.TIPO_CXL,
+         OD.DESCRIPCION,
+         OD.ID_ORIGEN,
+         BC.CUENTA,
+         CN.IMPORTE,
+         OC.IMPORTE_NETO,
+         CXL.OBS_UE,
+         BC.ID_CUENTA,
+         PP.PARTIDA,
+         CXL.CONSECUTIVO,
+         FC.CUENTA_CONTABLE,
+         FA.CUENTA_CONTABLE
+)
+group by  :camposGrupo
+)
+    group by :camposGrupoD
+:ordenar
+</select>
+<select id="verificaCheques2">
+select :campos,
+rtrim(xmlagg(xmlelement(e, operacion_pago || ',')).extract('//text()'),',') operacion_pago, 
+rtrim(xmlagg(xmlelement(e, concepto || ',')).extract('//text()'),',') concepto, 
+rtrim(xmlagg(xmlelement(e, id_origen || ',')).extract('//text()'),',') id_origen_con, tipo_registro,
+to_char(sum(importe),'999,999,999.99') total, sum(importe) importe, sum(no_cheque) total_cheque from (
+select 
+  oc.id_operacion, cn.id_cheque_nominativo, cn.portador beneficiario, to_char(cxl.fecha_status,'dd/mm/yyyy') fecha_pago, oc.ejercicio, oc.consecutivo operacion_pago,  tp.desc_singular tipo_operacion,
+  tp.tipo_cxl id_tipo_operacion, od.descripcion origen_operacion, 
+  od.id_origen, 
+  bc.cuenta cuenta_bancaria, cn.importe, '1' no_cheque, cxl.obs_ue concepto, bc.id_cuenta, 'CXL3' tipo_registro
+from 
+  sapfin_pa.rf_tc_origen_docto od,
+  sapfin_pa.rf_tr_operaciones_cheques oc,
+  sapfin_pa.rf_tr_cheque_nominativo cn,
+  sapfin_pa.rf_tc_tipos_pago tp,
+  sapfin_pa.rf_tr_cxl cxl,
+  sapfin_pa.rf_tc_beneficiario_cuenta bc
+where 
+  od.id_origen=oc.origen and  oc.id_operacion=cn.id_operacion
+  and tp.tipo_cxl=oc.tipo_operacion
+  and oc.id_operacion=cxl.id_cxl
+  and cxl.id_tipo_beneficiario = 3
+  and cxl.id_cuenta_inegi=bc.id_cuenta_bene
+   :condicionINE
+union
+ select 
+  oc.id_operacion, 1 id_cheque_nominativo, 
+  decode(ben.tipo_persona,'F', ben.nombre||' '||ben.ap_paterno||' '||ben.ap_materno,ben.razon_social) beneficiario,
+   to_char(cxl.fecha_status,'dd/mm/yyyy') fecha_pago, oc.ejercicio, oc.consecutivo operacion_pago, tp.desc_singular tipo_operacion,
+  tp.tipo_cxl id_tipo_operacion, od.descripcion origen_operacion, 
+  od.id_origen, 
+  bc.cuenta cuenta_bancaria, oc.importe_neto importe, '1' no_cheque, cxl.obs_ue concepto, bc.id_cuenta, 'CXL1' tipo_registro
+from 
+  sapfin_pa.rf_tc_origen_docto od,
+  sapfin_pa.rf_tr_operaciones_cheques oc,
+  sapfin_pa.RF_TC_BENEFICIARIO ben,
+  sapfin_pa.rf_tc_tipos_pago tp,
+  sapfin_pa.rf_tr_cxl cxl,
+  sapfin_pa.rf_tc_beneficiario_cuenta bc
+where 
+  od.id_origen=oc.origen 
+  and tp.tipo_cxl=oc.tipo_operacion
+  and oc.id_operacion=cxl.id_cxl
+  and cxl.id_beneficiario = ben.id_beneficiario
+  and cxl.id_tipo_beneficiario = 1
+  and cxl.id_cuenta_inegi=bc.id_cuenta_bene
+  :condicionPR
+ union
+  select 
+  oc.id_operacion, 2 id_cheque_nominativo, emp.nombres||' '||emp.apellido_pat||' '||emp.apellido_mat beneficiario,
+   to_char(cxl.fecha_status,'dd/mm/yyyy') fecha_pago, oc.ejercicio, oc.consecutivo operacion_pago, tp.desc_singular tipo_operacion,
+  tp.tipo_cxl id_tipo_operacion, od.descripcion origen_operacion, 
+  od.id_origen, 
+  bc.cuenta cuenta_bancaria, oc.importe_neto importe, '1' no_cheque, cxl.obs_ue concepto, bc.id_cuenta, 'CXL2' tipo_registro
+from 
+  sapfin_pa.rf_tc_origen_docto od,
+  sapfin_pa.rf_tr_operaciones_cheques oc,
+  SIA_ADMIN.RH_TV_EMPLEADOS_NOMBRES emp,
+  sapfin_pa.rf_tc_tipos_pago tp,
+  sapfin_pa.rf_tr_cxl cxl,
+  sapfin_pa.rf_tc_beneficiario_cuenta bc
+where 
+  od.id_origen=oc.origen 
+  and tp.tipo_cxl=oc.tipo_operacion
+  and oc.id_operacion=cxl.id_cxl
+  and cxl.id_beneficiario=emp.num_empleado
+  and cxl.id_tipo_beneficiario = 2
+  and cxl.id_cuenta_inegi=bc.id_cuenta_bene
+   :condicionSP
+union
+select 
+  oc.id_operacion, cn.id_cheque_nominativo, cn.portador beneficiario, to_char(ofr.fecha_pago,'dd/mm/yyyy') fecha_pago, oc.ejercicio, oc.consecutivo operacion_pago,
+  tp.desc_singular tipo_operacion, tp.tipo_cxl id_tipo_opeacion,
+  od.descripcion origen_operacion, od.id_origen id_origen, bc.cuenta cuenta_bancaria, cn.importe, 
+  '1' no_cheque, ofr.obs_ue concepto, bc.id_cuenta, 'OFR' tipo_registro
+from 
+  sapfin_pa.rf_tc_origen_docto od,
+  sapfin_pa.rf_tr_operaciones_cheques oc,
+  sapfin_pa.rf_tr_cheque_nominativo cn,
+  sapfin_pa.rf_tc_tipos_pago tp,
+  sapfin_pa.rf_tr_ofr ofr,
+  sapfin_pa.rf_tc_beneficiario_cuenta bc
+where 
+  od.id_origen=oc.origen and  oc.id_operacion=cn.id_operacion
+  and decode(tp.tipo_cxl,'T','S',tp.tipo_cxl)=oc.tipo_operacion
+  and ofr.id_cuenta_cheques=bc.id_cuenta_bene
+  and oc.id_operacion=ofr.id_ofr
+  :condicionOFR
+)
+group by  :camposGrupo
+:ordenar
+</select>
+<select id="consecutivoCheque">
+SELECT 
+  cc.cuenta_cheques_id,
+  (cc.consecutivo + 1) ultimo_consecutivo
+FROM rf_tc_cuentas_cheques cc
+INNER JOIN rf_tc_maestro_operaciones moper ON moper.maestro_operacion_id = cc.maestro_operacion_id
+AND cc.unidad_ejecutora =:unidad
+AND cc.ambito =:ambito
+AND cc.entidad =:entidad
+AND cc.pais =147
+and cc.id_cuenta = :idCuenta
+AND :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin)
+</select>
+<select id="partidasHisteje">
+SELECT 
+  cxl.consecutivo,
+  case when substr(CVEP.PARTIDA,1,1) ='1' then '0001' else '0002' end as tiga, 
+  substr(CVEP.PARTIDA,1,1)||'000' as capitulo, CVEP.PARTIDA
+FROM 
+  sapfin_pa.rf_tr_cxl cxl
+  inner join sapfin_pa.rf_tr_cxl_det cxld      on cxl.id_cxl = cxld.id_cxl and cxld.tipo_docto='DOC'
+  inner join sapfin_pa.rf_tr_docoreco doc      on cxld.id_documento = doc.id_docoreco and cxl.ejercicio=doc.ejercicio
+  inner join sapfin_pa.rf_tr_doc_comp comp on doc.id_docoreco = comp.id_docoreco
+  INNER JOIN sapfin_pa.rf_tv_claves_presupuestarias  cvep on comp.clave_presupuestaria_id = cvep.clave_presupuestaria_id 
+WHERE    
+   cxl.ejercicio = :ejercicio
+   and cxl.consecutivo in (:cxl)
+GROUP BY 
+  cxl.consecutivo,
+  CVEP.PARTIDA
+UNION
+SELECT 
+  cxl.consecutivo,
+  case when substr(CVEP.PARTIDA,1,1) ='1' then '0001' else '0002' end as tiga, 
+  substr(CVEP.PARTIDA,1,1)||'000' as capitulo, CVEP.PARTIDA
+  FROM 
+    sapfin_pa.rf_tr_cxl cxl
+    inner join sapfin_pa.rf_tr_cxl_det  cxld on cxl.id_cxl = cxld.id_cxl
+    inner join sapfin_pa.rf_tr_cxl_det_me  cxldme on cxld.id_cxl_det = cxldme.id_cxl_det
+    INNER JOIN sapfin_pa.rf_tv_claves_presupuestarias  cvep on cxldme.clave_presupuestaria_id = cvep.clave_presupuestaria_id 
+  WHERE
+     cxl.ejercicio = :ejercicio
+    and cxl.consecutivo in (:cxl)
+GROUP BY 
+cxl.consecutivo,
+  CVEP.PARTIDA
+</select>
+<update id="actualizaChequeNominativo">
+update :tabla
+set c.num_cheque = :numCheque, c.id_cheque_conta = :idChequeConta
+:condicion
+</update>
+
+</submodulo>
+<submodulo id="GeneracionArchivos">
+    <select id="tablas">
+      select table_name from tabs ORDER BY table_name
+    </select>
+</submodulo>
+
+  <submodulo id= "catalogos">
+    <select id="EjercicioHB">
+select  
+      ejercicio,abierto  
+from  
+      rf_presupuesto.RF_TC_EJERCICIOS    
+where  
+      ejercicio >=2007 and abierto=0   
+order by  ejercicio  desc  
+    </select> 
+    
+    <select id="RfTcTiposPolizas">
+select 
+  TIPO_POLIZA_ID,DESCRIPCION,REGISTRO,ABREVIATURA 
+from 
+  RF_TC_TIPOS_POLIZAS 
+    </select>  
+    
+    <select id="RfTcMaestroOperaciones">
+select 
+ MAESTRO_OPERACION_ID,UNIDAD_EJECUTORA,AMBITO,PAIS,ENTIDAD,CONSECUTIVO,DESCRIPCION,APLICACION,REGISTRO,FECHA_VIG_INI,FECHA_VIG_FIN,ID_CATALOGO_CUENTA 
+from 
+  RF_TC_MAESTRO_OPERACIONES 
+    </select>  
+    
+    <select id="RfTcClasificadorCuentas">
+select 
+  CUENTA_MAYOR_ID,CUENTA_MAYOR,CONF_CVE_MAYOR_ID,CONF_CVE_CTA_CONT_ID,DESCRIPCION,NATURALEZA,FECHA_VIG_INI,FECHA_VIG_FIN,ID_CLASE,ID_GRUPO,ID_GENERO,SUM(TAMANIO) TAMANIO 
+from 
+  RF_TC_CLASIFICADOR_CUENTAS CC
+  INNER JOIN RF_TR_DETALLE_CONF_CVE DCC ON CC.CONF_CVE_CTA_CONT_ID = DCC.ID_CONF_CVE
+GROUP BY CUENTA_MAYOR_ID,CUENTA_MAYOR,CONF_CVE_MAYOR_ID,CONF_CVE_CTA_CONT_ID,DESCRIPCION,NATURALEZA,FECHA_VIG_INI,FECHA_VIG_FIN,ID_CLASE,ID_GRUPO,ID_GENERO
+    </select>
+    <select id="RfTcConfiguraCuenta">
+select 
+  id_catalogo_cuenta,id_configura_cuenta,fecha_vig_fin,longitud,fecha_vig_ini 
+from 
+  rf_tc_configura_cuenta 
+    </select>
+    <select id="RfTcDetalleConfCve">
+select 
+  id_configura_cuenta,nivel,tamanio,posicion 
+from 
+  rf_tc_detalle_conf_cve 
+    </select>
+    
+  </submodulo>
+
+
+
+
+
+  <submodulo id="registros">
+    <select id="RfTrDetalleConfCve">
+select 
+  ORDEN,ID_CONF_CVE,TAMANIO,POSICION,AGRUPAR,NIVEL_CUENTA_ID,CODIGO 
+from 
+  RF_TR_DETALLE_CONF_CVE
+    </select> 
+    <select id="RfTrCuentasContables">
+select 
+  CUENTA_CONTABLE_ID,CUENTA_MAYOR_ID,CUENTA_CONTABLE,NIVEL,DESCRIPCION,FECHA_VIG_INI,FECHA_VIG_FIN,ENE_CARGO,FEB_CARGO,MAR_CARGO,ABR_CARGO,MAY_CARGO,JUN_CARGO,JUL_CARGO,AGO_CARGO,SEP_CARGO,OCT_CARGO,NOV_CARGO,DIC_CARGO,ENE_ABONO,FEB_ABONO,MAR_ABONO,ABR_ABONO,MAY_ABONO,JUN_ABONO,JUL_ABONO,AGO_ABONO,SEP_ABONO,OCT_ABONO,NOV_ABONO,DIC_ABONO,ENE_CARGO_ACUM,FEB_CARGO_ACUM,MAR_CARGO_ACUM,ABR_CARGO_ACUM,MAY_CARGO_ACUM,JUN_CARGO_ACUM,JUL_CARGO_ACUM,AGO_CARGO_ACUM,SEP_CARGO_ACUM,OCT_CARGO_ACUM,NOV_CARGO_ACUM,DIC_CARGO_ACUM,ENE_ABONO_ACUM,FEB_ABONO_ACUM,MAR_ABONO_ACUM,ABR_ABONO_ACUM,MAY_ABONO_ACUM,JUN_ABONO_ACUM,JUL_ABONO_ACUM,AGO_ABONO_ACUM,SEP_ABONO_ACUM,OCT_ABONO_ACUM,NOV_ABONO_ACUM,DIC_ABONO_ACUM,CODIGO_REGISTRO,REGISTRO,ID_CATALOGO_CUENTA 
+from 
+  RF_TR_CUENTAS_CONTABLES
+  </select>
+
+  </submodulo>
+
+
+
+
+
+
+
+  <submodulo id= "vistas">
+     <select id="UnidadEjecutorasHB">
+select 
+    1 indice, ambito, unidad_ejecutora as unidadEjecutora, siafm.primeramay(descripcion) descripcionUnidadEjec 
+from  
+    SIA_CATALOGOS.TC_UNI_EJECUTORAS 
+where 
+    unidad_ejecutora not in('A00')    
+order by 
+    indice, ambito,unidad_ejecutora  
+     </select>
+     
+       <select id="UnidadEjecutorasHB-Todos">
+select *  from ( 
+select  
+    1 indice, ambito, unidad_ejecutora as unidadEjecutora, siafm.primeramay(descripcion) descripcionUnidadEjec  
+from   
+    SIA_CATALOGOS.TC_UNI_EJECUTORAS  
+    where 
+    unidad_ejecutora not in('A00')
+union 
+select 
+     1 indice,'0' ambito,'0'  unidadEjecutora, '- Todos -'    as descripcionUnidadEjec 
+from 
+     dual ) 
+order by  
+    indice, ambito,unidadEjecutora  
+     </select>
+     <select id="AmbitoHB">
+select 1 tipo, p.unidad_ejecutora as unidadEjecutora, p.ambito, a.descripcion as descripcionAmbito from 
+( 
+  select 
+  u.unidad_ejecutora, 2 ambito 
+  from 
+  sia_admin.rh_tc_reg_entidad ue 
+    inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad 
+    inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora 
+    and e.pais=147 
+    and u.ambito=2 and ue.sede=1 
+  union 
+  select 
+    u.unidad_ejecutora, decode(u.ambito,2,decode(ue.sede,0,3,1,3),1) ambito 
+  from 
+    sia_admin.rh_tc_reg_entidad ue 
+    inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad 
+    inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+    and e.pais=147 
+   union
+    select '109' unidad_ejecutora, 3 ambito from dual
+   union
+    select '107' unidad_ejecutora, 2 ambito from dual
+) p 
+inner join sia_admin.rh_tc_ambitos a on a.ambito=p.ambito 
+order by 1
+     </select>
+     <select id="AmbitoHB-Todos">
+select * 
+from ( 
+select 1 tipo, '0' as unidadEjecutora, 0 ambito, ' - Todos - ' descripcionAmbito 
+from dual 
+union 
+select 1 tipo, p.unidad_ejecutora as unidadEjecutora, p.ambito, a.descripcion as descripcionAmbito from 
+( 
+  select 
+  u.unidad_ejecutora, 2 ambito 
+  from 
+  sia_admin.rh_tc_reg_entidad ue 
+    inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad 
+    inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora 
+    and e.pais=147 
+    and u.ambito=2 and ue.sede=1 
+  union 
+  select 
+    u.unidad_ejecutora, decode(u.ambito,2,decode(ue.sede,0,3,1,3),1) ambito 
+  from 
+    sia_admin.rh_tc_reg_entidad ue 
+    inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad  
+    inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+    and e.pais=147 
+   union
+    select '109' unidad_ejecutora, 3 ambito from dual
+   union
+    select '107' unidad_ejecutora, 2 ambito from dual
+) p 
+inner join sia_admin.rh_tc_ambitos a on a.ambito=p.ambito 
+)
+order by 1
+     </select>
+     <select id="EntidadHB">
+select unidad_ejecutora unidadEjecutora, desunidad, entidad, descripcion descripcionEntidad, ambito, desc_ambito,sede,pais, tipo from 
+( 
+select 
+  u.unidad_ejecutora, siafm.primeramay(u.descripcion) desunidad, e.coord_estatal entidad, e.descripcion, 2 ambito, 'Regional' desc_ambito,ue.sede,e.pais, 1 tipo 
+from 
+sia_admin.rh_tc_reg_entidad ue 
+  inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad  
+  inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+  and e.pais=147 
+  and u.ambito=2 and ue.sede=1 
+union 
+select 
+  u.unidad_ejecutora, siafm.primeramay(u.descripcion) desunidad, e.coord_estatal entidad, e.descripcion, decode(u.ambito,2,decode(ue.sede,0,3,1,3),1) ambito, decode(u.ambito,2,decode(ue.sede,0,'Estatal',1,'Estatal'),'Central') desc_ambito,ue.sede,e.pais, 1 tipo 
+from 
+  sia_admin.rh_tc_reg_entidad ue 
+  inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad  
+  inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+  and e.pais=147
+union
+select 
+  '109' unidad_ejecutora, 'Direccion general de administracion' desunidad, 11 entidad,'Guanajuato' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+  union
+select 
+  '129' unidad_ejecutora, 'Direccion regional centro sur' desunidad, 35 entidad,'DF Norte' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+    union
+select 
+  '129' unidad_ejecutora, 'Direccion regional centro sur' desunidad, 36 entidad,'DF Sur' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+      union
+select 
+  '130' unidad_ejecutora, 'Direccion regional centro' desunidad, 33 entidad,'Mexico Oriente' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+    union
+select 
+  '130' unidad_ejecutora, 'Direccion regional centro sur' desunidad, 34 entidad,'Mexico Poniente' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+union
+select 
+  '107' unidad_ejecutora, 'Direccion general de geografia y medio ambiente' desunidad, 1 entidad, 'Aguascalientes' descripcion, 2 ambito, 'Regional' desc_ambito, 1 sede, '147' pais, 1 tipo 
+from 
+  dual
+) order by tipo
+     </select>
+
+     <select id="EntidadHB-Todos">
+select unidad_ejecutora unidadEjecutora, desunidad, entidad, descripcion descripcionEntidad, ambito, desc_ambito,sede,pais, tipo from 
+( 
+select 
+  u.unidad_ejecutora, siafm.primeramay(u.descripcion) desunidad, e.coord_estatal entidad, e.descripcion, 2 ambito, 'Regional' desc_ambito,ue.sede,e.pais, 1 tipo 
+from 
+sia_admin.rh_tc_reg_entidad ue 
+  inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad  
+  inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+  and e.pais=147 
+  and u.ambito=2 and ue.sede=1 
+union 
+select 
+  u.unidad_ejecutora, siafm.primeramay(u.descripcion) desunidad, e.coord_estatal entidad, e.descripcion, decode(u.ambito,2,decode(ue.sede,0,3,1,3),1) ambito, decode(u.ambito,2,decode(ue.sede,0,'Estatal',1,'Estatal'),'Central') desc_ambito,ue.sede,e.pais, 1 tipo 
+from 
+  sia_admin.rh_tc_reg_entidad ue 
+  inner join sia_admin.rh_tc_coord_estatales e on e.coord_estatal=ue.entidad  
+  inner join SIA_CATALOGOS.TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+  and e.pais=147
+union  
+select '0' unidad_ejecutora, '- Todos -' desunidad, 0 entidad, '- Todos -' descripcion, 0 ambito,'- Todos -' desc_ambito,1 sede, '147' pais, 1 tipo 
+from dual   
+union
+select 
+  '109' unidad_ejecutora, 'Direccion general de administracion' desunidad, 11 entidad,'Guanajuato' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+union
+select 
+  '107' unidad_ejecutora, 'Direccion general de geografia y medio ambiente' desunidad, 1 entidad, 'Aguascalientes' descripcion, 2 ambito, 'Regional' desc_ambito, 1 sede, '147' pais, 1 tipo 
+from 
+  dual
+union
+select 
+  '129' unidad_ejecutora, 'Direccion regional centro sur' desunidad, 33 entidad,'DF Norte' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+    union
+select 
+  '129' unidad_ejecutora, 'Direccion regional centro sur' desunidad, 34 entidad,'DF Sur' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+      union
+select 
+  '130' unidad_ejecutora, 'Direccion regional centro' desunidad, 35 entidad,'Mexico Oriente' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+    union
+select 
+  '130' unidad_ejecutora, 'Direccion regional centro sur' desunidad, 36 entidad,'Mexico Poniente' descripcion, 3 ambito, 'Estatal' desc_ambito, 0 sede, '147' pais, 1 tipo 
+from 
+  dual
+) order by tipo 
+     </select>
+
+     
+    <select id="ProgramaCatCuentas">
+select rownum llave, substr(a.cuenta_contable,6,4) programa,upper(a.descripcion) as descripcion, a.id_catalogo_cuenta,to_char(a.fecha_vig_ini,'yyyy') as periodo 
+from rf_tr_cuentas_contables a, 
+     (select min(t.cuenta_contable_id) cuenta_contable_id,substr(t.cuenta_contable,6,4),t.id_catalogo_cuenta, to_char(t.fecha_vig_ini,'yyyy') fecha_vig_ini  from rf_tr_cuentas_contables t 
+      where t.nivel='3' group by substr(t.cuenta_contable,6,4),t.id_catalogo_cuenta, to_char(t.fecha_vig_ini,'yyyy')) b 
+where a.cuenta_contable_id=b.cuenta_contable_id    
+order by a.id_catalogo_cuenta,to_char(a.fecha_vig_ini,'yyyy'),substr(a.cuenta_contable,6,4)    
+    </select> 
+     
+     
+     <select id="MostrarHijosCuentasContables">
+select substr(cu.cuenta_contable,0,siafm_conta.POSICIONCLAVE(cu.nivel,cl.conf_cve_cta_cont_id)+siafm_conta.TamanioClave(cu.nivel,cl.conf_cve_cta_cont_id)-1)  cta,
+  siafm_conta.FORMATEARCLAVE(cu.CUENTA_MAYOR_ID,cu.CUENTA_CONTABLE ) cuenta_formateada, 
+  cu.cuenta_contable, cu.CUENTA_MAYOR_ID, primeraMay(cu.DESCRIPCION) DESCRIPCION, 
+  cu.CUENTA_CONTABLE_ID, decode(naturaleza,'D','Deudora','A','Acreedora') naturaleza,  
+  siafm_conta.SUBCLAVE( cl.CONF_CVE_CTA_CONT_ID, cu.CUENTA_CONTABLE, cu.NIVEL, 0) subcuenta 
+from 
+  RF_TR_CUENTAS_CONTABLES cu
+  inner join rf_tc_clasificador_cuentas cl on cu.cuenta_mayor_id=cl.cuenta_mayor_id 
+where 
+  cu.id_catalogo_cuenta=:idCatalogoCuenta and :ejercicio between extract(year from cu.fecha_vig_ini) 
+  and extract(year from cu.fecha_vig_fin)  
+  and (
+    (nivel>3 and nivel=:nivelf and substr(cuenta_contable,10, 8) like ':unidadf' || ':ambentf' || '%') 
+    or (nivel &lt; 3 and nivel=:nivelf) 
+    or (nivel=3 and nivel=:nivelf and substr(cuenta_contable,10, 4) like ':unidadf' || '%'))
+     </select>
+     
+     <select id="RfTrCuentasContables-CuentasDeMayor">
+select substr(cu.cuenta_contable,0,siafm_conta.POSICIONCLAVE(cu.nivel,cl.conf_cve_cta_cont_id)+siafm_conta.TamanioClave(cu.nivel,cl.conf_cve_cta_cont_id)-1)  cta,
+  siafm_conta.FORMATEARCLAVE(cu.CUENTA_MAYOR_ID,cu.CUENTA_CONTABLE ) cuenta_formateada, 
+  cu.cuenta_contable, cu.CUENTA_MAYOR_ID, primeraMay(cu.DESCRIPCION) DESCRIPCION, 
+  cu.CUENTA_CONTABLE_ID, decode(naturaleza,'D','Deudora','A','Acreedora') naturaleza,  
+  siafm_conta.SUBCLAVE( cl.CONF_CVE_CTA_CONT_ID, cu.CUENTA_CONTABLE, cu.NIVEL, 0) subcuenta, NIVEL 
+from 
+  RF_TR_CUENTAS_CONTABLES cu
+  inner join rf_tc_clasificador_cuentas cl on cu.cuenta_mayor_id=cl.cuenta_mayor_id 
+where 
+  nivel = 1 
+  and cu.id_catalogo_cuenta=:idCatalogoCuenta and :ejercicio between extract(year from cu.fecha_vig_ini) 
+  and extract(year from cu.fecha_vig_fin)
+     </select>
+     
+     <select id="RfTrCuentasContables-CuentasHijas">
+select substr(cu.cuenta_contable,0,siafm_conta.POSICIONCLAVE(cu.nivel,cl.conf_cve_cta_cont_id)+siafm_conta.TamanioClave(cu.nivel,cl.conf_cve_cta_cont_id)-1)  cta,
+  siafm_conta.FORMATEARCLAVE(cu.CUENTA_MAYOR_ID,cu.CUENTA_CONTABLE ) cuenta_formateada, 
+  cu.cuenta_contable, cu.CUENTA_MAYOR_ID, primeraMay(cu.DESCRIPCION) DESCRIPCION, 
+  cu.CUENTA_CONTABLE_ID, decode(naturaleza,'D','Deudora','A','Acreedora') naturaleza,  
+  siafm_conta.SUBCLAVE( cl.CONF_CVE_CTA_CONT_ID, cu.CUENTA_CONTABLE, cu.NIVEL, 0) subcuenta, NIVEL 
+from 
+  RF_TR_CUENTAS_CONTABLES cu
+  inner join rf_tc_clasificador_cuentas cl on cu.cuenta_mayor_id=cl.cuenta_mayor_id 
+where 
+  and cu.id_catalogo_cuenta=:idCatalogoCuenta and :ejercicio between extract(year from cu.fecha_vig_ini) 
+  and extract(year from cu.fecha_vig_fin)
+  nivel > 1 and cu.cuenta_contable like ':cuentaMay%'
+     </select>
+<select id="Modulos">
+select s.idsistema, m.idmodulo, m.descripcion
+from rf_tr_sistema s, rf_tr_modulo m
+where s.idsistema=m.idsistema
+order by m.idmodulo
+</select>
+<select id="Eventos">
+select idevento, idmodulo, descripcion 
+from rf_tr_eventocontable
+order by idevento
+</select>
+<select id="unidadesUsuario">
+select * from rf_tc_usuario_unidades
+where num_empleado=:numEmpleado
+and estatus=1
+</select>
+<select id="unidadesCxl">
+select * from rf_tc_usuario_unidades
+where num_empleado=:numEmpleado
+and estatus_cxl=1
+</select>
+  </submodulo>
+  
+
+  <submodulo id = "reportes">
+        <select id = "chequesUnidades">
+            SELECT ROWNUM, DECODE(MOD(ROWNUM,3),0,3,1,1,2,2) POCICION, TABLA.* FROM 
+            ( SELECT CHEQUE.* FROM 
+                (:chequesFaltantes 
+                    SELECT CH.CONSECUTIVO, TO_CHAR(CH.FECHACHEQUE,'dd')||' DE '|| DECODE(TO_CHAR(CH.FECHACHEQUE,'mm'),
+                        '01','ENERO','02','FEBRERO','03','MARZO','04','ABRIL','05','MAYO','06','JUNIO','07','JULIO','08','AGOSTO',
+                        '09','SEPTIEMBRE','10','OCTUBRE','11','NOVIEMBRE','12','DICIEMBRE')||' DE '||TO_CHAR(CH.FECHACHEQUE,'yyyy') 
+                        FECHA, CH.BENEFICIARIO, CH.IMPORTE,'('||NUMERO_A_TEXTO(IMPORTE)||')' LETRA 
+                    FROM RF_TR_CHEQUES CH 
+                    WHERE CH.operacion_pago =':chequesId'
+                )CHEQUE ORDER BY CHEQUE.CONSECUTIVO) TABLA
+        </select>
+    <select id = "polizas">
+select 
+  tp.abreviatura || lpad(pl.consecutivo, 5, '0') campo1,
+  pl.unidad_ejecutora, 
+  lpad(pl.entidad||pl.ambito,3,0) entamb,
+  pl.ambito, 
+  cc.cuenta_contable,  
+  pl.origen as maestro_operacion, 
+  to_char(pl.fecha,'dd/MM/yyyy') fecha, 
+  pl.fecha_afectacion, 
+  pl.poliza_id,
+  pl.clasificacion_poliza_id,
+  pl.poliza_referencia, 
+  dp.cuenta_contable_id, cc.descripcion, dp.referencia, dp.importe, 
+  oc.operacion_contable_id debe_haber, 
+  pl.concepto, pl.referencia ref_gral,
+  case pl.origen when '99' then he.apellido_pat || ' ' || he.apellido_mat || ' ' || he.nombres else 'GENERADA POR EL SISTEMA' end nombre, 
+  pl.num_empleado,
+  decode(pl.mes,1,'ENERO',2,'FEBRERO',3,'MARZO',4,'ABRIL',5,'MAYO',6,'JUNIO',7,'JULIO',8,'AGOSTO',9,'SEPTIEMBRE',10,'OCTUBRE',11,'NOVIEMBRE',12,'DICIEMBRE') nombre_mes,
+  pl.mes
+from rf_tr_detalle_poliza dp,
+  rf_tr_polizas pl, 
+  rf_tr_cuentas_contables cc, 
+  rf_tc_operaciones_contables oc, 
+  rf_tc_tipos_polizas tp, 
+  rf_tc_maestro_operaciones mo, 
+  sia_admin.rh_tr_empleados he 
+where  pl.poliza_id = dp.poliza_id 
+  and dp.cuenta_contable_id = cc.cuenta_contable_id 
+  and oc.operacion_contable_id = dp.operacion_contable_id 
+  and pl.tipo_poliza_id = tp.tipo_poliza_id 
+  and pl.maestro_operacion_id = mo.maestro_operacion_id 
+  and pl.num_empleado = he.num_empleado (+) 
+  and pl.id_catalogo_cuenta=:idCatalogoCuentas 
+  :cond 
+    </select>
+    <select id = "obtenerPolizaCancelada">
+select tp.abreviatura || lpad(p.consecutivo,5,0) poliza
+from rf_tr_polizas p, rf_tc_tipos_polizas tp
+where p.tipo_poliza_id=tp.tipo_poliza_id
+and poliza_id=:polizaId
+    </select>
+<select id="obtenerTitulos">
+SELECT UNIDAD , AMBITO, ENTIDAD,  
+       decode(TITULO1,'',(SELECT TITULO1 FROM RF_TC_TITULOS_UNIDADES where unidad=:unidad),TITULO1) TITULO1,TITULO2,TITULO3
+FROM
+  (SELECT UNIDAD, AMBITO, 1 ENTIDAD, TITULO1, TITULO2, TITULO3 
+   FROM RF_TC_TITULOS_UNIDADES 
+   RIGHT UNION 
+   SELECT UNIDAD, AMBITO, ENTIDAD, '' TITULO1, TITULO2, TITULO3 
+   FROM RF_TC_TITULOS_ENTIDADES
+  )
+where unidad=:unidad
+:condicion
+and ambito=:ambito
+</select>
+<select id="firmas">
+select 
+  fa.num_empleado, upper(fa.prefijo||' '||fa.nombres||' '||fa.apellido_pat||' '||fa.apellido_mat) nombre
+from rf_tr_documentos_firmas df
+  inner join  rf_tr_documentos_contables doc on   df.documento_contable_id=doc.documento_contable_id
+  inner join   rf_tc_firmas_autorizadas fa on   df.num_empleado = fa.num_empleado 
+where df.firma=':firma' and doc.unidad_ejecutora=':unidad' and doc.entidad=:entidad and doc.ambito=:ambito
+  and doc.mes=:mes and fa.mes=doc.mes and doc.ejercicio=:ejercicio and fa.ejercicio=doc.ejercicio and doc.documento=':documento'
+</select>
+<select id="cheques">
+select cb.num_cuenta, cb.nombre_cta, lpad(c.consecutivo,6,'0')  consecutivo,
+       c.consecutivo, c.fechacheque, c.importe, tp.abreviatura || lpad(p.consecutivo,6,'0') poliza, 
+       c.beneficiario, c.referencia
+from rf_tc_tipos_polizas tp,
+     rf_tr_polizas p, 
+     rf_tr_cheques c,
+     rf_tc_cuentas_cheques cc,
+     rf_tesoreria.rf_tr_cuentas_bancarias cb
+where tp.tipo_poliza_id = p.tipo_poliza_id
+  and p.poliza_id = c.poliza_id
+  and c.cuenta_cheques_id = cc.cuenta_cheques_id
+  and cc.id_cuenta = cb.id_cuenta
+  :condicion
+order by c.consecutivo, tp.abreviatura || lpad(p.consecutivo,6,'0')
+</select>
+<select id="CuentaBancos">
+select * from (
+SELECT distinct cuenta_contable_id, substr(cuenta_contable, 18, 4) cuenta, descripcion
+FROM rf_tr_cuentas_contables
+WHERE id_catalogo_cuenta = :idCatalogoCuenta
+AND EXTRACT(YEAR FROM fecha_vig_ini) = :ejercicio
+:programa
+and substr(cuenta_contable, 10,4) = ':unidad'
+and substr(cuenta_contable, 14,4) = ':ambito'
+AND(cuenta_contable LIKE '11203%')
+and nivel =5
+:sinCuenta
+)
+order by cuenta
+</select>
+<select id="consecutivoSigCheque">
+SELECT * 
+FROM 
+(SELECT 
+  cc.consecutivo,cc.abreviatura,to_char(cc.fecha_vig_ini,'dd/mm/yyyy') fecha_vig_ini,
+  to_char(cc.fecha_vig_fin,'dd/mm/yyyy') fecha_vig_fin,
+  cb.num_cuenta,
+  primeramay(cb.nombre_cta) desc_cuenta,
+  primeramay(ec.descripcion) desc_estatus,
+  cc.id_cuenta,
+  cc.maestro_operacion_id,
+  cc.cuenta_cheques_id,
+  moper.consecutivo consec_moper,
+  (cc.consecutivo + 1) ultimo_consecutivo,
+  cc.estatus_cheque_id
+FROM 
+  rf_tc_cuentas_cheques cc
+INNER JOIN rf_tc_maestro_operaciones moper ON moper.maestro_operacion_id = cc.maestro_operacion_id
+  AND cc.unidad_ejecutora =:unidad
+  AND cc.ambito =:ambito
+  AND cc.entidad =:entidad
+  AND cc.pais =147
+  AND :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin)
+  AND cc.cuenta_cheques_id != (SELECT CUENTA_CHEQUES_ID FROM rf_tc_cuentas_cheques WHERE TIPO_FORMATO = 'U'  AND  :ejercicio  between extract(year from fecha_vig_ini) and extract(year from fecha_vig_fin) )   -- chequera banorte 3 en 1
+INNER JOIN rf_tesoreria.rf_tr_cuentas_bancarias cb ON cc.id_cuenta = cb.id_cuenta 
+  AND cb.id_cuenta = :idCuenta
+INNER JOIN rf_tc_estatus_chequeras ec ON cc.estatus_cheque_id = ec.estatus_cheque_id) qrslt WHERE(estatus_cheque_id = 1)
+</select>
+<select id="consecutivoSigChequeN">
+SELECT * 
+FROM 
+(SELECT 
+  cc.consecutivo,cc.abreviatura,to_char(cc.fecha_vig_ini,'dd/mm/yyyy') fecha_vig_ini,
+  to_char(cc.fecha_vig_fin,'dd/mm/yyyy') fecha_vig_fin,
+  cb.num_cuenta,
+  primeramay(cb.nombre_cta) desc_cuenta,
+  primeramay(ec.descripcion) desc_estatus,
+  cc.id_cuenta,
+  cc.maestro_operacion_id,
+  cc.cuenta_cheques_id,
+  moper.consecutivo consec_moper,
+  (cc.consecutivo + 1) ultimo_consecutivo,
+  cc.estatus_cheque_id
+FROM 
+  rf_tc_cuentas_cheques cc
+INNER JOIN rf_tc_maestro_operaciones moper ON moper.maestro_operacion_id = cc.maestro_operacion_id
+  AND cc.unidad_ejecutora =:unidad
+  AND cc.ambito =:ambito
+  AND cc.entidad =:entidad
+  AND cc.pais =147
+  AND :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin) 
+  AND cc.cuenta_cheques_id = 
+    (SELECT CUENTA_CHEQUES_ID FROM rf_tc_cuentas_cheques WHERE TIPO_FORMATO = 'U'  AND  :ejercicio  between extract(year from fecha_vig_ini) and extract(year from fecha_vig_fin) )   -- chequera banorte 3 en 1
+INNER JOIN rf_tesoreria.rf_tr_cuentas_bancarias cb ON cc.id_cuenta = cb.id_cuenta 
+  AND cb.id_cuenta = :idCuenta
+INNER JOIN rf_tc_estatus_chequeras ec ON cc.estatus_cheque_id = ec.estatus_cheque_id) qrslt WHERE(estatus_cheque_id = 1)
+</select>
+  </submodulo>
+  <submodulo id = "registroContable">
+  <select id="fechaPoliza">
+    select to_char(fecha,'yyyymmdd') as fecha from rf_tr_polizas where poliza_id=:polizaId
+  </select>
+  <select id = "cuentasContablesSaldo">
+SELECT 
+   cc.cuenta_mayor_id, 
+   cuenta_contable_id, 
+   cuenta_contable, 
+   upper(cc.descripcion) descripcion, 
+   cla.naturaleza,
+   cc.ene_cargo,
+   cc.ene_abono,
+   suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',:idCatalogo,:ejercicio,cc.:mesActual_cargo,:cuentaContableId) cargos_per,
+   suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',:idCatalogo,:ejercicio,cc.:mesActual_abono,:cuentaContableId) abonos_per,
+   (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acumm',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acumm,:cuentaContableId) +
+      suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',:idCatalogo,:ejercicio,cc.:mesActual_cargo,:cuentaContableId)) cargos_acum,
+   (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acumm',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acumm,:cuentaContableId) +
+      suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',:idCatalogo,:ejercicio,cc.:mesActual_abono,:cuentaContableId)) abonos_acum, 
+      
+   (case cla.naturaleza when 'D' then (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acum,:cuentaContableId) -
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acum,:cuentaContableId)+
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',:idCatalogo,:ejercicio,cc.:mesActual_cargo,:cuentaContableId)) 
+   else (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',:idCatalogo,:ejercicio,cc.:mesActual_cargo,:cuentaContableId)) end) cargos_acumm,
+   
+   (case cla.naturaleza when 'A' then (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acum,:cuentaContableId)-
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acum,:cuentaContableId) +
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',:idCatalogo,:ejercicio,cc.:mesActual_abono,:cuentaContableId)) 
+    else (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',:idCatalogo,:ejercicio,cc.:mesActual_abono,:cuentaContableId)) end) abonos_acumm,
+   
+   (case cla.naturaleza when 'D' then (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acum,:cuentaContableId) -
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acum,:cuentaContableId)) 
+    else (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acum,:cuentaContableId) -
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acum,:cuentaContableId)) end) saldo_anterior,
+   
+   (case cla.naturaleza when 'D' then ((suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acum,:cuentaContableId) +
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',:idCatalogo,:ejercicio,cc.:mesActual_cargo,:cuentaContableId)) - 
+         (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acum,:cuentaContableId) +
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',:idCatalogo,:ejercicio,cc.:mesActual_abono,:cuentaContableId))) 
+    else ((suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',:idCatalogo,:ejercicio,cc.:mesAnt_abono_acum,:cuentaContableId) +
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',:idCatalogo,:ejercicio,cc.:mesActual_abono,:cuentaContableId)) - 
+         (suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',:idCatalogo,:ejercicio,cc.:mesAnt_cargo_acum,:cuentaContableId) +
+         suma_campo_cuenta(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',:idCatalogo,:ejercicio,cc.:mesActual_cargo,:cuentaContableId))) end) saldo_actual 
+FROM 
+   rf_tr_cuentas_contables cc 
+INNER JOIN 
+   rf_tc_clasificador_cuentas cla 
+   on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+WHERE 
+   extract(year from cc.fecha_vig_ini)=:ejercicio
+   and (:condicion) 
+   :validacion
+   and id_catalogo_cuenta = :idCatalogo 
+ORDER BY 
+   cuenta_contable
+    </select>
+    <select id = "reporteCuentasContables">
+SELECT 
+   cuenta_contable_id, 
+   cuenta_mayor_id, 
+   cuenta_contable, 
+   descripcion 
+FROM 
+   RF_TR_CUENTAS_CONTABLES 
+WHERE 
+   extract(year from fecha_vig_ini) = :ejercicio 
+   and (:condicion) 
+   :validacion
+   and id_catalogo_cuenta = :idCatalogo 
+GROUP BY 
+   cuenta_contable, 
+   cuenta_mayor_id, 
+   descripcion, 
+   cuenta_contable_id 
+ORDER BY 
+   cuenta_contable
+    </select>
+    <select id = "reporteCuentasContables">
+SELECT 
+   cuenta_contable_id, 
+   cuenta_mayor_id, 
+   cuenta_contable, 
+   descripcion 
+FROM 
+   RF_TR_CUENTAS_CONTABLES 
+WHERE 
+   extract(year from fecha_vig_ini) = :ejercicio 
+   and (:condicion) 
+   :validacion
+   and id_catalogo_cuenta = :idCatalogo 
+GROUP BY 
+   cuenta_contable, 
+   cuenta_mayor_id, 
+   descripcion, 
+   cuenta_contable_id 
+ORDER BY 
+   cuenta_contable
+    </select>
+    <select id = "cuentasContablesConSaldo">
+SELECT cuenta_mayor_id, cuenta_contable_id, cuenta_contable, descripcion, naturaleza, sum(ene_cargo) ene_cargo, sum(ene_abono) ene_abono,sum(cargos_per) cargos_per, sum(abonos_per) abonos_per,
+       sum(cargos_acum) cargos_acum, sum(abonos_acum) abonos_acum, sum(cargos_acumm) cargos_acumm, sum(abonos_acumm) abonos_acumm, sum(saldo_anterior) saldo_anterior, sum(saldo_actual) saldo_actual   
+FROM(
+SELECT 
+   cc.cuenta_mayor_id, 
+   cuenta_contable_id, 
+   cuenta_contable, 
+   upper(cc.descripcion) descripcion, 
+   cla.naturaleza,
+   ene_cargo,
+   ene_abono,
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)) cargos_per,
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)) abonos_per,
+    
+  (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acumm',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acumm,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))) cargos_acum,   
+
+  (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acumm',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acumm,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))) abonos_acum, 
+    
+  (case cla.naturaleza when 'D' then (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))
+  else 
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)) end) cargos_acumm,
+    
+  (case cla.naturaleza when 'A' then (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))
+  else
+  suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)) end) abonos_acumm,
+
+  (case cla.naturaleza when 'D' then  (suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))
+  else(suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))) end) saldo_anterior,
+ 
+   
+  (case cla.naturaleza when 'D' then (suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-(
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))))
+  else((suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))-
+  (suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+  suma_campo_arm(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))) end) saldo_actual
+     
+from RF_TR_CUENTAS_CONTABLES cc 
+inner join 
+    rf_tc_clasificador_cuentas cla 
+  on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where id_catalogo_cuenta = :idCatalogoCuenta 
+  and extract(year from cc.fecha_vig_ini) = :ejercicio
+  and extract(month from cc.fecha_vig_ini) &lt;= :mes
+  and 
+  ( 
+    (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' and nivel=1
+     and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    )
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' and nivel=2 
+      and substr(cuenta_contable,1,5) in
+     (select distinct substr(cuenta_contable,1,5) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    )  
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' and nivel=3 
+      and substr(cuenta_contable,1,5) in
+     (select distinct substr(cuenta_contable,1,5) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+        and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' and nivel=4 
+         and substr(cuenta_contable,1,5) in
+     (select distinct substr(cuenta_contable,1,5) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+        
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4' and nivel=5 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5' and nivel=6 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' and nivel=7 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' 
+      and substr(cuenta_contable,26,4) between ':desde7' and ':hasta7' and nivel=8 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' 
+      and substr(cuenta_contable,26,4) between ':desde7' and ':hasta7' 
+      and substr(cuenta_contable,30,4) between ':desde8' and ':hasta8' and nivel=9
+    ) 
+  ) 
+) ctas
+group by cuenta_mayor_id, cuenta_contable_id, cuenta_contable, descripcion, naturaleza
+:saldosCero
+order by ctas.cuenta_contable
+    </select>
+    <select id="cuentasContablesConSaldoExcel">
+SELECT ltrim(cuenta,0) cuenta, ltrim(s_cuenta,0) s_cuenta, ltrim(ss_cuenta,0) ss_cuenta, ltrim(sss_cuenta,0) sss_cuenta, 
+       ltrim(ssss_cuenta,0) ssss_cuenta, ltrim(sssss_cuenta,0) sssss_cuenta, 
+       ltrim(ssssss_cuenta,0) ssssss_cuenta, ltrim(sssssss_cuenta,0) sssssss_cuenta, ltrim(ssssssss_cuenta,0) ssssssss_cuenta,
+       descripcion, sum(saldo_anterior) saldo_anterior, sum(cargos_per) cargos_per, sum(abonos_per) abonos_per,
+       sum(cargos_acum) cargos_acum,sum(abonos_acum) abonos_acum, sum(saldo_actual) saldo_actual
+FROM(select
+   substr(cuenta_contable,0,4) cuenta,
+   substr(cuenta_contable,5,1) s_cuenta,
+   substr(cuenta_contable,6,4) ss_cuenta,
+   substr(cuenta_contable,10,4) sss_cuenta,
+   substr(cuenta_contable,14,4) ssss_cuenta,
+   substr(cuenta_contable,18,4) sssss_cuenta,
+   substr(cuenta_contable,22,4) ssssss_cuenta,
+   substr(cuenta_contable,26,4) sssssss_cuenta,
+   substr(cuenta_contable,30,4) ssssssss_cuenta,
+   upper(cc.descripcion) descripcion, 
+   
+   (case cla.naturaleza when 'D' then  (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))
+   else(suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))) end) saldo_anterior,
+   
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)) cargos_per,
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)) abonos_per,
+   :deudor
+   :acreedor
+   :cargosAcum 
+   :abonosAcum 
+   (case cla.naturaleza when 'D' then (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-(
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))))
+   else((suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))-
+   (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))) end) saldo_actual
+from RF_TR_CUENTAS_CONTABLES cc 
+inner join 
+    rf_tc_clasificador_cuentas cla 
+  on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where id_catalogo_cuenta = :idCatalogoCuenta 
+  and extract(year from cc.fecha_vig_ini)=:ejercicio 
+  and extract(month from cc.fecha_vig_ini) &lt;= :mes
+  and 
+  ( 
+    (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' and nivel=1
+     and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    )
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' and nivel=2 
+      and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    )  
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' and nivel=3 
+      and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+        and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' and nivel=4 
+         and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+        
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4' and nivel=5 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5' and nivel=6 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' and nivel=7 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' 
+      and substr(cuenta_contable,26,4) between ':desde7' and ':hasta7' and nivel=8 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' 
+      and substr(cuenta_contable,26,4) between ':desde7' and ':hasta7' 
+      and substr(cuenta_contable,30,4) between ':desde8' and ':hasta8' and nivel=9
+    ) 
+  ) 
+) ctas
+group by cuenta, s_cuenta,ss_cuenta, sss_cuenta, ssss_cuenta, sssss_cuenta, ssssss_cuenta, sssssss_cuenta,
+       ssssssss_cuenta,descripcion
+:saldosCero
+order by nvl(cuenta,0) asc, 
+         nvl(s_cuenta,0) asc, 
+         nvl(lpad(ss_cuenta,4,0),0) asc, 
+         nvl(lpad(sss_cuenta,4,0),0) asc,
+         nvl(lpad(ssss_cuenta,4,0),0) asc, 
+         nvl(lpad(sssss_cuenta,4,0),0) asc, 
+         nvl(lpad(ssssss_cuenta,4,0),0) asc, 
+         nvl(lpad(sssssss_cuenta,4,0),0) asc, 
+         nvl(lpad(ssssssss_cuenta,4,0),0) asc
+    </select>
+    <select id = "cuentasContablesExcel">
+SELECT 
+   ltrim(substr(cuenta_contable,0,5),0) cuenta,
+   ltrim(substr(cuenta_contable,6,4),0) s_cuenta,
+   ltrim(substr(cuenta_contable,10,4),0) ss_cuenta,
+   ltrim(substr(cuenta_contable,14,4),0) sss_cuenta,
+   ltrim(substr(cuenta_contable,18,4),0) ssss_cuenta,
+   ltrim(substr(cuenta_contable,22,4),0) sssss_cuenta,
+   ltrim(substr(cuenta_contable,26,4),0) ssssss_cuenta,
+   ltrim(substr(cuenta_contable,30,4),0) sssssss_cuenta,
+   upper(cc.descripcion) descripcion, 
+   case cla.naturaleza when 'D' then (:mesAnt_cargo_acum - :mesAnt_abono_acum) else (:mesAnt_abono_acum - :mesAnt_cargo_acum) end saldo_anterior, 
+   :mesActual_cargo cargos_per, 
+   :mesActual_abono abonos_per, 
+   :deudor
+   :acreedor
+   :cargosAcum 
+   :abonosAcum 
+   case cla.naturaleza when 'D' then ((:mesAnt_cargo_acum + :mesActual_cargo) - (:mesAnt_abono_acum + :mesActual_abono)) else ((:mesAnt_abono_acum + :mesActual_abono) - (:mesAnt_cargo_acum + :mesActual_cargo)) end saldo_actual
+FROM
+   rf_tr_cuentas_contables cc 
+INNER JOIN 
+   rf_tc_clasificador_cuentas cla 
+   on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+WHERE
+   extract(year from cc.fecha_vig_ini)=:ejercicio
+   and extract(month from cc.fecha_vig_ini) &lt;= :mes
+   and (:condicion) 
+   :validacion
+   and id_catalogo_cuenta = :idCatalogo 
+ORDER BY
+   cuenta_contable
+    </select>
+    <select id = "cuentasColectivas">
+    select cuenta_contable_id, cuenta_mayor_id, cuenta_contable, descripcion, 
+    sum(cargos_per) cargos_per, sum(abonos_per)abonos_per, sum(cargos_acum) cargos_acum, sum(abonos_acum) abonos_acum, 
+   sum(saldo_anterior) saldo_anterior, sum(saldo_actual) saldo_actual
+from (
+select 
+    cc.cuenta_contable_id, 
+    cc.cuenta_mayor_id, 
+    cuenta_contable, 
+    cc.descripcion, 
+    :mesActual_cargo  cargos_per, 
+   :mesActual_abono abonos_per, 
+   (:mesAnt_cargo_acumm + :mesActual_cargo) cargos_acum, 
+   (:mesAnt_abono_acumm + :mesActual_abono) abonos_acum, 
+   case cla.naturaleza when 'D' then (:mesAnt_cargo_acum - :mesAnt_abono_acum) else (:mesAnt_abono_acum - :mesAnt_cargo_acum) end saldo_anterior, 
+   
+   (case cla.naturaleza when 'D' then (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))-(
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))))
+   else((suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_abono_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_abono_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_abono',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_abono,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))-
+   (suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesAnt_cargo_acum',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesAnt_cargo_acum,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4))+
+   suma_campo(cc.nivel,cc.cuenta_mayor_id,':mesActual_cargo',':desde1',':desde2',':desde3',':desde4',':hasta1',':hasta2',':hasta3',':hasta4',:idCatalogoCuenta,:ejercicio,cc.:mesActual_cargo,substr(cc.cuenta_contable,5,1),substr(cc.cuenta_contable,6,4),substr(cc.cuenta_contable,10,4),substr(cc.cuenta_contable,14,4)))) end) saldo_actual
+from RF_TR_CUENTAS_CONTABLES cc 
+inner join 
+    rf_tc_clasificador_cuentas cla 
+  on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where id_catalogo_cuenta = :idCatalogoCuenta 
+  and extract(year from cc.fecha_vig_ini)=:ejercicio
+  and extract(month from cc.fecha_vig_ini) &lt;= :mes
+  and 
+  ( 
+    (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' and nivel=1
+     and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    )
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' and nivel=2 
+      and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    )  
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' and nivel=3 
+      and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+        and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' and nivel=4 
+         and substr(cuenta_contable,1,4) in
+     (select distinct substr(cuenta_contable,1,4) from RF_TR_CUENTAS_CONTABLES  
+        where substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+        and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+        and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3'
+        and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+        and extract(year from fecha_vig_ini)=:ejercicio
+        and id_catalogo_cuenta = :idCatalogoCuenta)
+        
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4' and nivel=5 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5' and nivel=6 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' and nivel=7 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' 
+      and substr(cuenta_contable,26,4) between ':desde7' and ':hasta7' and nivel=8 
+    ) 
+    or (substr(cuenta_contable,1,4) between ':desde0' and ':hasta0' 
+      and substr(cuenta_contable,5,1) between ':desde1' and ':hasta1' 
+      and substr(cuenta_contable,6,4) between ':desde2' and ':hasta2' 
+      and substr(cuenta_contable,10,4) between ':desde3' and ':hasta3' 
+      and substr(cuenta_contable,14,4) between ':desde4' and ':hasta4'
+      and substr(cuenta_contable,18,4) between ':desde5' and ':hasta5'
+      and substr(cuenta_contable,22,4) between ':desde6' and ':hasta6' 
+      and substr(cuenta_contable,26,4) between ':desde7' and ':hasta7' 
+      and substr(cuenta_contable,30,4) between ':desde8' and ':hasta8' and nivel=9
+    ) 
+  ) 
+ )ctas
+group by cuenta_mayor_id, cuenta_contable_id, cuenta_contable, descripcion
+having sum(saldo_actual) &lt;> 0
+order by ctas.cuenta_contable
+
+    </select>
+  <select id='estadoCuenta'>
+SELECT 
+  cta_general.cuenta_contable cuenta,
+  pl.unidad_ejecutora unidad_ejecutora,
+  pl.ambito ambito,
+  cta_general.descripcion descripcion_cuenta,
+  pl.consecutivo poliza,   
+  pl.referencia_general referencia_poliza, 
+  replace(replace(replace(replace(replace( pl.concepto,chr(39),''),chr(124),''),chr(13),''),chr(10),''),chr(34),'') as concepto,
+  pl.fecha_afectacion fecha,
+  pl.referencia,
+  case pl.operacion_contable_id when 0 then  pl.importe else 0.00 end debe,
+  case pl.operacion_contable_id when 1 then  pl.importe else 0.00 end haber
+FROM
+(
+SELECT 
+  cc.cuenta_contable_id, 
+  cc.cuenta_contable, 
+  cc.descripcion,
+  cla.naturaleza
+FROM rf_tr_cuentas_contables cc
+INNER JOIN rf_tc_clasificador_cuentas cla ON cc.cuenta_mayor_id = cla.cuenta_mayor_id
+WHERE cuenta_contable_id = :idCuentaContable
+)cta_general
+inner join
+  (SELECT cc.cuenta_contable_id, cc.cuenta_contable, cc.descripcion
+   FROM rf_tr_cuentas_contables cc
+   WHERE cc.cuenta_contable LIKE ':condicion' AND(EXTRACT(YEAR FROM fecha_vig_ini) = :ejercicio) 
+   AND cc.id_catalogo_cuenta = :idCatalogoCuenta)ctas on 1=1
+RIGHT JOIN
+(SELECT cc.cuenta_contable_id, tpl.abreviatura, tpl.abreviatura || to_char(pl.consecutivo, '00000') consecutivo, 
+        pl.referencia referencia_general, to_char(pl.fecha, 'dd/MM/yyyy') fecha_afectacion, pl.concepto, 
+        dpl.referencia, dpl.importe, opc.operacion_contable_id, opc.descripcion,pl.unidad_ejecutora,lpad(pl.entidad||pl.ambito,3,0) ambito
+ FROM rf_tr_polizas pl
+ INNER JOIN rf_tc_tipos_polizas tpl ON pl.tipo_poliza_id = tpl.tipo_poliza_id
+ INNER JOIN rf_tr_detalle_poliza dpl ON dpl.poliza_id = pl.poliza_id
+ INNER JOIN rf_tr_cuentas_contables cc ON cc.cuenta_contable_id = dpl.cuenta_contable_id
+ INNER JOIN rf_tc_operaciones_contables opc ON opc.operacion_contable_id = dpl.operacion_contable_id 
+   AND to_date(to_char(pl.fecha, 'yyyyMMdd'), 'yyyyMMdd') BETWEEN to_date(':fechaIni', 'yyyyMMdd') 
+   AND to_date(':fechaFin', 'yyyyMMdd') 
+   :condicionTipoPoliza
+   AND cc.cuenta_contable_id IN (SELECT cc.cuenta_contable_id  FROM rf_tr_cuentas_contables cc
+    WHERE cc.cuenta_contable LIKE ':condicion' AND (EXTRACT(YEAR FROM fecha_vig_ini)=:ejercicio) 
+    AND cc.id_catalogo_cuenta = :idCatalogoCuenta)
+AND cc.id_catalogo_cuenta = :idCatalogoCuenta
+ORDER BY fecha_afectacion, (tpl.abreviatura || to_char(pl.consecutivo, '00000'))) pl
+ON ctas.cuenta_contable_id = pl.cuenta_contable_id
+  </select>
+    <insert id="respaldarCuentas">
+insert into rf_tr_cuentas_resp 
+  select 
+    null,cuenta_contable_id, nov_abono,nov_abono_acum,nov_cargo,nov_cargo_acum,dic_abono,dic_abono_acum,dic_cargo,dic_cargo_acum 
+from 
+  rf_tr_cuentas_contables cc 
+  inner join rf_tc_clasificador_cuentas cla on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where
+  :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin) 
+and (substr(cc.cuenta_contable,10,8)=:unidadEntAmbFormatedo)  and id_catalogo_cuenta =:idCatalogoCuenta order by cuenta_contable
+    </insert> 
+    <select id="obtenerFormasAutomaticasAreas">
+select 
+  aut.forma_contable_id,criterio,prioridad,aut.tipo_movimiento, fc.forma,fc.tipo_poliza_id,fc.concepto
+from 
+  rf_tc_formas_automaticas aut
+  inner join rf_tc_formas_contables  fc on fc.forma_contable_id= aut.forma_contable_id
+where 
+  areas_formas_id=:areaId
+  order by prioridad
+  </select>
+<select id="obtenerCuentaContableId">
+  select 
+    cuenta_contable_id,cuenta_contable
+  from 
+    rf_tr_cuentas_contables
+  where 
+    id_catalogo_cuenta=:idCatalogoCuenta and 
+    cuenta_contable =':cuentaContable'  and 
+    extract(year from fecha_vig_ini)= :ejercicio
+  </select>
+  <select id="obtenerSaldoCuentaContable">
+select 
+   cc.cuenta_mayor_id,
+   cuenta_contable_id, 
+   case cla.naturaleza when 'D' then (:mesActual_cargo_acum - :mesActual_abono_acum) else (:mesActual_abono_acum - :mesActual_cargo_acum) end saldo_actual    
+from 
+   rf_tr_cuentas_contables cc 
+inner join  
+   rf_tc_clasificador_cuentas cla 
+   on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where 
+   :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin) 
+   and id_catalogo_cuenta = :idCatalogoCuenta 
+   and cuenta_contable_id=:idCuentaContable
+order by 
+   cuenta_contable    
+  </select>   
+  <delete id="eliminarRespaldoCuentasContables">
+delete  from rf_tr_cuentas_resp where cuenta_contable_id in (select cuenta_contable_id from 
+  rf_tr_cuentas_contables cc 
+  inner join rf_tc_clasificador_cuentas cla on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where
+  :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin) 
+and (substr(cc.cuenta_contable,10,8)=:unidadEntAmbFormatedo)  and id_catalogo_cuenta =:idCatalogoCuenta)
+  </delete>
+  
+  <update id="cargarRespaldoCuentas">
+update 
+  rf_tr_cuentas_contables 
+set 
+  nov_abono=:novAbono, nov_abono_acum=:abonoAcumNov, 
+  nov_cargo=:novCargo, nov_cargo_acum=:cargoAcumNov,
+  dic_cargo=:dicCargo, dic_cargo_acum=:cargoAcumDic,
+  dic_abono=:dicAbono, dic_abono_acum=:abonoAcumDic
+where 
+  cuenta_contable_id=:cuentaContableId
+  
+  </update>
+  
+  <select id="obtenerDetalleCuentasRespaldo">
+select 
+cuenta_contable_id,nov_abono,nov_abono_acum,nov_cargo,nov_cargo_acum,dic_cargo,dic_cargo_acum,dic_abono,dic_abono_acum 
+from 
+  rf_tr_cuentas_contables cc 
+  inner join rf_tc_clasificador_cuentas cla on cc.cuenta_mayor_id = cla.cuenta_mayor_id 
+where
+  :ejercicio between extract(year from cc.fecha_vig_ini) and extract(year from cc.fecha_vig_fin) 
+and (substr(cc.cuenta_contable,10,8)=:uniEntAmbFormateado)  and id_catalogo_cuenta =:idCatalogoCuenta
+     
+  </select>
+  <select id = "obtenerSaldoMesAnterior">  
+select 
+  :mes 
+from 
+  rf_tr_cuentas_contables 
+where 
+  cuenta_contable=:cuentaContable
+  and id_catalogo_cuenta=:idCatalogoCuenta
+  and :ejercicio between extract(year from fecha_vig_ini) 
+  and extract(year from fecha_vig_fin)
+  </select>
+  <select id="obtenerEntidad">
+select 
+  unidad, entidad, ambito, 
+  decode(desc_ciudad,'',(select desc_ciudad from rf_tc_desciudad where entidad=:entidad), desc_ciudad) desc_ciudad
+from (
+  select 
+    unidad, te.entidad, ambito, desc_ciudad
+  from 
+    RF_TC_TITULOS_ENTIDADES te,
+    rf_tc_desciudad dc
+  where 
+    te.entidad=dc.entidad
+    and  unidad=:unidad
+  union
+  SELECT 
+    UNIDAD,:entidad ENTIDAD, AMBITO, '' desc_ciudad
+  FROM 
+    RF_TC_TITULOS_UNIDADES tu
+  where 
+    tu.unidad=:unidad
+)
+where ambito=:ambito
+and entidad=:entidad
+  </select>
+  
+  </submodulo>
+  
+ 
+  
+  <submodulo id = "formasContables">
+    <select id="RfTcDetalleConfCve">
+select dcc.ID_CONFIGURA_CUENTA,dcc.NIVEL,dcc.TAMANIO,dcc.POSICION,dcc.DESCRIPCION from 
+  RF_TC_CONFIGURA_CUENTA cc,
+  RF_TC_DETALLE_CONF_CVE dcc
+where
+  cc.ID_CONFIGURA_CUENTA = dcc.ID_CONFIGURA_CUENTA 
+  and cc.ID_CATALOGO_CUENTA = :idCatalogo and to_char(fecha_vig_ini,'yyyy') &lt;= :ejercicio and to_char(fecha_vig_fin,'yyyy') >= :ejercicio
+order by
+  dcc.id_configura_cuenta, nivel
+    </select>
+    <select id="formasContables">
+SELECT RfTcFormasContables.FORMA_CONTABLE_ID, 
+       RfTcFormasContables.FORMA, 
+       RfTcFormasContables.UNIDAD_EJECUTORA, 
+       RfTcFormasContables.ENTIDAD, 
+       RfTcFormasContables.AMBITO, 
+       RfTcFormasContables.CONCEPTO, 
+       RfTcFormasContables.DOCUMENTO_FUENTE, 
+       RfTcFormasContables.REGISTRO, 
+       RfTcFormasContables.TIPO_POLIZA_ID,
+       tp.descripcion poliza
+FROM RF_TC_FORMAS_CONTABLES RfTcFormasContables
+inner join rf_tc_tipos_polizas tp on RfTcFormasContables.tipo_poliza_id = tp.tipo_poliza_id
+where esmanual=:esmanual :unidad
+:entidad
+:ambito 
+:esManual
+:idCatalogo
+:forma
+:concepto
+:documentoFuente
+:tipoPolizaId
+order by forma
+    </select>
+    <select id="obtenerDetalleConfiguraFormas">
+select 
+  cf.codigo,cf.nivel,cf.esvariable,cf.signo,cf.secuencia_forma_id, sf.operacion_contable_id, sf.crear_cuenta_contable, sf.movible  
+from 
+  rf_tc_formas_contables fc inner join rf_tc_secuencia_forma sf on fc.forma_contable_id= sf.forma_contable_id inner join rf_tc_configura_forma cf on sf.secuencia_forma_id=cf.secuencia_forma_id 
+where 
+  fc.forma_contable_id=:formaContableId 
+order by 
+  cf.secuencia_forma_id,cf.nivel
+    </select>    
+    <select id="detalleFormaContable">
+select 
+  fc.forma_contable_id,
+  sf.secuencia_forma_id,
+  configura_forma_id,
+  operacion_contable_id,
+  codigo,
+  esvariable,
+  nivel,
+  signo
+from RF_TC_CONFIGURA_FORMA cf
+inner join RF_TC_SECUENCIA_FORMA sf on cf.secuencia_forma_id = sf.secuencia_forma_id
+inner join RF_TC_FORMAS_CONTABLES fc on sf.forma_contable_id = fc.forma_contable_id
+where fc.forma_contable_id = :forma
+order by forma_contable_id, secuencia_forma_id, nivel
+    </select>
+    <delete id="configuraDeForma">
+delete from rf_tc_configura_forma where configura_forma_id in (
+  select configura_forma_id 
+  from rf_tc_configura_forma cf
+  inner join rf_tc_secuencia_forma sf on cf.secuencia_forma_id = sf.secuencia_forma_id
+  inner join rf_tc_formas_contables fc on sf.forma_contable_id = fc.forma_contable_id
+  where fc.forma_contable_id in (:forma)
+)
+    </delete>
+    <delete id="secuenciaDeForma">
+delete from rf_tc_secuencia_forma where secuencia_forma_id in (
+  select secuencia_forma_id 
+  from rf_tc_secuencia_forma sf 
+  inner join rf_tc_formas_contables fc on sf.forma_contable_id = fc.forma_contable_id
+  where fc.forma_contable_id in (:forma)
+)
+    </delete>
+    <delete id="configuraDeSecuencia">
+delete from rf_tc_configura_forma where configura_forma_id in (
+  select configura_forma_id 
+  from rf_tc_configura_forma cf
+  inner join rf_tc_secuencia_forma sf on cf.secuencia_forma_id = sf.secuencia_forma_id
+  where sf.secuencia_forma_id in (:secuencia)
+)
+    </delete>
+    
+    
+    <select id="operacionesTipoResultado">
+SELECT maestro_operacion_id,
+  unidad_ejecutora,
+  ambito,
+  pais,
+  entidad,
+  consecutivo,
+  descripcion,
+  aplicacion,
+  to_char(registro,'dd/mm/yyyy') registro,
+  to_char(fecha_vig_ini,'dd/mm/yyyy') fecha_vig_ini,
+  to_char(fecha_vig_fin,'dd/mm/yyyy') fecha_vig_fin,
+  id_catalogo_cuenta
+FROM rf_tc_maestro_operaciones  
+where 1=1 :unidad
+:entidad
+:ambito
+:fvigencias 
+:idCatalogo
+:consecutivo
+:descripcion
+order by consecutivo
+    </select>
+    <delete id="detalleDeMaestroOper">
+delete from rf_tc_detalle_operaciones where maestro_operacion_id = :maestroOper
+    </delete>
+    <select id="detalleFormulario">
+select 
+  do.maestro_operacion_id, do.detalle_operacion_id, do.cuenta_contable_id, cc.nivel, cc.cuenta_contable, do.operacion_contable_id 
+from 
+  rf_tc_detalle_operaciones do
+  inner join rf_tr_cuentas_contables cc on do.cuenta_contable_id = cc.cuenta_contable_id
+where 
+  maestro_operacion_id = :maestro
+    </select>
+    
+    
+    <select id = "reporteFormas">
+select  
+  fc.forma_contable_id, 
+  fc.forma, fc.concepto, 
+  fc.documento_fuente, 
+  fc.registro,
+  cf.codigo, cf.nivel, 
+  sf.secuencia_forma_id, 
+  sf.operacion_contable_id
+from rf_tc_formas_contables fc
+inner join 
+  rf_tc_secuencia_forma sf
+  on fc.forma_contable_id = sf.forma_contable_id
+inner join 
+  rf_tc_configura_forma cf
+  on sf.secuencia_forma_id = cf.secuencia_forma_id
+where 
+  fc.unidad_ejecutora =':uniEjecutora'
+  and fc.ambito = ':ambito'
+  and fc.entidad = ':entidad'
+  and fc.id_catalogo_cuenta = :idCatalogoCuenta
+  :condicion
+order by 
+  sf.secuencia_forma_id, cf.nivel
+    </select>
+    <select id="variablesForma">
+SELECT cf.codigo
+FROM rf_tc_formas_contables fc
+INNER JOIN rf_tc_secuencia_forma sf ON fc.forma_contable_id = sf.forma_contable_id
+INNER JOIN rf_tc_configura_forma cf ON sf.secuencia_forma_id = cf.secuencia_forma_id
+WHERE fc.forma_contable_id = :formaId and cf.secuencia_forma_id=:secuenciaId and nivel=98
+    </select>
+    <select id="validarUniqueFormas">
+SELECT fc.*
+FROM rf_tc_formas_contables fc
+WHERE upper(forma) = upper(':forma') and unidad_ejecutora=':unidad' and entidad = :entidad
+and ambito = :ambito and id_catalogo_cuenta = :idCatalogo
+    </select>
+    <select id="validarExistenciaDePolizas">
+select t.*, t.rowid from rf_tr_polizas t
+where 1=1
+:forma -- and t.origen='AA'
+:unidad --and t.unidad_ejecutora=100
+:entidad --and t.entidad=1 
+:ambito --and t.ambito=1 
+:idCatalogo --and t.id_catalogo_cuenta=1
+:referencia
+    </select>
+    <select id="validarUniqueOperacion">
+SELECT fc.*
+FROM rf_tc_maestro_operaciones fc
+WHERE consecutivo = lpad(':operacion',2,0) and unidad_ejecutora=':unidad' and entidad = :entidad
+and ambito = :ambito and id_catalogo_cuenta = :idCatalogo and to_char(fecha_vig_ini,'yyyy') = ':fecha'
+    </select>
+  </submodulo>   
+  <submodulo id="trasladarOperaciones">
+    <select id="obtenerIdDetalle">
+SELECT *
+FROM 
+   rf_tc_detalle_operaciones
+WHERE maestro_operacion_id = :idOperacion
+    </select>
+    <select id = "cuentaSigEjercicio">
+SELECT * 
+FROM rf_tr_cuentas_contables
+WHERE
+     cuenta_contable = ':cuenta'
+     and to_char(fecha_vig_ini, 'dd/MM/yyyy') = ':ejercicio'
+     and id_catalogo_cuenta = :idCatalogo
+    </select>
+  </submodulo>
+  <submodulo id = "banquito">
+    <select id = "getCuentasBancarias">
+select num_cuenta, nombre_cta 
+from rf_tesoreria.RF_TR_CUENTAS_BANCARIAS c 
+  inner join rf_tesoreria.RF_TC_TIPO_PROGRAMA t on 
+    c.id_tipo_programa = t.id_tipo_programa 
+where c.id_tipo_cta = 6 and t.id_estatus_cta_prog = 1 
+    </select>
+    <select id = "getInfoIngVenta">
+select centro_venta, entidad, ambito, unidad_ejecutora 
+from rf_tc_cuentas_cv cv 
+inner join 
+  RF_TC_CUENTA_CONCENTRADORA cc on cv.cuenta_tpv=cc.cuenta_tpv 
+where cc.cuenta_bancaria=:cuenta 
+    </select>
+  <select id="estatusCierreMes">
+select * from rf_tr_cierres_mensuales
+where id_catalogo_cuenta=2
+ and mes=:mes
+ and estatus_cierre_id=:estatusCierre
+ and ejercicio=:ejercicio
+  </select>
+  <select id="informacionBanquito">
+SELECT
+ ib.cuenta,
+ to_char(ib.fecha,'dd mm yyyy') fecha,
+ ib.fecha fecha_normal,
+ ib.referencia,
+ ib.descripcion,
+ ib.clave,
+ ib.cargo,
+ ib.abono,
+ ib.saldo,
+ tb.descripcion descripcion_clave,
+ cr.centro_informacion validacion_rap,
+ ct.centro_informacion validacion_tpv
+FROM
+ sia_admin.ct_tr_ingresos_bancarios@sia ib,
+ sia_admin.ct_tc_transacciones_bancarias@sia tb,
+ sia_admin.ct_tc_claves_bancarias@sia cr,
+ sia_admin.ct_tc_claves_bancarias@sia ct
+WHERE
+ ib.clave = tb.clave
+ AND to_char(ib.fecha,'yyyymmdd') BETWEEN ':fechaDe' AND ':fechaHasta'
+ and ib.cuenta not in (4042986026,
+      4042986034,4042986042,4042986059,4042986067,
+      4042986075,4042986083,4042986091,4042986109,
+      4042986117,4042986000,4042986018)
+ AND ib.cve_rap = cr.cve_rap(+)
+ AND ib.cve_tpv = ct.cve_tpv(+)
+ and ib.estatus_proceso=0
+ORDER BY
+ ib.fecha, ib.clave
+  </select>
+<update id="registrosGrabables">
+update sia_admin.ct_tr_ingresos_bancarios@sia ib
+set estatus_proceso=1
+where to_char(fecha,'yyyymmdd') BETWEEN ':fechaDe' AND ':fechaHasta'
+ and ib.cuenta not in (4042986026,
+      4042986034,4042986042,4042986059,4042986067,
+      4042986075,4042986083,4042986091,4042986109,
+      4042986117,4042986000,4042986018)
+  and ib.estatus_proceso=0
+ </update>
+<select id="comparaRegistros">
+select * from sia_admin.ct_tr_ingresos_bancarios@sia
+where to_char(fecha,'yyyymmdd') BETWEEN ':fechaDe' AND ':fechaHasta'
+ and cuenta not in (4042986026,
+      4042986034,4042986042,4042986059,4042986067,
+      4042986075,4042986083,4042986091,4042986109,
+      4042986117,4042986000,4042986018)
+  and estatus_proceso=0
+</select>
+
+  </submodulo>
+  <submodulo id="webService">
+    <select id="obtenerForma">
+  SELECT 
+    forma_contable_id, 
+    forma, 
+    unidad_ejecutora, 
+    entidad, 
+    ambito, 
+    concepto, 
+    documento_fuente, 
+    registro, 
+    tipo_poliza_id
+  FROM 
+    rf_tc_formas_contables 
+  where 
+    forma_contable_id=:formaContableId
+    </select>
+    <insert id="insertarPoliza">
+  insert into rf_tr_polizas 
+    (poliza_id,unidad_ejecutora,ambito,pais,
+    entidad,consecutivo,global,
+    ejercicio,tipo_poliza_id,maestro_operacion_id,
+    fecha,concepto,referencia,
+    fecha_afectacion,clasificacion_poliza_id,poliza_referencia,
+    num_empleado,mes,origen,id_catalogo_cuenta,idevento,ban_cheque)
+  values 
+    (:polizaId,':unidadEjecutora',':ambito',':pais',
+    :entidad,:consecutivo,:global,
+    :ejercicio,:tipoPolizaId,:maestroOperacionId,
+    to_timestamp(':fecha', 'yyyy-mm-dd HH24~MI~SS.FF'),':concepto',':referencia',
+    to_date(':fechaAfectacion', 'YYYY-MM-DD'),:clasificacionPolizaId,:polizaReferencia,
+    :numEmpleado,:mes,':origen',:idCatalogoCuenta,:idEvento,:ban_cheque)
+    </insert>
+    <select id="obtenerConsecutivo">
+  select 
+    nvl(max(consecutivo),0)+1 as consecutivo 
+  from 
+    rf_tr_polizas 
+  where unidad_ejecutora=':unidadEjecutora' 
+  and ambito=:ambito and entidad=:entidad 
+  and tipo_poliza_id=:tipoPolizaId 
+  and mes=:mes  
+  and pais=147 and ejercicio=:ejercicio 
+  and id_catalogo_cuenta=:idCatalogoCuenta
+    </select>
+    <select id="obtenerConsecutivoGlobal">
+  select 
+    nvl(max(global),0)+1 as consGlobal 
+  from 
+    rf_tr_polizas  pol 
+  where 
+    ejercicio=:ejercicio
+    </select>
+    <select id="modificarImporteCuentaContable">
+  update rf_tr_cuentas_contables 
+  set :mes = (:mes :signo (:importe)) 
+  where cuenta_contable_id = :cuentaContableId
+    </select>
+<select id="modificarImporteCuentaContableCarga">
+  update rf_tr_cuentas_contables 
+  set :mesCargoIni = :importeCargo, :mesCargoIniEli=:importeCargo, :mesAbonoIni = :importeAbono, :mesAbonoIniEli=:importeAbono
+  where cuenta_contable_id = :cuentaContableId
+</select>
+    <select id="registroContable">
+  select 
+    descripcion, 
+    cuenta_contable, 
+    nivel, 
+    cuenta_mayor_id, 
+    id_catalogo_cuenta 
+  from 
+    rf_tr_cuentas_contables 
+  where 
+    cuenta_contable_id = :cuentaContableId 
+    </select>
+    <select id="configuracion">
+  select 
+    conf_cve_cta_cont_id,
+    cuenta_mayor_id 
+  from 
+    RF_TC_CLASIFICADOR_CUENTAS 
+  where 
+    cuenta_mayor_id = :cuentaMayorId
+    </select>
+    <select id="detalleConfiguracion">
+  select 
+    tamanio,
+    agrupar,
+    rtrim('0') caracter,
+    descripcion,
+    campo_compara 
+  from 
+    RF_TR_DETALLE_CONF_CVE  dcc 
+  inner join 
+    RF_TC_NIVELES_CUENTAS nc 
+  on 
+    nc.nivel_cuenta_id  = dcc.nivel_cuenta_id 
+  where 
+    id_conf_cve = :idConfCve
+  order by 
+    orden
+    </select>
+    <select id="maxClasificadorCuentas">
+  select 
+    max(length(cuenta_mayor)) 
+  from 
+    rf_tc_clasificador_cuentas
+    </select>
+    <select id="maxConfiguraClaves">
+  select 
+    max(longitud) longitud,
+    caracter
+  from 
+    rf_tr_configura_claves
+  group by caracter
+    </select>
+    <select id="insertarDetallePoliza">
+  insert into rf_tr_detalle_poliza 
+    (poliza_id,cuenta_contable_id,
+    operacion_contable_id,referencia,fecha_afectacion,importe) 
+  values 
+    (:polizaId,:cuentaContableId,:operacionContableId,
+     ':referencia',to_date(':fechaAfectacion','YYYY-MM-DD'),:importe)
+    </select>
+    <select id="procesoCuentaPadre">
+  select 
+    cuenta_contable_id,descripcion 
+  from 
+    rf_tr_cuentas_contables 
+  where cuenta_contable like ':cuentaContable' 
+    and extract(year from fecha_vig_ini)=:ejercicio 
+    and id_catalogo_cuenta = :idCatalogoCuenta
+    </select>
+    <select id="sencuenciaPoliza">
+  select SEQ_RF_TR_POLIZAS.NEXTVAL from dual
+    </select>
+    <select id="obtenerMaestroOperacion">
+  select 
+    maestro_operacion_id 
+  from  rf_tc_maestro_operaciones 
+  where 
+    unidad_ejecutora=':uniEjecutora' 
+    and ambito=:ambito
+    and entidad=:entidad
+    and pais=147 
+    and consecutivo=:consecutivo
+    and id_catalogo_cuenta=:idCatalogoCuenta
+    and :ejercicio between extract(year from fecha_vig_ini) and extract(year from fecha_vig_fin)
+    </select>
+    <select id="obtenerFechaAfectacion">
+  select to_char(sysdate,'yyyyMMddhh24miss') as fechaAfectacion from dual
+    </select>
+    <select id="estatusMes">
+  select 
+    ejercicio, mes, estatus_cierre_id 
+  from 
+    rf_tr_cierres_mensuales 
+  where unidad_ejecutora=':unidadEjecutora' and ambito=:ambito
+    and entidad=:entidad and pais=147 and ejercicio=:ejercicio and mes=:mes 
+    and id_catalogo_cuenta=:idCatalogoCuenta
+    </select>
+<insert id = "insertarMaestroOperacion">
+  insert into rf_tc_maestro_operaciones
+  values (null, 
+   ':unidadEjecutora', 
+   :ambito, 
+   '147', 
+   :entidad, 
+   99, 
+   'UNIVERSAL', 
+   null, 
+   ':fechaRegistro', 
+   '01/01/:ejercicio', 
+   '31/12/:ejercicio', 
+   :idCatalogoCuenta)
+</insert>
+  </submodulo>
+  <submodulo id="validaCuentaContable">
+  <insert id="cuentaContable">
+  Insert into rf_tr_cuentas_contables 
+  values (null,:idCuentaMayor,':cuentaContable',:nivel,':descripcion',
+  to_date('01/03/:ejercicio','DD/MM/YYYY'),to_date('31/12/2099','DD/MM/YYYY'),
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,76454,to_date(':fechaAlta','DD/MM/YYYY'),:idCatalogoCuenta
+  :meses
+  )
+</insert>
+   <insert id="insertarCuentaContable">
+   Insert into rf_tr_cuentas_contables (CUENTA_CONTABLE_ID,CUENTA_MAYOR_ID,CUENTA_CONTABLE,NIVEL,DESCRIPCION,
+     FECHA_VIG_INI,FECHA_VIG_FIN,CODIGO_REGISTRO,REGISTRO,ID_CATALOGO_CUENTA)
+   values (null,:idCuentaMayor,':cuentaContable',:nivel,':descripcion',
+      to_date(':fechaIni','DD/MM/YYYY'),to_date(':fechaFin','DD/MM/YYYY'),
+      :numEmpleado,to_date(':fechaAlta','DD/MM/YYYY'),:idCatalogoCuenta)
+</insert>
+   <insert id="cuentaContableCampos">
+  Insert into rf_tr_cuentas_contables (CUENTA_CONTABLE_ID,CUENTA_MAYOR_ID,CUENTA_CONTABLE,NIVEL,DESCRIPCION,FECHA_VIG_INI,FECHA_VIG_FIN,CODIGO_REGISTRO,REGISTRO,ID_CATALOGO_CUENTA,ENE_CARGO_INI,ENE_ABONO_INI,ENE_CARGO_INI_ELI,ENE_ABONO_INI_ELI)
+  values (null,:idCuentaMayor,':cuentaContable',:nivel,':descripcion',
+  to_date('01/01/:ejercicio','DD/MM/YYYY'),to_date('31/12/2099','DD/MM/YYYY'),
+  76454,to_date(':fechaAlta','DD/MM/YYYY'),:idCatalogoCuenta
+  :meses
+  )
+  
+  </insert>
+  <select id="cuentaMayor">
+  select cuenta_mayor_id id from RF_TC_CLASIFICADOR_CUENTAS
+  where cuenta_mayor=:cuentaMayor
+  </select>
+  <select id="consultaCC">
+  select cuenta_contable_id,cuenta_contable 
+  from rf_tr_cuentas_contables
+  where id_catalogo_cuenta=:idCatalogoCuenta
+  and extract(year from fecha_vig_ini)=:ejercicio
+  and cuenta_contable = ':cuentaContable'
+  </select>
+  
+<select id="consultaDetPol">
+ select c.cuenta_contable_id,c.cuenta_contable 
+from rf_tr_detalle_poliza t, rf_tr_cuentas_contables c
+where t.cuenta_contable_id=c.cuenta_contable_id 
+and c.cuenta_contable=':cuentaContable'
+and c.id_catalogo_cuenta=:idCatalogoCuenta
+and extract(year from c.fecha_vig_ini)=:ejercicio
+</select>
+  
+  <update id="actualizarCC">
+  update rf_tr_cuentas_contables 
+  set :mesCargoAcum=:cargoAcum, :mesAbonoAcum=:abonoAcum
+  where cuenta_contable =':cuentaContable'	
+  and extract(year from fecha_vig_ini)=:ejercicio
+  and id_catalogo_cuenta = :idCatalogoCuenta
+  </update>
+  <update id="actualizarDescripcionCuenta">
+  update rf_tr_cuentas_contables 
+  set descripcion=':descripcion'
+  where cuenta_contable =':cuentaContable'	
+  and nivel = :nivel
+  and extract(year from fecha_vig_ini)=:ejercicio
+  and id_catalogo_cuenta = :idCatalogoCuenta
+  </update>
+  <select id="polizaAsociada">
+select p.poliza_id id from rf_tr_polizas p, rf_tr_detalle_poliza d
+where p.poliza_id = d.poliza_id
+and d.cuenta_contable_id = :cuentaContableId
+  </select>
+    <select id="operacionAsociada">
+  select mo.maestro_operacion_id id from rf_tc_detalle_operaciones mo
+where mo.cuenta_contable_id = :cuentaContableId
+  </select>
+  <delete id="eliminarCuenta">
+delete rf_tr_cuentas_contables c
+where c.cuenta_contable_id=:cuentaContableId
+  </delete>
+  <select id="configuracionCuenta">
+select c.cuenta_contable_id, c.cuenta_contable, c.nivel, c.cuenta_mayor_id, cl.cuenta_mayor, d.orden, d.codigo
+ from rf_tr_cuentas_contables c
+  inner join rf_tc_clasificador_cuentas cl on c.cuenta_mayor_id=cl.cuenta_mayor_id 
+  inner join rf_tr_configura_claves co on cl.conf_cve_cta_cont_id=co.id_conf_cve 
+  inner join rf_tr_detalle_conf_cve d on co.id_conf_cve=d.id_conf_cve
+  where c.cuenta_contable_id=:cuentaContableId and d.orden = :orden
+  and c.id_catalogo_cuenta=:idCatalogoCuenta
+  </select>
+  </submodulo>
+  <submodulo id="clasificadorCuenta">
+  
+    <select id="obtenerCuentaContable">
+  select 
+    cuenta_contable_id 
+  from 
+    rf_tr_cuentas_contables 
+  where 
+    cuenta_contable like ':cuenta%' and id_catalogo_cuenta = ':idCatalogoCuenta' 
+    and extract(year from fecha_vig_ini) = :ejercicio and nivel = :nivel
+    </select>
+  
+    <select id="obtenerMaxCuentaFechaAct">
+  select max(cuenta_contable_id) cuenta_contable_id 
+  from RF_TR_CUENTAS_CONTABLES 
+  where nivel=(select max(orden) 
+               from RF_TR_DETALLE_CONF_CVE dc 
+               inner join RF_TR_CONFIGURA_CLAVES cc on dc.id_conf_cve=cc.id_conf_cve 
+               where :ejercicio between extract(year from fecha_vig_ini) and extract(year from fecha_vig_fin))
+    </select>
+    <select id="obtenerMaxNivel">
+ <!--  select max(nivel) nivel
+  from rf_tr_cuentas_contables
+  where id_catalogo_cuenta=:idCatalogoCuenta
+   and extract(year from fecha_vig_ini)=:ejercicio-->
+
+  select decode(max(length(cuenta_contable)),4,1, 5,2, 9,3, 13,4, 17,5, 21,6, 25,7,29,8,33,9) nivel
+  from rf_tr_cuentas_contables
+  where id_catalogo_cuenta=:idCatalogoCuenta
+   and extract(year from fecha_vig_ini)=:ejercicio
+    </select>
+<select id="obtenerMaxNivelConf">
+  select max(orden) nivel
+  from RF_TR_DETALLE_CONF_CVE 
+</select>   
+
+    <select id="validarGenero">
+        select id_genero 
+            from rf_tc_genero_clasf_cta 
+        where id_genero = :idGenero 
+    </select>
+    
+    <select id="validarGrupo">
+        select id_genero 
+            from  rf_tc_grupo_clasf_cta 
+        where id_grupo = :idGrupo and id_genero = :idGenero 
+    </select>
+    
+    <select id="validarClase">
+        select id_genero 
+            from  rf_tc_clase_clasif_cta
+        where id_clase = :idClase and id_grupo = :idGrupo and id_genero = :idGenero 
+    </select>
+    
+    <select id = "validarBorradoGenero">
+        select g.id_genero, g.descripcion 
+            from rf_tc_genero_clasf_cta g
+        where g.id_genero = :idGenero 
+    </select>
+    
+    <select id = "validarBorradoGrupo">
+        select g.id_grupo, g.id_genero, g.descripcion 
+            from rf_tc_grupo_clasf_cta g
+        where  g.id_grupo = :idGrupo and
+               g.id_genero= :idGenero
+    </select>
+    
+    <select id = "validarExisteRegistroClase">
+        select id_clase, id_grupo, id_genero, descripcion 
+            from rf_tc_clase_clasif_cta 
+        where id_clase =:idClase  and 
+              id_grupo =:idGrupo  and 
+              id_genero=:idGenero 
+    </select >    
+    
+    <select id = "validarExisteRegistroGrupo">
+        select g.id_grupo, g.id_genero, g.descripcion 
+            from rf_tc_grupo_clasf_cta gen, rf_tc_clase_clasif_cta g
+        where gen.id_genero = g.id_genero and
+              gen.id_grupo  = g.id_grupo  and
+              gen.id_grupo  = :idGrupo    and
+              gen.id_genero = :idGenero  
+    </select > 
+    
+    <select id = "validarExisteRegistroGenero">
+        select gru.id_grupo, gru.id_genero, gru.descripcion 
+            from rf_tc_genero_clasf_cta gen, rf_tc_grupo_clasf_cta gru
+        where gen.id_genero = gru.id_genero and
+              gen.id_genero = :idGenero 
+    </select > 
+        
+    <select id = "validarBorradoClase">
+        select cuenta_mayor, descripcion, id_clase, id_grupo, id_genero, id_clase 
+            from rf_tc_clasificador_cuentas 
+        where cuenta_mayor like ':generoGrupoClase%'
+    </select>
+
+    <insert id = "insertarGenero">
+        insert into rf_tc_genero_clasf_cta (ID_GENERO,DESCRIPCION)
+            values ( :idGenero, ':descripcion')
+    </insert>
+    
+    <insert id = "insertarGrupo">
+        insert into rf_tc_grupo_clasf_cta (ID_GRUPO,ID_GENERO,DESCRIPCION)
+            values ( :idGrupo, :idGenero, ':descripcion')
+    </insert>
+    
+    <insert id = "insertarClase">
+        insert into rf_tc_clase_clasif_cta (ID_CLASE,ID_GENERO,ID_GRUPO,DESCRIPCION)
+            values ( :idClase, :idGenero, :idGrupo, ':descripcion')
+    </insert>
+
+    <delete id="eliminarGenero">
+        delete rf_tc_genero_clasf_cta g
+            where g.id_genero =:idGenero 
+    </delete>
+
+    <delete id="eliminarGrupo">
+        delete rf_tc_grupo_clasf_cta g
+            where g.id_genero =:idGenero and g.id_grupo=:idGrupo 
+    </delete>
+           
+    <delete id="eliminarClase">
+        delete rf_tc_clase_clasif_cta c
+            where c.id_clase =:idClase and c.id_genero =:idGenero and c.id_grupo=:idGrupo 
+    </delete>
+
+    <update id="actualizarRegistroGenero">
+        update rf_tc_genero_clasf_cta 
+          set descripcion=':descripcion'
+        where id_genero=:idGenero    
+    </update>
+
+    <update id="actualizarRegistroGrupo">
+        update rf_tc_grupo_clasf_cta 
+          set descripcion=':descripcion'
+        where id_genero=:idGenero and id_grupo =:idGrupo     
+    </update> 
+               
+    <update id="actualizarRegistroClase">
+        update rf_tc_clase_clasif_cta 
+          set descripcion= ':descripcion'
+        where id_clase= :idClase and 
+             id_genero= :idGenero and 
+             id_grupo = :idGrupo
+    </update>
+
+  </submodulo>
+  
+ 
+  <submodulo id="firmasAutorizadas">
+    <select id="RfTrDocumentosContables-Resultado">
+select DOCUMENTO_CONTABLE_ID,UNIDAD_EJECUTORA,AMBITO,
+       PAIS,ENTIDAD,MES,NUM_EMPLEADO,REGISTRO,
+       ESTATUS_CIERRE_ID,r.descripcion DOCUMENTO,EJERCICIO 
+from rf_tr_documentos_contables dc
+inner join rf_tc_reportes r on r.id_documento = dc.documento 
+where ejercicio=:ejercicio
+:mes
+:unidad
+:entidad
+:ambito
+:pais
+:documentoContableId
+order by ejercicio, mes, documento_contable_id
+    </select>
+    <select id="RfTrDocumentosFirmas-PorDocumento">
+    select 
+        documento_firma_id,documento_contable_id, firma, e.num_empleado,e.Curp, fa.prefijo, 
+        decode(fa.nombres,null,e.nombres,fa.nombres) nombres,
+        decode(fa.apellido_pat,null,e.apellido_pat,fa.apellido_pat) apellido_pat,
+        decode(fa.apellido_mat,null,e.apellido_mat,fa.apellido_mat) apellido_mat,
+        decode(fa.puesto_firma,null,p.desc_puesto,fa.puesto_firma) puesto
+    from  rh_tc_est_funcional r, rh_tr_plazas z, rh_tr_empleados e, 
+        RF_TC_FIRMAS_AUTORIZADAS fa, rf_tr_documentos_firmas df,
+        rh_tr_puestos p
+    where  fa.num_empleado(+) = e.num_empleado and r.clave_adsc_Func=z.clave_adsc_Func 
+      and z.plaza(+)=e.plaza and df.num_empleado = e.num_empleado 
+      and p.id_puesto=e.id_puesto
+      :documentoContableId
+      :ejercicio
+      :mes
+    order by documento_contable_id, e.apellido_pat, e.apellido_mat, e.nombres
+    </select>
+    <select id="RhTrEmpleados-EmpleadosActivos">
+select 
+    e.num_empleado,e.Curp,
+    e.nombres nombres,
+    e.apellido_pat apellido_pat,
+    e.apellido_mat apellido_mat,
+    p.desc_puesto puesto
+from  rh_tc_est_funcional r,  rh_tr_plazas z,  rh_tr_empleados e,
+    rh_tr_puestos p
+where r.clave_adsc_Func=z.clave_adsc_Func 
+    and z.plaza(+)=e.plaza and p.id_puesto=e.id_puesto
+    :condicion
+    order by e.apellido_pat, e.apellido_mat, e.nombres
+    </select>
+    <select id="RfTcFirmasAutorizadas">
+select 
+    e.num_empleado,e.Curp, fa.prefijo, 
+    decode(fa.nombres,null,e.nombres,fa.nombres) nombres,
+    decode(fa.apellido_pat,null,e.apellido_pat,fa.apellido_pat) apellido_pat,
+    decode(fa.apellido_mat,null,e.apellido_mat,fa.apellido_mat) apellido_mat,
+    <!--decode(fa.puesto_firma,null,r.descripcion,fa.puesto_firma) puesto-->
+    decode(fa.puesto_firma,null,p.desc_puesto,fa.puesto_firma) puesto,
+    r.descripcion area_func
+from  rh_tc_est_funcional r, rh_tr_plazas z, rh_tr_empleados e, RF_TC_FIRMAS_AUTORIZADAS fa,
+    rh_tr_puestos p
+where  fa.num_empleado(+) = e.num_empleado and r.clave_adsc_Func=z.clave_adsc_Func
+    and z.plaza(+)=e.plaza and p.id_puesto=e.id_puesto
+    :numEmpleado
+    :mes       
+    </select>
+  </submodulo>
+  
+  <submodulo id="filtros">
+    <select id="unidadesEjecutoras">
+        select * from (
+     select 1 indice, ambito, unidad_ejecutora as unidadEjecutora, primeramay(descripcion) descripcionUnidadEjec 
+  from Rh_TC_UNI_EJECUTORAS 
+  :condicionUnidad) a where unidadEjecutora = '001'
+  order by 3
+    </select>
+    <select id="ambitos">
+      select distinct 1 tipo, p.unidad_ejecutora as unidadEjecutora, p.ambito, a.descripcion as descripcionAmbito 
+   from  ( 
+     select u.unidad_ejecutora, u.ambito 
+     from rh_tc_reg_entidad ue 
+     inner join rh_tc_entidades e on e.entidad=ue.entidad 
+     inner join Rh_TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora   
+   ) p 
+   inner join rh_tc_ambitos a on a.ambito=p.ambito 
+  :condicionAmbito
+   order by 2
+    </select>
+    <select id="entidades">
+      select unidad_ejecutora unidadEjecutora, desunidad, entidad, descripcion descripcionEntidad, ambito, desc_ambito,sede, tipo 
+from ( 
+      select 
+       u.unidad_ejecutora, primeramay(u.descripcion) desunidad, e.entidad entidad, e.descripcion, u.ambito, decode(u.ambito,3,'Estatal','Central') desc_ambito,ue.sede, 1 tipo
+       from 
+       rh_tc_reg_entidad ue
+       inner join rh_tc_entidades e on e.entidad=ue.entidad
+       inner join Rh_TC_UNI_EJECUTORAS u on u.unidad_ejecutora=ue.unidad_ejecutora  
+       )
+        :condicionEntidad 
+     order by unidadEjecutora,ambito,entidad
+
+    </select>
+    <select id="ejercicios">
+     select ejercicio,abierto 
+     from RF_TC_EJERCICIOS  
+     where abierto=0 
+     order by ejercicio desc
+    </select>
+    <select id="programas">
+    select rownum llave, a.clave programa,upper(a.descripcion) as descripcion, 1 as id_catalogo_cuenta,a.ejercicio as periodo
+    from rf_tc_programas a                  
+    where a.estatus=1
+    order by a.ejercicio,a.clave
+    </select>
+    <select id="programasTodos">
+      select rownum llave, decode(descripcion,'0','0',programa) programa,decode(descripcion,'0',' - Todos',upper(descripcion)) as descripcion, id_catalogo_cuenta, periodo
+      from
+         ( select  a.clave programa,upper(a.descripcion) as descripcion, 1 as id_catalogo_cuenta,a.ejercicio as periodo
+           from rf_tc_programas a                  
+          where a.estatus=1
+         union
+         select distinct min(t.clave) programa, '0' as descripcion, 1 as id_catalogo_cuenta,t.ejercicio periodo
+         from rf_tc_programas t 
+         where t.estatus=1 
+         group by t.ejercicio
+         ) b  
+      order by id_catalogo_cuenta,periodo,programa
+    </select>
+  </submodulo>
+  
+  <!-- Submodulo Seguridad: Grupos, Perfiles y Usuarios -->
+  
+  <submodulo id="Seguridad">
+    <select id="Grupos-Resultado">
+        SELECT 
+           g.cve_grupo AS cve_grupo,
+           UPPER(g.descripcion) AS descripcion,
+           COUNT(p.cve_grupo) AS Perfiles
+          FROM sg_tc_grupo g,
+               sg_tc_perfil p
+          WHERE g.cve_grupo = p.cve_grupo(+)
+          GROUP BY g.cve_grupo, g.descripcion
+          ORDER BY descripcion
+    </select>
+    
+    <select id="Perfiles-Resultado">
+        SELECT     p.cve_perfil         as clave, 
+                   p.descripcion        as descripcion,
+                   count(up.cve_perfil) as usuarios
+        FROM    sg_tc_perfil p,
+                sg_tr_usuarios_perfil up
+        WHERE   p.cve_perfil = up.cve_perfil(+) and
+                p.cve_grupo  = :idGrupo        
+        GROUP BY p.cve_perfil, p.descripcion
+        ORDER BY p.cve_perfil, p.descripcion                
+    </select>    
+
+    <select id="Registro-Perfiles">
+        SELECT cve_perfil as clave, descripcion   
+            FROM sg_tc_perfil
+        where cve_perfil = :cvePerfil 
+    </select>
+
+    <select id="validarExistenciaUsuariosPerfil">   
+      SELECT p.cve_perfil, pu.cve_perfil
+      FROM sg_tc_perfil p  
+          INNER JOIN sg_tr_usuarios_perfil pu  ON p.cve_perfil = pu.cve_perfil
+      WHERE p.cve_perfil = :idPerfil      
+    </select>
+    
+    <select id="validarExistenciaModulosPerfil">   
+      SELECT p.cve_perfil,  mp.cve_perfil
+      FROM sg_tc_perfil p  
+          INNER JOIN sg_tr_modulos_perfil  mp  ON p.cve_perfil = mp.cve_perfil
+      WHERE p.cve_perfil = :idPerfil      
+    </select>
+    
+    <select id="validarPerfil">        
+        SELECT p.cve_perfil, p.descripcion, p.cve_grupo
+          FROM sg_tc_perfil p
+        WHERE p.descripcion LIKE ':descripcion'  and
+              p.cve_grupo = :idGrupo
+    </select>
+       
+    <update id="actualizarRegistroPerfil">
+        update sg_tc_perfil 
+          set descripcion=':descripcion'
+        where cve_perfil = :idPerfil    
+    </update>
+    
+    <delete id="eliminarPerfil">
+        delete sg_tc_perfil p
+            where p.cve_perfil =:idPerfil 
+    </delete>          
+  
+    <insert id = "insertarPerfil">
+        insert into sg_tc_perfil (CVE_PERFIL,DESCRIPCION,CVE_GRUPO)
+            values ( :idPerfil, ':descripcion', :idGrupo)
+    </insert>
+    
+     <select id="Usuarios-Resultado">
+        SELECT e.num_empleado as num_empleado,
+               u.login as usuario,
+               e.curp as curp,
+               e.nombres || ' ' ||  e.apellido_pat || ' ' || e.apellido_mat as nombre
+            FROM sg_tr_usuarios_perfil p,
+                 sg_tr_usuarios u,
+                 rh_tr_empleados e
+            WHERE p.num_empleado = u.num_empleado
+                  AND u.num_empleado = e.num_empleado
+                  AND p.cve_perfil = :idPerfil
+            ORDER BY nombre
+    </select>
+
+        
+  </submodulo>
+  <submodulo id="catalogosAdmin">
+      
+    <select id="validarUnidad">
+        select unidad_ejecutora 
+            from rh_tc_uni_ejecutoras 
+        where unidad_ejecutora = ':unidad_ejecutora' 
+    </select>
+    
+    <insert id = "insertarUnidad">
+        insert into rh_tc_uni_ejecutoras (UNIDAD_EJECUTORA,DESCRIPCION,AMBITO)
+            values ( ':unidad_ejecutora', ':descripcion', :ambito)
+     </insert>
+     
+     <update id="actualizarUnidad">
+        update rh_tc_uni_ejecutoras 
+          set descripcion=':descripcion', ambito=:ambito
+        where unidad_ejecutora = ':unidad_ejecutora'    
+              
+    </update>
+    
+     <delete id="eliminarUnidad">
+        delete rh_tc_uni_ejecutoras
+            where unidad_ejecutora =':unidad_ejecutora' 
+    </delete>          
+     
+     
+     <select id="validarPuesto">
+        select id_puesto 
+            from rh_tr_puestos 
+        where id_puesto = :id_puesto
+    </select>
+    
+    <select id="validarBorradoPuesto">
+        select id_puesto 
+            from rh_tr_empleados 
+        where id_puesto = :id_puesto
+                     
+    </select>
+   
+    <insert id = "insertarPuesto">
+        insert into rh_tr_puestos (ID_PUESTO,DESC_PUESTO)
+            values ( :id_puesto, ':desc_puesto')
+     </insert>
+     
+     <update id="actualizarPuesto">
+        update rh_tr_puestos 
+          set desc_puesto =':desc_puesto'
+        where id_puesto = :id_puesto    
+     </update>
+     
+     <delete id="eliminarPuesto">
+        delete rh_tr_puestos
+            where id_puesto = :id_puesto
+    </delete>          
+     
+    
+  </submodulo>  
+     
+ </dml>

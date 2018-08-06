@@ -1,0 +1,900 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="EAC"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="542"
+		 columnSpacing="0"
+		 leftMargin="51"
+		 rightMargin="2"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 scriptletClass="sia.rf.contabilidad.reportes.estadosFinancieros.ScriptletComun"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="2" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<parameter name="s_titulo" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["DIRECCIÓN  GENERAL DE ADMINISTRACIÓN"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ss_titulo" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["DIRECCIÓN GENERAL ADJUNTA DE PROGRAMACIÓN, ORGANIZACIÓN Y PRESUPUESTO"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="sss_titulo" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["DIRECCIÓN DE CONTABILIDAD INSTITUCIONAL"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="cuenta_titulo" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["ESTADO DE ACTIVIDADES" + $P{ejercicio_mes}]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_titulo" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="revisa" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="elabora" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="vobo" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="saldo" isForPrompting="false" class="java.lang.Double"/>
+	<parameter name="text_query" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["select  " +
+"  n1, descripcion, saldo_actual, saldo_anterior, (saldo_actual-saldo_anterior) as variacion, " + 
+"  to_char(0, '990.99') as porcentaje " + 
+"from ( " +
+"  select to_char(id_genero) as n1, '<style pdfFontName=\"Helvetica-Bold\" isBold=\"true\">'||descripcion||'</style>' as descripcion, null as saldo_anterior, null as saldo_actual " + 
+"  from rf_contabilidad_ws.rf_tc_genero_clasf_cta where id_genero in (4, 5) " +
+"  union  " + 
+"  select id_genero||id_grupo as n1, '<style pdfFontName=\"Helvetica-Bold\" isBold=\"true\">'||descripcion||'</style>' as descripcion, null as saldo_anterior, null as saldo_actual " +
+"  from rf_contabilidad_ws.rf_tc_grupo_clasf_cta where id_genero||id_grupo in ('42', '43', '51', '52', '55') " + 
+"  union all " +
+  " " + 
+"  select  " +
+"    n1,  " + 
+"    decode(length(n1),  " +
+"    4, (select initcap(descripcion) from rf_contabilidad_ws.rf_tr_cuentas_contables where id_catalogo_cuenta = 1 and to_char(fecha_vig_ini,'yyyy') = 2011 and substr(cuenta_contable, 1, 4) = n1 and nivel= 1),  " + 
+"    3, (select initcap(descripcion) as descripcion from rf_contabilidad_ws.rf_tc_clase_clasif_cta where id_genero||id_grupo||id_clase = n1)  " +
+"    ) as descripcion, " + 
+"    saldo_anterior, " +
+"    saldo_actual " + 
+"  from  " +
+"  ( " + 
+"  select " +
+"    decode(substr(cc.cuenta_contable, 1, 1), '5', substr(cc.cuenta_contable, 1, 3), substr(cc.cuenta_contable, 1, 4)) n1, " + 
+"    case max(cl.naturaleza) when 'D' then ( sum(sep_cargo_acum) - sum(sep_abono_acum)) else ( sum(sep_abono_acum) - sum(sep_cargo_acum)) end as saldo_anterior,  " +
+"    case max(cl.naturaleza) when 'D' then (( sum(sep_cargo_acum) + sum(oct_cargo) ) - ( sum(sep_abono_acum) + sum(oct_abono) )) else (( sum(sep_abono_acum) + sum(oct_abono) ) - ( sum(sep_cargo_acum) + sum(oct_cargo) )) end as saldo_actual " + 
+"  from  " +
+"    rf_contabilidad_ws.rf_tr_cuentas_contables cc, " + 
+"    rf_contabilidad_ws.rf_tc_clasificador_cuentas cl " +
+"  where  " + 
+"    cc.cuenta_mayor_id = cl.cuenta_mayor_id  " +
+"    and cc.id_catalogo_cuenta = 1  " + 
+"    and to_char(cc.fecha_vig_ini,'yyyy') = 2011 " +
+    " " + 
+"    and ( " +
+"      cc.cuenta_contable like '422100000000000000000%' or " + 
+"      cc.cuenta_contable like '439900000000000000000%' or " +
+      " " + 
+"      cc.cuenta_contable like '511100000000000000000%' or " +
+"      cc.cuenta_contable like '511200000000000000000%' or " + 
+"      cc.cuenta_contable like '511300000000000000000%' or " +
+"      cc.cuenta_contable like '511400000000000000000%' or " + 
+"      cc.cuenta_contable like '511500000000000000000%' or " +
+"      cc.cuenta_contable like '512_00000000000000000%' or " + 
+"      cc.cuenta_contable like '513_00000000000000000%' or " +
+      " " + 
+"      cc.cuenta_contable like '524_00000000000000000%' or " +
+"      cc.cuenta_contable like '528_00000000000000000%' or " + 
+"      cc.cuenta_contable like '529_00000000000000000%' or " +
+      " " + 
+"      cc.cuenta_contable like '553500000000000000000%' or " +
+"      cc.cuenta_contable like '559900000000000000000%' " + 
+"    ) " +
+"  group by  " + 
+"    decode(substr(cc.cuenta_contable, 1, 1), '5', substr(cc.cuenta_contable, 1, 3), substr(cc.cuenta_contable, 1, 4)) " +
+"  ) " + 
+  " " +
+"  union all " + 
+  " " +
+"  select " + 
+"    '4999' as n1, " +
+"    '<style pdfFontName=\"Helvetica-Bold\" isBold=\"true\">Total Ingresos</style>' as descripcion, " + 
+"    case max(cl.naturaleza) when 'D' then ( sum(sep_cargo_acum) - sum(sep_abono_acum)) else ( sum(sep_abono_acum) - sum(sep_cargo_acum)) end as saldo_anterior, " +
+"    case max(cl.naturaleza) when 'D' then (( sum(sep_cargo_acum) + sum(oct_cargo) ) - (sum(sep_abono_acum) + sum(oct_abono) )) else (( sum(sep_abono_acum) + sum(oct_abono) ) - ( sum(sep_cargo_acum) + sum(oct_cargo) )) end as saldo_actual " + 
+"  from  " +
+"    rf_contabilidad_ws.rf_tr_cuentas_contables cc, " + 
+"    rf_contabilidad_ws.rf_tc_clasificador_cuentas cl " +
+"  where  " + 
+"    cc.cuenta_mayor_id = cl.cuenta_mayor_id  " +
+"    and cc.id_catalogo_cuenta = 1  " + 
+"    and to_char(cc.fecha_vig_ini,'yyyy') = 2011 " +
+    " " + 
+"    and ( " +
+"      cc.cuenta_contable like '422100000000000000000%' or " + 
+"      cc.cuenta_contable like '439900000000000000000%' " +
+"    ) " + 
+   " " +
+"  union all  " + 
+  " " +
+"  select " + 
+"    '5999' as n1, " +
+"    '<style pdfFontName=\"Helvetica-Bold\" isBold=\"true\">Total de Gastos y Otras Pérdidas</style>' as descripcion, " + 
+"    case max(cl.naturaleza) when 'D' then ( sum(sep_cargo_acum) - sum(sep_abono_acum)) else ( sum(sep_abono_acum) - sum(sep_cargo_acum)) end as saldo_anterior, " +
+"    case max(cl.naturaleza) when 'D' then (( sum(sep_cargo_acum) + sum(oct_cargo) ) - (sum(sep_abono_acum) + sum(oct_abono) )) else (( sum(sep_abono_acum) + sum(oct_abono) ) - ( sum(sep_cargo_acum) + sum(oct_cargo) )) end as saldo_actual " + 
+"  from  " +
+"    rf_contabilidad_ws.rf_tr_cuentas_contables cc, " + 
+"    rf_contabilidad_ws.rf_tc_clasificador_cuentas cl " +
+"  where  " + 
+"    cc.cuenta_mayor_id = cl.cuenta_mayor_id  " +
+"    and cc.id_catalogo_cuenta = 1  " + 
+"    and to_char(cc.fecha_vig_ini,'yyyy') = 2011 " +
+    " " + 
+"    and ( " +
+"      cc.cuenta_contable like '511100000000000000000%' or " + 
+"      cc.cuenta_contable like '511200000000000000000%' or " +
+"      cc.cuenta_contable like '511300000000000000000%' or " + 
+"      cc.cuenta_contable like '511400000000000000000%' or " +
+"      cc.cuenta_contable like '511500000000000000000%' or " + 
+"      cc.cuenta_contable like '512_00000000000000000%' or " +
+"      cc.cuenta_contable like '513_00000000000000000%' or " + 
+      " " +
+"      cc.cuenta_contable like '524_00000000000000000%' or " + 
+"      cc.cuenta_contable like '528_00000000000000000%' or " +
+"      cc.cuenta_contable like '529_00000000000000000%' or " + 
+      " " +
+"      cc.cuenta_contable like '553500000000000000000%' or " + 
+"      cc.cuenta_contable like '559900000000000000000%' " +
+"    ) " + 
+  " " +
+"  union all " + 
+  " " +
+"  select  " + 
+"    '9999' as n1, " +
+"    '<style pdfFontName=\"Helvetica-Bold\" isBold=\"true\">Ahorro / Desahorro Neto del Ejercicio</style>' as descripcion, " + 
+"    sum(saldo_anterior) as saldo_anterior, " +
+"    sum(saldo_actual) as saldo_actual " + 
+"  from ( " +
+"  select " + 
+"    case cl.naturaleza " +
+"      when 'D' then decode(substr(cc.cuenta_contable, 1, 1), '4', ( sep_cargo_acum - sep_abono_acum), ( sep_cargo_acum - sep_abono_acum)* -1 )   " + 
+"      else decode(substr(cc.cuenta_contable, 1, 1), '4', ( sep_abono_acum - sep_cargo_acum), ( sep_abono_acum - sep_cargo_acum)* -1) " +
+"    end as saldo_anterior, " + 
+  " " +
+"    case cl.naturaleza " + 
+"      when 'D' then decode(substr(cc.cuenta_contable, 1, 1), '4', (( sep_cargo_acum + oct_cargo ) - ( sep_abono_acum + oct_abono )), (( sep_cargo_acum + oct_cargo ) - (sep_abono_acum + oct_abono ))*- 1) " +
+"      else decode(substr(cc.cuenta_contable, 1, 1), '4', (( sep_abono_acum + oct_abono ) - ( sep_cargo_acum + oct_cargo )), (( sep_abono_acum + oct_abono ) - ( sep_cargo_acum + oct_cargo ))* -1) " + 
+"    end as saldo_actual " +
+"  from  " + 
+"    rf_contabilidad_ws.rf_tr_cuentas_contables cc, " +
+"    rf_contabilidad_ws.rf_tc_clasificador_cuentas cl " + 
+"  where  " +
+"    cc.cuenta_mayor_id = cl.cuenta_mayor_id  " + 
+"    and cc.id_catalogo_cuenta = 1  " +
+"    and to_char(cc.fecha_vig_ini,'yyyy') = 2011 " + 
+    " " +
+"    and ( " + 
+"      cc.cuenta_contable like '422100000000000000000%' or " +
+"      cc.cuenta_contable like '439900000000000000000%' or " + 
+  " " +
+"      cc.cuenta_contable like '511100000000000000000%' or " + 
+"      cc.cuenta_contable like '511200000000000000000%' or " +
+"      cc.cuenta_contable like '511300000000000000000%' or " + 
+"      cc.cuenta_contable like '511400000000000000000%' or " +
+"      cc.cuenta_contable like '511500000000000000000%' or " + 
+"      cc.cuenta_contable like '512_00000000000000000%' or " +
+"      cc.cuenta_contable like '513_00000000000000000%' or " + 
+      " " +
+"      cc.cuenta_contable like '524_00000000000000000%' or " + 
+"      cc.cuenta_contable like '528_00000000000000000%' or " +
+"      cc.cuenta_contable like '529_00000000000000000%' or " + 
+      " " +
+"      cc.cuenta_contable like '553500000000000000000%' or " + 
+"      cc.cuenta_contable like '559900000000000000000%' " +
+"    ) " + 
+"  ) " +
+" " + 
+") " +
+"order by 1,2 "]]></defaultValueExpression>
+	</parameter>
+	<parameter name="IMG_DIR" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["C:/Sistema_PA/ContaProcu/web/Librerias/Imagenes"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="num_paginas" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(0)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha_elabora" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ejercicio_mes" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ejercicio_mes_vs" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="revisa_puesto" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="elabora_puesto" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="vobo_puesto" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="programa_titulo" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ausencia_elabora" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ausencia_revisa" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ausencia_autoriza" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="hora_elabora" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA["00:00 --"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SIA_QUERY_REPORT" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="SIA_OUT_REPORT" isForPrompting="false" class="java.io.Writer"/>
+	<parameter name="SIA_FORM_REPORT" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="SIA_RECORD_COUNT" isForPrompting="false" class="java.lang.Integer"/>
+	<parameter name="TITULO1" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="TITULO2" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="TITULO3" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="DESC_PROGRAMA" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="FECHA_ACTUAL" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="MES" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="DOCUMENTO" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="TIPO_CIERRE" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="TEXTO_PRELIMINAR" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ACTIVA_ETIQUETA" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="FECHA_CONSOLIDACION" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="MES_ANT" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="AUTORIZO" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="REVISO" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ELABORO" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="UNIDAD_EJECUTORA" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="ENTIDAD" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="AMBITO" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="EJERCICIO" isForPrompting="false" class="java.lang.Integer"/>
+	<parameter name="FECHA_MES_EJERCICIO_COMPARA" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="PROGRAMA" isForPrompting="false" class="java.lang.String"/>
+	<queryString><![CDATA[$P!{SIA_QUERY_REPORT}]]></queryString>
+
+	<field name="N1" class="java.lang.String"/>
+	<field name="DESCRIPCION" class="java.lang.String"/>
+	<field name="SALDO_ANTERIOR" class="java.math.BigDecimal"/>
+	<field name="SALDO_ACTUAL" class="java.math.BigDecimal"/>
+	<field name="VARIACION" class="java.math.BigDecimal"/>
+	<field name="PORCENTAJE" class="java.math.BigDecimal"/>
+
+	<variable name="FECHA_MAY_CONSOLIDACION" class="java.lang.String" resetType="Report" calculation="Nothing">
+		<variableExpression><![CDATA[($P{FECHA_CONSOLIDACION}.toString()).toUpperCase()]]></variableExpression>
+	</variable>
+	<variable name="ELABORO_EMPLEADO" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ELABORO_AREA" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="REVISO_EMPLEADO" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="REVISO_AREA" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="AUTORIZO_EMPLEADO" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="AUTORIZO_AREA" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="FIRMA_FECHA" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="PRELIMINAR" class="java.lang.String" resetType="None" calculation="Nothing">
+		<variableExpression><![CDATA[$P{ACTIVA_ETIQUETA}.equals("true")?"Preliminar":""]]></variableExpression>
+	</variable>
+	<variable name="MES" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MES_ANT" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="PERIODO" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="FECHA_CONSOLIDACION_ANT" class="java.lang.String" resetType="Report" calculation="Nothing">
+	</variable>
+		<background>
+			<band height="800"  isSplitAllowed="true" >
+				<line direction="TopDown">
+					<reportElement
+						x="541"
+						y="0"
+						width="0"
+						height="669"
+						key="line-11"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="0"
+						width="0"
+						height="669"
+						key="line-12"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="0"
+						width="541"
+						height="0"
+						key="line-16"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="80"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="24"
+						y="26"
+						width="486"
+						height="11"
+						key="textField-30"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Oblique" size="8" isBold="false" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{TITULO3}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="24"
+						y="15"
+						width="486"
+						height="11"
+						key="textField-29"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Oblique" size="8" isBold="false" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{TITULO2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="1"
+						y="1"
+						width="540"
+						height="13"
+						key="textField-13"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Oblique" size="10" isBold="false" isItalic="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{TITULO1}]]></textFieldExpression>
+				</textField>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="10"
+						y="17"
+						width="85"
+						height="48"
+						key="image-1"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA[$P{IMG_DIR}+ "/logoPA.png"]]></imageExpression>
+				</image>
+				<textField isStretchWithOverflow="false" pattern="h:mm a" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="487"
+						y="66"
+						width="51"
+						height="11"
+						key="textField-26"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="79"
+						width="541"
+						height="0"
+						key="line-17"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="true" pattern="dd MMMMM yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="64"
+						y="42"
+						width="477"
+						height="10"
+						key="textField-31"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true" isPdfEmbedded ="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["ESTADO DE ACTIVIDADES "+ $P{PROGRAMA}+ " " + $P{DESC_PROGRAMA} + " " + $V{FECHA_MAY_CONSOLIDACION}]]></textFieldExpression>
+				</textField>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="27"  isSplitAllowed="true" >
+				<staticText>
+					<reportElement
+						x="2"
+						y="3"
+						width="283"
+						height="19"
+						forecolor="#000000"
+						key="element-90"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="7" isBold="true"/>
+					</textElement>
+				<text><![CDATA[                   CONCEPTO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="429"
+						y="0"
+						width="64"
+						height="23"
+						forecolor="#000000"
+						key="element-90"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="7" isBold="true"/>
+					</textElement>
+				<text><![CDATA[VARIACIÓN]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="491"
+						y="0"
+						width="50"
+						height="23"
+						forecolor="#000000"
+						key="element-91"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="7" isBold="true"/>
+					</textElement>
+				<text><![CDATA[   %]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" pattern="dd MMMMM yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="368"
+						y="-1"
+						width="59"
+						height="17"
+						forecolor="#000000"
+						key="element-92"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="7" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{FECHA_CONSOLIDACION_ANT}.substring(0,$V{FECHA_CONSOLIDACION_ANT}.length()-8).concat("\n").concat($V{FECHA_CONSOLIDACION_ANT}.substring($V{FECHA_CONSOLIDACION_ANT}.length()-8))]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="1"
+						y="26"
+						width="541"
+						height="0"
+						key="line-18"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="true" pattern="dd MMMMM yyyy" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="301"
+						y="-1"
+						width="56"
+						height="17"
+						forecolor="#000000"
+						key="element-93"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="7" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{FECHA_MAY_CONSOLIDACION}]]></textFieldExpression>
+				</textField>
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="18"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="39"
+						y="5"
+						width="251"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement isStyledText="true">
+						<font fontName="SansSerif" pdfFontName="Helvetica" size="7" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{DESCRIPCION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="424"
+						y="5"
+						width="65"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" isStyledText="true">
+						<font fontName="SansSerif" size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{VARIACION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="490"
+						y="5"
+						width="35"
+						height="9"
+						key="textField"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" isStyledText="true">
+						<font fontName="SansSerif" size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{N1}.indexOf("9999")>= 0? null: $F{PORCENTAJE}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="294"
+						y="5"
+						width="65"
+						height="9"
+						key="textField-21"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" isStyledText="true">
+						<font fontName="SansSerif" size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{SALDO_ACTUAL}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="358"
+						y="5"
+						width="65"
+						height="9"
+						key="textField-22"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right" isStyledText="true">
+						<font fontName="SansSerif" size="7"/>
+					</textElement>
+				<textFieldExpression   class="java.math.BigDecimal"><![CDATA[$F{SALDO_ANTERIOR}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="312"
+						y="2"
+						width="229"
+						height="0"
+						key="line-13">
+							<printWhenExpression><![CDATA[new Boolean($F{N1}.equals("9999"))]]></printWhenExpression>
+						</reportElement>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="312"
+						y="14"
+						width="229"
+						height="0"
+						key="line-14">
+							<printWhenExpression><![CDATA[new Boolean($F{N1}.equals("9999"))]]></printWhenExpression>
+						</reportElement>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="312"
+						y="16"
+						width="229"
+						height="0"
+						key="line-15">
+							<printWhenExpression><![CDATA[new Boolean($F{N1}.equals("9999"))]]></printWhenExpression>
+						</reportElement>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2"
+						y="5"
+						width="38"
+						height="9"
+						key="textField-42">
+							<printWhenExpression><![CDATA[new Boolean(!$F{N1}.equals("9999") && !$F{N1}.equals("5999") && !$F{N1}.equals("4999"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" leftPadding="2" rightBorder="None" rightBorderColor="#000000" rightPadding="2" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement isStyledText="true">
+						<font fontName="SansSerif" pdfFontName="Helvetica" size="7" isBold="false"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{N1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="135"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="true" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2"
+						y="24"
+						width="540"
+						height="11"
+						key="textField-32"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="7" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$P{fecha_elabora}]]></textFieldExpression>
+				</textField>
+				<rectangle>
+					<reportElement
+						mode="Opaque"
+						x="1"
+						y="1"
+						width="541"
+						height="110"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="rectangle-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</rectangle>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="121"
+						y="126"
+						width="170"
+						height="9"
+						key="textField-33"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="6"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["Página " + $V{PAGE_NUMBER} + " de "]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="" isBlankWhenNull="false" evaluationTime="Report" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="292"
+						y="126"
+						width="33"
+						height="9"
+						forecolor="#000000"
+						backcolor="#FFFFFF"
+						key="textField-34"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single">
+						<font fontName="Arial" pdfFontName="Helvetica" size="6" isBold="false" isItalic="false" isUnderline="false" isPdfEmbedded ="false" pdfEncoding ="CP1252" isStrikeThrough="false" />
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["" + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="8"
+						y="46"
+						width="169"
+						height="13"
+						key="staticText-4"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ELABORÓ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="190"
+						y="46"
+						width="167"
+						height="13"
+						key="staticText-5"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[REVISÓ]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="186"
+						y="96"
+						width="176"
+						height="11"
+						key="textField-35">
+							<printWhenExpression><![CDATA[new Boolean(!$V{REVISO_AREA}.equals("null"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{REVISO_AREA}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="365"
+						y="96"
+						width="176"
+						height="11"
+						key="textField-36">
+							<printWhenExpression><![CDATA[new Boolean(!$V{AUTORIZO_AREA}.equals("null"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{AUTORIZO_AREA}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2"
+						y="96"
+						width="176"
+						height="11"
+						key="textField-37">
+							<printWhenExpression><![CDATA[new Boolean(!$V{ELABORO_AREA}.equals("null"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Top">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{ELABORO_AREA}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="8"
+						y="94"
+						width="168"
+						height="0"
+						key="line-19"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="368"
+						y="94"
+						width="168"
+						height="0"
+						key="line-20"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="190"
+						y="94"
+						width="168"
+						height="0"
+						key="line-21"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="5"
+						y="80"
+						width="176"
+						height="11"
+						key="textField-38">
+							<printWhenExpression><![CDATA[new Boolean(!$V{ELABORO_EMPLEADO}.equals("null"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{ELABORO_EMPLEADO}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="186"
+						y="80"
+						width="176"
+						height="11"
+						key="textField-39">
+							<printWhenExpression><![CDATA[new Boolean(!$V{REVISO_EMPLEADO}.equals("null"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{REVISO_EMPLEADO}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="365"
+						y="80"
+						width="176"
+						height="11"
+						key="textField-40">
+							<printWhenExpression><![CDATA[new Boolean(!$V{AUTORIZO_EMPLEADO}.equals("null"))]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{AUTORIZO_EMPLEADO}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="2"
+						y="28"
+						width="540"
+						height="11"
+						key="textField-41"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$V{FIRMA_FECHA}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="1"
+						y="3"
+						width="539"
+						height="9"
+						key="staticText-6"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" size="7"/>
+					</textElement>
+				<text><![CDATA[“Bajo protesta de decir verdad declaramos que los Estados Financieros y sus notas, son razonablemente correctos y son responsabilidad del emisor”]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="5"
+						y="115"
+						width="176"
+						height="9"
+						key="staticText-7">
+							<printWhenExpression><![CDATA[new Boolean($P{ausencia_elabora}!= null)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" size="7"/>
+					</textElement>
+				<text><![CDATA[En ausencia del titular]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="186"
+						y="115"
+						width="176"
+						height="9"
+						key="staticText-8">
+							<printWhenExpression><![CDATA[new Boolean($P{ausencia_revisa}!= null)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" size="7"/>
+					</textElement>
+				<text><![CDATA[En ausencia del titular]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="365"
+						y="115"
+						width="176"
+						height="9"
+						key="staticText-9">
+							<printWhenExpression><![CDATA[$P{vobo}!= null? new Boolean( $P{ausencia_autoriza} != null): new Boolean ($P{ausencia_revisa}!= null)]]></printWhenExpression>
+						</reportElement>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" size="7"/>
+					</textElement>
+				<text><![CDATA[En ausencia del titular]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="366"
+						y="46"
+						width="174"
+						height="13"
+						key="staticText-10"/>
+					<box topBorder="None" topBorderColor="#000000" leftBorder="None" leftBorderColor="#000000" rightBorder="None" rightBorderColor="#000000" bottomBorder="None" bottomBorderColor="#000000"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<text><![CDATA[AUTORIZÓ]]></text>
+				</staticText>
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

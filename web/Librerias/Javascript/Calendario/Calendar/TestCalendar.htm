@@ -1,0 +1,20 @@
+<script language="javascript">
+
+  function window_open(campo)
+  {
+    var newWindow;
+    var urlstring = '/Librerias/Javascript/Calendar/Calendar.htm?campo='+campo;
+    newWindow = window.open(urlstring,'','height=220,width=280,toolbar=no,minimize=no,status=no,memubar=no,location=no,scrollbars=no')
+  }
+
+</script>
+
+<form name="Forma">
+  <input type="text" name="txtFecha" readonly size="10">
+  <a href="javascript: void(0);" onclick="window_open('Forma.txtFecha')">
+  <img src="/Librerias/Javascript/Calendar/calendar.gif" name="imgCalendar" width="34" height="21" border="0" alt=""></a>
+  <input type="text" name='txtDate' readonly size="10" >
+  <a href="javascript: void(0);" onclick="window_open('Forma.txtDate')">
+  <img src="/Librerias/Javascript/Calendar/calendar.gif" name="imgCalendar" width="34" height="21" border="0" alt=""></a>
+
+</form>

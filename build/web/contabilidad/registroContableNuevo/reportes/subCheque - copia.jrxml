@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2016-11-29T13:35:01 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="subCheque" pageWidth="612" pageHeight="792" whenNoDataType="NoPages" columnWidth="612" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="sia.rf.contabilidad.reportes.PolizasCheque" uuid="01020309-4b0c-4770-8b59-c97065546177">
+	<property name="ireport.scriptlethandling" value="2"/>
+	<property name="ireport.encoding" value="UTF-8"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="SIA_QUERY_REPORT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="SIA_OUT_REPORT" class="java.io.Writer" isForPrompting="false"/>
+	<parameter name="SIA_FORM_REPORT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="DEBUG" class="java.lang.Boolean" isForPrompting="false"/>
+	<parameter name="SIA_RECORD_COUNT" class="java.lang.Integer" isForPrompting="false"/>
+	<parameter name="POLIZA_ID" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["51077"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select 
+  tp.abreviatura || lpad(pl.consecutivo, 5, '0') campo1,
+  pl.unidad_ejecutora, 
+  lpad(pl.entidad||pl.ambito,3,0) entamb,
+  pl.ambito, 
+  cc.cuenta_contable,  
+  pl.origen as maestro_operacion, 
+  to_char(pl.fecha,'dd/MM/yyyy') fecha, 
+  pl.fecha_afectacion, 
+  pl.poliza_id,
+  pl.clasificacion_poliza_id,
+  pl.poliza_referencia, 
+  dp.cuenta_contable_id, cc.descripcion, dp.referencia, dp.importe, 
+  oc.operacion_contable_id debe_haber, 
+  pl.concepto, pl.referencia ref_gral,
+  case pl.origen when '99' then he.apellido_pat || ' ' || he.apellido_mat || ' ' || he.nombres else 'GENERADA POR EL SISTEMA' end nombre, 
+  pl.num_empleado,
+  decode(pl.mes,1,'ENERO',2,'FEBERO',3,'MARZO',4,'ABRIL',5,'MAYO',6,'JUNIO',7,'JULIO',8,'AGOSTO',9,'SEPTIEMBRE',10,'OCTUBRE',11,'NOVIEMBRE',12,'DICIEMBRE') nombre_mes,
+  pl.mes
+from rf_tr_detalle_poliza dp,
+  rf_tr_polizas pl, 
+  rf_tr_cuentas_contables cc, 
+  rf_tc_operaciones_contables oc, 
+  rf_tc_tipos_polizas tp, 
+  rf_tc_maestro_operaciones mo, 
+  sia_admin.rh_tr_empleados he 
+where  pl.poliza_id = dp.poliza_id 
+  and dp.cuenta_contable_id = cc.cuenta_contable_id 
+  and oc.operacion_contable_id = dp.operacion_contable_id 
+  and pl.tipo_poliza_id = tp.tipo_poliza_id 
+  and pl.maestro_operacion_id = mo.maestro_operacion_id 
+  and pl.num_empleado = he.num_empleado  
+  and pl.poliza_id = $P!{POLIZA_ID}]]>
+	</queryString>
+	<field name="CAMPO1" class="java.lang.String"/>
+	<field name="UNIDAD_EJECUTORA" class="java.lang.String"/>
+	<field name="ENTAMB" class="java.lang.String"/>
+	<field name="AMBITO" class="java.lang.String"/>
+	<field name="CUENTA_CONTABLE" class="java.lang.String"/>
+	<field name="MAESTRO_OPERACION" class="java.lang.String"/>
+	<field name="FECHA" class="java.lang.String"/>
+	<field name="FECHA_AFECTACION" class="java.sql.Timestamp"/>
+	<field name="POLIZA_ID" class="java.lang.Integer"/>
+	<field name="CLASIFICACION_POLIZA_ID" class="java.lang.Integer"/>
+	<field name="POLIZA_REFERENCIA" class="java.lang.Integer"/>
+	<field name="CUENTA_CONTABLE_ID" class="java.lang.Integer"/>
+	<field name="DESCRIPCION" class="java.lang.String"/>
+	<field name="REFERENCIA" class="java.lang.String"/>
+	<field name="IMPORTE" class="java.lang.Double"/>
+	<field name="DEBE_HABER" class="java.lang.Integer"/>
+	<field name="CONCEPTO" class="java.lang.String"/>
+	<field name="REF_GRAL" class="java.lang.String"/>
+	<field name="NOMBRE" class="java.lang.String"/>
+	<field name="NUM_EMPLEADO" class="java.lang.Integer"/>
+	<field name="NOMBRE_MES" class="java.lang.String"/>
+	<field name="MES" class="java.lang.Integer"/>
+	<variable name="CONSECUTIVO" class="java.lang.Integer">
+		<variableExpression><![CDATA[new Integer ($V{CONSECUTIVO}.intValue()+1)]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer(0)]]></initialValueExpression>
+	</variable>
+	<variable name="DESCRIPCION" class="java.lang.String">
+		<initialValueExpression><![CDATA[new String("pinta por favor")]]></initialValueExpression>
+	</variable>
+	<variable name="DEBE" class="java.lang.Double" resetType="None">
+		<initialValueExpression><![CDATA[new Double(0.00)]]></initialValueExpression>
+	</variable>
+	<variable name="HABER" class="java.lang.Double">
+		<initialValueExpression><![CDATA[new Double(0.00)]]></initialValueExpression>
+	</variable>
+	<variable name="TDEBE" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{DEBE_HABER}.intValue()==0?$F{IMPORTE}:new Double(0.00)]]></variableExpression>
+		<initialValueExpression><![CDATA[new Double(0.00)]]></initialValueExpression>
+	</variable>
+	<variable name="THABER" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{DEBE_HABER}.intValue()==1?$F{IMPORTE}:new Double(0.00)]]></variableExpression>
+		<initialValueExpression><![CDATA[new Double(0.00)]]></initialValueExpression>
+	</variable>
+	<variable name="FECHA_MAY" class="java.lang.String">
+		<initialValueExpression><![CDATA[new String("0")]]></initialValueExpression>
+	</variable>
+	<variable name="CLASIFICACION_POLIZA" class="java.lang.String"/>
+	<variable name="CUENTA" class="java.lang.String"/>
+	<variable name="SUBCUENTA" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Prevent"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement key="textField" x="110" y="0" width="284" height="10" uuid="3282eb4e-3349-4706-b156-ad2fc4fe2e26"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DESCRIPCION}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00;$ (#,##0.00)" isBlankWhenNull="true">
+				<reportElement key="textField" mode="Opaque" x="464" y="0" width="87" height="10" backcolor="#C4C4C4" uuid="0647615a-69a4-430d-901a-308af16b8465">
+					<printWhenExpression><![CDATA[new Boolean($V{HABER}.doubleValue()< 0)]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{HABER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00;$ (#,##0.00)" isBlankWhenNull="true">
+				<reportElement key="textField" mode="Opaque" x="395" y="0" width="87" height="10" backcolor="#C4C4C4" uuid="e6840adb-d8d7-4a2e-a1cf-65cb3e5b353e">
+					<printWhenExpression><![CDATA[new Boolean($V{DEBE}.doubleValue()< 0)]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DEBE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00;$ (#,##0.00)" isBlankWhenNull="true">
+				<reportElement key="textField-33" mode="Transparent" x="395" y="0" width="87" height="10" backcolor="#FBFBFB" uuid="aadb06c8-51b4-4b7d-8573-93b8063e5616">
+					<printWhenExpression><![CDATA[new Boolean($V{DEBE}.doubleValue()> 0)]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{DEBE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$ #,##0.00;$ (#,##0.00)" isBlankWhenNull="true">
+				<reportElement key="textField-37" x="464" y="0" width="87" height="10" uuid="80143996-ca84-4478-a6e9-63bf3bc2b809">
+					<printWhenExpression><![CDATA[new Boolean($V{HABER}.doubleValue()> 0)]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{HABER}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField" x="0" y="0" width="54" height="10" uuid="b83edbbb-7f1d-4d81-9f21-0233ced9cc02"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{CUENTA}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="false">
+				<reportElement key="textField-40" x="58" y="0" width="126" height="10" uuid="0c6853ed-810e-4ce1-877b-8de3926f9a73"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{SUBCUENTA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

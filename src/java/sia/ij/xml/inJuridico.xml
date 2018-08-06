@@ -1,0 +1,445 @@
+<dml>
+  <submodulo id="fichaTecnica">
+    <select id="ficha">
+SELECT     productos.UPC, productos.titulo, productos.edicion, productos.descripcion, productos.temporalidad, cobertura.desc_cobertura, productos.isbn, 
+                      productos.issn, formato.desc_formato, productos.numero,' ('+Rtrim(dbo.Bib_ObtieneMes(cp.productos.mes))+')' As mes, coesme.Cobertura_geográfica, coesme.periodicidad, 
+                      coesme.num_publicados, coesme.primera_edicion, productos.url, productos.conprove, productos.precio, productos.despliega_cuadros, 
+--                      productos.cve_titgen, productos.cve_entidad, productos.disponibilidad, productos.cve_titgen, urlxls, productos.orden_especial, productos.registro, productos.escala, productos.clave_carta 
+                                   productos.cve_titgen, productos.cve_entidad, productos.disponibilidad, productos.cve_titgen, urlxls, productos.orden_especial, productos.registro, productos.escala, productos.clave_carta, productos.proyeccion, productos.coordenadas, productos.datum, entidad.desc_entidad, municipio.desc_municipio
+FROM         CP.productos INNER JOIN
+                      Consola.cobertura ON productos.cve_cobertura = cobertura.cve_cobertura INNER JOIN
+                      Consola.formato ON productos.cve_formato = formato.cve_formato LEFT OUTER JOIN
+                          (SELECT     coe_Ficha_Prod.upc, coe_ficha.cob_geo AS Cobertura_geográfica, coe_ficha.fre_ela AS periodicidad, 
+                                                   coe_ficha.NbrNumPub AS num_publicados, coe_ficha.NbrPriPub AS primera_edicion
+                            FROM          Coe.coe_ficha INNER JOIN
+                                                   Coe.coe_Ficha_Prod ON coe_ficha.ficha = coe_Ficha_Prod.ficha) AS coesme ON productos.UPC = coesme.upc
+                               INNER JOIN consola.entidad ON productos.cve_entidad = entidad.cve_entidad -- RNS Nuevo
+                               INNER JOIN consola.municipio ON productos.cve_entidad = municipio.cve_entidad AND productos.cve_municipio = municipio.cve_municipio -- RNS Nuevo
+WHERE     (productos.prod_liberado = 1)  
+:upc
+:titulo
+--702825048860
+    </select>
+    <select id="ijTrFichaTecnica-resultado">
+      select fichatec.upc, fichatec.id_juridico from ij_tr_fichatecnica fichatec
+      where 0=0 :idJuridico
+    </select>
+  </submodulo>
+  <submodulo id="instJuridico">
+    <select id="regionalEjec-lista">
+     select dregional.iddRegional, dregional.descripcion
+     from Ij_tc_dregional dregional
+     where dregional.estatus = '1401'
+     :pIddRegional
+    </select>
+    <select id="tipoInJur-lista">
+     select instJuridico.idInstJuridico, instJuridico.descripcion
+     from Ij_Tc_InstJuridico instJuridico
+     where instJuridico.estatus = '1401'
+     :pIdInstJurid
+    </select>
+    <select id="tipoObjetiv-lista">
+    select tipoObjetivo.idTipoObjetivo, trim(tipoObjetivo.descripcion)descripcion
+    from Ij_tc_tipoObjetivo tipoObjetivo
+    where tipoObjetivo.estatus = '1401' 
+    :IdTipoObjetivo
+    order by tipoObjetivo.descripcion
+    </select>
+    <select id="organismo-lista">
+    select organismo.idorganismo, organismo.organismo
+    from Ij_tc_organismo organismo
+    where organismo.estatus = '1401' 
+    :pIdorganismo
+    order by organismo.organismo
+    </select>
+    <select id="titulo-lista">
+    select titulo.idtitulo, titulo.abrevia||' '||titulo.descripcion as descripcion
+    from Ij_tc_titulo titulo
+    where 0=0
+    :pIdTitulo
+    order by titulo.descripcion
+    </select>
+    <select id="adscripcion-lista">
+    select tcAreas.idareas, tcAreas.descripcion
+    from Ij_tc_areas tcAreas
+    where tcAreas.estatus = '1401'
+    :pIdArea
+    order by tcAreas.descripcion
+    </select>
+    <select id="anios-lista">
+    Select ijTcAnio.Anio from Ij_Tc_Anio ijTcAnio
+    :pOrden
+    </select>
+    <select id="firmantes-lista">
+    select IDFIRMANTE, (firmante.apellidopat||' '||firmante.apellidomat||' '||firmante.nombre) completo
+    from Ij_Tc_Firmantes firmante
+    Where 0=0
+    :apPaterno
+    :apMaterno
+    </select>
+    <select id="nombresFirmantes-lista">
+    select IDFIRMANTE, firmante.apellidopat, firmante.apellidomat, (titulo.abrevia ||' '||firmante.nombre) as nombre,
+    titulo.idtitulo, titulo.descripcion desTitulo, firmante.cargo, firmante.idareas, area.descripcion as desAdscrip
+    from Ij_Tc_Firmantes firmante, Ij_Tc_Titulo titulo, ij_tc_areas area
+    where firmante.idtitulo = titulo.idtitulo and area.idareas = firmante.idareas
+    :idFirmante
+    </select> 
+    <select id="IjTiSecuencia-secuencia">
+    select LPAD(NVL(MAX(secuencia.idsecuencia),0) + 1,4,'0') as idsecuencia 
+    from Ij_Ti_Secuencia secuencia
+    where 0 = 0
+    :pTipoIj
+    :pAnio
+    </select> 
+    <select id="propuestasIj-resultado">
+    select ijtipropuesta.idpropuesta, ijtipropuesta.numpropuesta, ijTcInsJuridico.siglas, 
+        DECODE(ijtipropuesta.otrajecutora,null,ijTcRegional.Descripcion,ijtipropuesta.otrajecutora) as Descripcion, ijtipropuesta.descobjeto, 
+    listas.descripcion as desEstatus, ijtipropuesta.estatus, DECODE(ijtipropuesta.estatus,1001,'1',1002,'1',0) EDITAR
+    from ij_ti_propuesta ijtipropuesta, ij_tc_instjuridico ijTcInsJuridico, Ij_Tc_Dregional ijTcRegional, Ij_Tc_Listas listas
+    where ijtipropuesta.idinstjurid = ijTcInsJuridico.Idinstjuridico and ijtipropuesta.iddregional = ijTcRegional.Iddregional(+) and
+    listas.idlista = ijtipropuesta.estatus
+    --and ijtipropuesta.estatus IN(1001,1002,1003)
+    :pEstatus
+    :pAnio
+    :pNumPropuesta
+    :pIdTipoInJur
+    :pIdDirRegional
+    :pDescObjetivo
+    order by ijtipropuesta.numpropuesta
+    </select>   
+    <select id="estatusIjur-lista">
+    select ijTcListas.Idlista, ijTcListas.Descripcion estatus
+    from Ij_Tc_Listas ijTcListas
+    where Substr(ijTcListas.Idlista,1,2) = '12' and Substr(ijTcListas.Idlista,3,2) != '00'
+    </select>   
+   <select id="areaDelFirmante-lista">
+    select firma.idareas, firma.idtitulo
+    from ij_tc_firmantes firma
+    where 0=0 
+    :pIdFirmante       
+    </select>       
+   <select id="ijTcExternos-firmantesContrap">   
+    select externos.idexternos, externos.idtitulo, titulo.descripcion desTitulo, titulo.abrevia ||' '||(externos.nombres ||' '|| externos.apellidopat ||' '|| externos.apellidomat) as firmanteExt,
+    externos.cargo, externos.idorganismo, ijtcOrganismo.Organismo,
+    (titulo.abrevia ||' '|| externos.nombres) as Nombres, externos.apellidopat , externos.apellidomat
+    from ij_tc_externos externos, ij_tc_titulo titulo, ij_tc_organismo ijtcOrganismo
+    where externos.idtitulo = titulo.idtitulo and externos.idorganismo = ijtcOrganismo.Idorganismo  
+    :idExternos
+    :apPaterno
+    :apMaterno
+   </select>  
+   <select id="ijTcPais-lista">
+     select paises.idpais, paises.descripcion from Ij_Tc_Paises paises
+   </select>
+   <select id="ijTcEntidades-lista">
+    Select entidades.identidad, entidades.descripcion
+    From Ij_Tc_Entidades entidades Where 0=0
+    :pPais
+    :idEntidad
+    :idorganismo
+   </select>
+   <select id="ijTcPais-lista">
+     select paises.idpais, paises.descripcion from Ij_Tc_Paises paises
+   </select>
+   <select id="ijTcOrganismo-lista">
+    select organismo.idorganismo, organismo.organismo
+    from ij_tc_organismo organismo
+    where 0=0
+    :pEntidad
+   </select>    
+   <select id="ijTrJuridicoRelac-agregar">
+    Select ijTiJuridico.Idjuridico, ijTiJuridico.Numjuridico,ijTiJuridico.Idinstjurid,ijTiJuridico.Iddregional, 
+    ijTiJuridico.Descobjeto, ijTiJuridico.Numjuridico, tipoInstrujur.Descripcion,
+    dRegional.Descripcion regional, ijTcListas.Descripcion as estatus, tipoInstrujur.Siglas
+    From Ij_Ti_Juridico ijTiJuridico, Ij_Tc_Dregional dRegional, ij_tc_instjuridico tipoInstrujur, ij_tc_listas ijTcListas
+    Where dRegional.Iddregional = ijTiJuridico.Iddregional
+    and ijTijuridico.Idinstjurid = tipoInstrujur.Idinstjuridico
+    and ijtiJuridico.Estatus = ijTcListas.Idlista
+    :anioIj
+    :tipoIj
+    :numIj
+    :desObjeti
+    :regional
+    :idRelacionado
+    :pIdjuridico
+    </select>   
+   <select id="ijTrJuridicoRelac-resultado">
+    Select ijTrJuridico.Idjuridico, ijTiJuridico.Numjuridico, ijTrJuridico.Idrelacionado, ijTrJuridico.Relacionado, ijTrJuridico.Idjuridicorel, ijTiJuridico.Idinstjurid,
+    ijTiJuridico.Iddregional, ijTiJuridico.Descobjeto, ijTiJuridico.Numjuridico, tipoInstrujur.Descripcion,
+    dRegional.Descripcion regional, ijTcListas.Descripcion as estatus, tipoInstrujur.Siglas
+    From Ij_Tr_Juridico ijTrJuridico, Ij_Ti_Juridico ijTiJuridico, Ij_Tc_Dregional dRegional, ij_tc_instjuridico tipoInstrujur,
+    ij_tc_listas ijTcListas
+    Where ijTrJuridico.Idjuridico = ijTiJuridico.Idjuridico
+    and dRegional.Iddregional = ijTiJuridico.Iddregional
+    and ijTijuridico.Idinstjurid = tipoInstrujur.Idinstjuridico
+    and ijtiJuridico.Estatus = ijTcListas.Idlista
+    :anioIj
+    :tipoIj
+    :numIj
+    :desObjeti
+    :regional
+    :idRelacionado
+    :pIdjuridico
+    </select>
+    <select id="ijTiJuridico-resultado">
+     select ijTijuridico.Idjuridico, ijTijuridico.Numjuridico, ijTijuridico.Iddregional, ijTijuridico.Descobjeto,
+           dRegional.Descripcion as descRegional, listas.descripcion descEstatus, instJuridico.Siglas,ijTijuridico.Estatus,
+           to_char(ijTijuridico.Fecvigini,'dd/mm/yyyy') Fecvigini, to_char(ijTijuridico.Fecvigfin,'dd/mm/yyyy') Fecvigfin,
+           DECODE(ijTijuridico.Estatus,'1501','1','1502','1','1503','1','1504','1','0') EstusCons
+    from Ij_Ti_Juridico ijTijuridico, ij_tc_dregional dRegional, ij_tc_listas listas, ij_tc_instjuridico instJuridico
+    where 
+    ijTijuridico.Iddregional = dRegional.Iddregional and ijTijuridico.Estatus = listas.idlista and ijTijuridico.Idinstjurid = instJuridico.Idinstjuridico 
+    :condicion
+    :pAnio
+    :pNumjuridico
+    :pIdTipoInJur
+    :pIdDirRegional
+    :pDescObjetivo
+    :pEstatus
+    order by ijTijuridico.Numjuridico
+    </select> 
+    <select id="programatrabajo-resultado">
+    select ijTijuridico.Idjuridico, ijTijuridico.Numjuridico, ijTijuridico.Iddregional, ijTijuridico.Descobjeto,
+           dRegional.Descripcion as descRegional, listas.descripcion descEstatus, instJuridico.Siglas,ijTijuridico.Estatus,
+           to_char(ijTijuridico.Fecvigini,'dd/mm/yyyy') Fecvigini, to_char(ijTijuridico.Fecvigfin,'dd/mm/yyyy') Fecvigfin,
+           --DECODE(ijTijuridico.Estatus,'1501','1','1502','1','1503','1','1504','1','0') EstusCons, decode(ijTiPt.Estatus,null,'-', ijTiPt.Estatus) estatusPT,
+           DECODE(ijTiPt.Estatus,'????','0','1') EstusCons, decode(ijTiPt.Estatus,null,'-', ijTiPt.Estatus) estatusPT,
+           :pModificar
+           (select descripcion from ij_tc_listas L where L.Idlista = ijTiPt.Estatus) descEstatusPT
+    from Ij_Ti_Juridico ijTijuridico, ij_tc_dregional dRegional, ij_tc_listas listas, ij_tc_instjuridico instJuridico, ij_ti_PT ijTiPt
+    where 
+    ijTijuridico.Iddregional = dRegional.Iddregional and ijTijuridico.Estatus = listas.idlista and ijTijuridico.Idinstjurid = instJuridico.Idinstjuridico
+    and ijTijuridico.Idjuridico = ijTiPt.Idjuridico(+) 
+    :condicion
+    :pAnio
+    :pNumjuridico
+    :pIdTipoInJur
+    :pIdDirRegional
+    :pDescObjetivo
+    :pEstatus
+    order by ijTijuridico.Numjuridico
+    </select>
+    <select id="avances-resultado">
+     select ijTijuridico.Idjuridico, ijTijuridico.Numjuridico, ijTijuridico.Iddregional, ijTijuridico.Descobjeto,
+           dRegional.Descripcion descRegional, listas.descripcion descEstatus, instJuridico.Siglas,ijTijuridico.Estatus,
+           ijtiPt.Estatus
+    from Ij_Ti_Juridico ijTijuridico, ij_tc_dregional dRegional, ij_tc_listas listas, ij_tc_instjuridico instJuridico,
+    Ij_Ti_Pt ijtiPt
+    where ijTijuridico.Iddregional = dRegional.Iddregional and ijTijuridico.Estatus = listas.idlista and ijTijuridico.Idinstjurid = instJuridico.Idinstjuridico
+    and ijtiPt.Idjuridico = ijTijuridico.Idjuridico
+    :pAnio
+    :pNumjuridico
+    :pIdTipoInJur
+    :pIdDirRegional
+    :pDescObjetivo
+    :pEstatus
+    </select>     
+    <select id="ijTiJuridico-formulario">    
+        Select ijTiJuridico.Idjuridico, ijTiJuridico.Numjuridico, ijTiJuridico.Fecsuscripcion, ijTiJuridico.Otraubica, ijTiJuridico.Otraejecutora,
+               ijTiJuridico.Fecvigini, ijTiJuridico.Fecvigfin, ijTiJuridico.Otraconclusion, ijTiJuridico.Descobjeto,
+               ijTiJuridico.Descobjeto, ijTiJuridico.Compromiso, ijTiJuridico.Prodserv, ijTiJuridico.Compcontra, ijTiJuridico.Compambos,
+               ijTiJuridico.Comentario, ijTiJuridico.Progtrabajo, ijTiJuridico.Motivopt, ijTiJuridico.Fecregistro, ijTiJuridico.Horaregistro,
+               ijTiJuridico.Nomarch, ijTiJuridico.Ruta, ijTiJuridico.Fecnotifica, ijTiJuridico.Feclibera, ijTiJuridico.Fecconclusion,
+               ijTiJuridico.Motivocon, ijTiJuridico.Responsable, ijTiJuridico.Anio, ijTiJuridico.Referencia,ijTiJuridico.Idconclusion,
+               ijTiJuridico.Idtipoobjetivo, ijTiJuridico.Iddregional, ijTiJuridico.Iddregional1, ijTiJuridico.Idinstjurid,
+               ijtcDregional.Descripcion ejecutora, regional.descripcion ubicacion, ijtcInstrumento.Descripcion tipoInstJu,
+               ijtcTipoObjetivo.Descripcion tipoObjetivo
+        From Ij_Ti_Juridico ijTiJuridico, ij_tc_dregional ijtcDregional, ij_tc_dregional regional, Ij_Tc_Instjuridico ijtcInstrumento,
+             Ij_tc_tipoObjetivo ijtcTipoObjetivo
+        where ijTiJuridico.Iddregional = ijtcDregional.Iddregional and ijTiJuridico.Iddregional1 = regional.iddregional(+) and
+              ijTiJuridico.Idinstjurid = ijtcInstrumento.Idinstjuridico
+              and ijTiJuridico.Idtipoobjetivo = ijtcTipoObjetivo.Idtipoobjetivo    
+    </select> 
+    <select id="IjTcTitulo-lista">
+     select titulo.idtitulo, titulo.descripcion from Ij_Tc_Titulo titulo
+    </select>
+    <select id="ijTcOrganismo-datos">
+    select Distinct(ijTcOrganismo.Idpais) idPais
+    from Ij_Tc_Organismo ijTcOrganismo where 0=0
+    :idOrgDepen   --ijTcOrganismo.Idorganismo 
+    </select>
+   <select id="ijTcOrganismo-entidades">
+    select ijTcOrganismo.Identidad, ijtcEntidades.Descripcion
+    from Ij_Tc_Organismo ijTcOrganismo, Ij_Tc_Entidades ijtcEntidades
+    where 0=0 and ijtcEntidades.Identidad = ijTcOrganismo.Identidad
+    :idOrganismo   --ijTcOrganismo.Idorganismo 
+   </select>
+  <select id="ijtrFirmantesj-firmantesIj">   
+      select ijtrFirmantesj.Idjuridico, ijtrFirmantesj.Idfirmante, ijtrFirmantesj.Orden,
+             ijtcFirmantes.Nombre, ijtcFirmantes.Apellidopat, ijtcFirmantes.Apellidomat,
+             ijtcTitulo.Idtitulo, ijtcTitulo.Descripcion as descTitulo, ijtcFirmantes.Cargo,
+             ijtcAreas.Idareas, ijtcAreas.Descripcion as descArea
+      from ij_tr_firmantesj ijtrFirmantesj, ij_tc_firmantes ijtcFirmantes, ij_tc_titulo ijtcTitulo,
+           Ij_Tc_Areas ijtcAreas
+      Where ijtrFirmantesj.Idfirmante = ijtcFirmantes.Idfirmante and ijtcFirmantes.Idtitulo = ijtcTitulo.Idtitulo and
+      ijtcAreas.Idareas = ijtcFirmantes.Idareas   
+      :pIdJuridico 
+ </select>      
+<select id="ijTrExternos-firmaContraparteRes">    
+    Select ijtrExternos.Orden, ijtrExternos.Idjuridico, ijtrExternos.Idexternos,
+    ijtcExternos.Idtitulo, ijtcExternos.Idorganismo,
+    ijtcTitulo.Descripcion as descTitulo,
+    ijtcExternos.Nombres,ijtcExternos.Apellidopat, ijtcExternos.Apellidomat,
+    ijtcExternos.Cargo, ijtcOrganismo.Organismo
+    From ij_tr_externos ijtrExternos, ij_tc_externos ijtcExternos, ij_tc_titulo ijtcTitulo, ij_tc_organismo ijtcOrganismo
+    where ijtrExternos.Idexternos = ijtcExternos.Idexternos and ijtcExternos.Idtitulo = ijtcTitulo.Idtitulo and
+     ijtcExternos.Idorganismo = ijtcOrganismo.Idorganismo
+     :pIdjuridico
+ </select> 
+  <select id="estatus-lista">
+    select ijtcLista.Idlista, ijtcLista.Descripcion as descLista
+    from ij_tc_listas ijtcLista
+    where substr(ijtcLista.Idlista,3,2) != '00'    
+    :pEstatus
+    :pIdLista --substr(ijtcLista.Idlista,1,2) = '10'
+   </select> 
+  <select id="instrumentoJ-datos">
+    Select ijtiJuridico.Numjuridico, to_char(ijtiJuridico.Fecvigini,'MM') mesInicio, to_char(ijtiJuridico.Fecvigfin,'MM') mesFin
+    From Ij_Ti_Juridico ijtiJuridico 
+    Where 0=0
+    :idJuridico --ijtiJuridico.Idjuridico
+  </select> 
+<select id="rhTvEmpleados-resultado">
+    select (t.nombres ||' '||t.apellido_pat||' '||t.apellido_mat) nombre
+    from rh_tv_empleados t
+    where 0=0
+    :numEmpleado
+</select>
+</submodulo>
+<submodulo id="propInJRegitrada">
+   <select id="propuestasIj-resultado">
+      Select ijTiPropuesta.Idpropuesta, ijTiPropuesta.numpropuesta, ijTiPropuesta.fecsuscripcion, ijTiPropuesta.otrajecutora,
+           ijTiPropuesta.descobjeto,ijTiPropuesta.organismod, ijTiPropuesta.compromiso, ijTiPropuesta.compcontra, ijTiPropuesta.compambos,
+           ijTiPropuesta.comentario, ijTiPropuesta.responsable, ijTiPropuesta.nomarch,ijTiPropuesta.ruta,ijTiPropuesta.estatus,
+           ijTiPropuesta.feccrea, ijTiPropuesta.fecnotifica,ijTiPropuesta.feclibera,ijTiPropuesta.anio,ijTiPropuesta.idinstjurid,
+           ijTiPropuesta.idtipoobjet, ijTiPropuesta.iddregional
+    from ij_ti_propuesta ijTiPropuesta
+    where 0 = 0
+    :pIdPropuesta  --ijTiPropuesta.Idpropuesta
+   </select>   
+   <select id="estatusPro-lista">
+    select ijtcLista.Idlista, ijtcLista.Descripcion as descEstatus
+    from ij_tc_listas ijtcLista
+    where substr(ijtcLista.Idlista,3,2) != '00'    
+    :pEstatus
+    :pIdLista --substr(ijtcLista.Idlista,1,2) = '10'
+   </select>
+   <select id="estatusIj-lista">
+    select ijtcLista.Idlista, ijtcLista.Descripcion as descEstatus
+    from ij_tc_listas ijtcLista
+    where substr(ijtcLista.Idlista,3,2) != '00'    
+    and substr(ijtcLista.Idlista,1,2) = '16'
+    :pEstatus
+    :pIdLista --substr(ijtcLista.Idlista,1,2) = '10'
+   </select>   
+   <select id="conclusion-lista">
+   select conclusion.idconclusion, conclusion.descripcion
+   from ij_tc_conclusion conclusion
+   where conclusion.estatus = '1401' 
+   :pIdConclusion
+   </select>
+   <select id="ijTcFirmantes_firmantesPropuesta">
+      select ijTrFirmantesP.orden, ijTrFirmantesP.Idpropuesta, ijTcFirmantes.Idfirmante, ijTcFirmantes.Nombre, ijTcFirmantes.Apellidopat, ijTcFirmantes.Apellidomat, ijTcFirmantes.Cargo, 
+     ijTcFirmantes.Idtitulo, ijTcFirmantes.Idareas,  ijTcTitulo.Descripcion as descTitulo, ijtcAreas.Descripcion as descArea 
+     from ij_tc_firmantes ijTcFirmantes, ij_tc_titulo ijTcTitulo, Ij_Tr_Firmantesp ijTrFirmantesP, ij_tc_areas ijtcAreas 
+     Where ijTcTitulo.Idtitulo = ijTcFirmantes.Idtitulo and ijTrFirmantesP.Idfirmante = ijTcFirmantes.Idfirmante 
+      and ijTcFirmantes.Idareas = ijtcAreas.Idareas 
+      :propuesta
+   </select>
+</submodulo>
+
+
+
+<submodulo id="avance">
+  <select id="ijTcTrimestre_activo">
+select 
+  t.descripcion, to_char(t.feciniavance,'dd/mm/') || to_char(sysdate,'yyyy') feciniavance, 
+  to_char(t.fecfinavance,'dd/mm/') || to_char(sysdate,'yyyy') fecfinavance 
+from ij_tc_trimestre t
+where to_char(sysdate,'mmdd') > to_char(t.feciniavance,'mmdd') and to_char(t.fecfinavance,'mmdd') > to_char(sysdate,'mmdd')  
+  </select>
+  <select id="ijTvJuridicoTrimestre_resultado">
+select 
+    distinct j.idjuridico, j.iddregional, j.numjuridico, ij.siglas, dr.descripcion descregional, 
+    j.descobjeto, l.descripcion estatus, --a.idtrimestre, a.idactividad, 
+    jt.anio
+from 
+  ij_ti_juridico j 
+  --inner join ij_ti_pt pt on j.idjuridico = pt.idjuridico
+  --inner join ij_ti_actividad a on a.idpt = a.idpt
+  inner join ij_tc_instjuridico ij on ij.idinstjuridico = j.idinstjurid
+  inner join 
+  ( select distinct idjuridico, anio from ij_tv_juridico_trimestre 
+    where 1=1 
+    :notificar -- and jt.notificar = 1
+    :dregional -- and jt.regional ='121'
+    :liberar -- and jt.liberar = 1
+  ) jt on jt.idjuridico = j.idjuridico
+  inner join ij_tc_dregional dr on dr.iddregional = j.iddregional
+  inner join ij_tc_listas l on l.idlista = j.estatus
+where 1=1
+   -- and jt.notificar = 1
+   -- and jt.regional ='121'  
+  </select>
+  <select id="ijTiAvance">
+select 
+    a.idactividad, a.actividad, av.idavance, av.iddregional, jt.liberar, jt.notificar, decode(a.idtrimestre,1,'Ene-Mar',2,'Abr-Jun',3,'Jul-Sep','Oct-Dic') desctrimestre, a.idtrimestre,
+    a.porcentaje porcentajepro, av.porcentaje porcentajerea, av.avance, pt.anio, to_char(av.fecnotifica,'dd/mm/yyyy') fecnotifica, to_char(av.feclibera,'dd/mm/yyyy') feclibera, 
+    decode(av.porcentaje,null,0,1) reporto, dr.descripcion desc_regional
+from 
+  ij_ti_pt pt
+  inner join ij_ti_actividad a on a.idpt = pt.idpt
+  inner join ij_ti_avance av on av.idactividad = a.idactividad
+  inner join ij_tv_juridico_trimestre jt on av.idavance = jt.idavance
+  left join ij_tc_dregional dr on dr.iddregional = av.iddregional
+where 1=1 
+  :idjuridico --pt.idjuridico = 17
+  :dregional  --and av.iddregional = 121
+  :anioant      --and pt.anio &lt; 2013
+  :anioact      --and pt.anio = 2013
+order by pt.anio, a.idtrimestre, av.iddregional
+  </select>
+  <select id="rhTvEmpleados_responsableInstJurid">
+select 
+  j.idjuridico, e.nombres, e.apellido_pat, e.apellido_mat, e.e_mail_trabajo 
+from 
+  ij_ti_juridico j
+  inner join rh_tv_empleados e on j.numempleado = e.num_empleado
+where 1=1
+  :idjuridico
+  </select>
+</submodulo>
+
+<submodulo id="programaTrabajo">
+ <select id="historico">
+   select ijTiPt.idpt, ijTiPt.anio, to_char(ijTiPt.feccrea,'dd/mm/yyyy') feccrea, to_char(ijTiPt.fecnotifica,'dd/mm/yyyy') fecnotifica, 
+   to_char(ijTiPt.feclibera,'dd/mm/yyyy') feclibera, ijTiPt.estatus, 
+   ijTiActividad.actividad, to_char(ijTcTrimestre.fechaini,'FMMon')|| ' - ' || to_char(ijTcTrimestre.fechaFin,'FMMon') descTrim, ijTiActividad.porcentaje
+   from ij_ti_pt ijTiPt, ij_ti_actividad ijTiActividad, ij_tc_trimestre ijTcTrimestre
+   where ijTiPt.idpt = ijTiActividad.idpt and ijTcTrimestre.idtrimestre = ijTiActividad.idtrimestre
+   and ijTiPt.estatus = 1603 :idJuridico 
+   order by ijTiPt.anio, ijTiActividad.idtrimestre  
+ </select>
+ <select id="actividad-resultado">
+    select ijTiPt.idPT,  ijTiPt.Idjuridico, ijtiActividad.Idactividad, ijtiActividad.Actividad, ijtiActividad.Porcentaje, 
+    ijTiPt.Anio, 
+    to_char(ijTiPt.Feccrea,'dd/MM/yyyy') Feccrea, to_char(ijTiPt.Fecnotifica,'dd/MM/yyyy') as Fecnotifica,
+    to_char(ijTiPt.Fecnotifica,'HH24:mi:ss') as horaNotifica,
+    to_char(ijTiPt.Feclibera,'dd/MM/yyyy') Feclibera, 
+    to_char(ijTiPt.Feclibera,'HH24:mi:ss') horalibera, 
+    ijTiPt.Estatus,
+    ijTCTrimestre.Idtrimestre, 
+    ijtclistas.descripcion as descEstatus,
+    DECODE(to_char(ijTcTrimestre.Fechaini,'MM'),'01','Ene','02','Feb','03','Mar','04','Abr','05','Mar','06','Jun','07','Jul','08','Ago','09','Sep','10','Oct','11','Nov','12','Dic') mesIni,
+    DECODE(to_char(ijTcTrimestre.Fechafin,'MM'),'01','Ene','02','Feb','03','Mar','04','Abr','05','Mar','06','Jun','07','Jul','08','Ago','09','Sep','10','Oct','11','Nov','12','Dic') mesfin
+    From ij_ti_pt ijTiPt,  ij_ti_actividad ijtiActividad, ij_tc_listas ijtclistas, ij_tc_trimestre ijTcTrimestre
+    Where ijtiActividad.Idpt = ijtiActividad.Idpt and ijTiPt.Estatus = ijtclistas.idlista
+    and ijtiActividad.Idtrimestre = ijTcTrimestre.Idtrimestre
+    and ijTiPt.idPT = ijtiActividad.idPT
+    :idJuridico
+    :pAnio
+    order by anio, ijTCTrimestre.Idtrimestre
+</select>
+</submodulo>
+
+</dml>

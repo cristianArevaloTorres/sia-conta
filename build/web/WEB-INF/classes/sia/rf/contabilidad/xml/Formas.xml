@@ -1,0 +1,74 @@
+<dml>
+  <submodulo id="eventos">
+    <select id="RfTcFormasContables-sinEventosAsignados">
+select 
+  t.forma 
+from 
+  rf_tc_formas_contables t
+where 
+  t.esmanual = 0 and t.id_catalogo_cuenta = 1 and t.forma not in (
+    select distinct  c.forma  
+    from rf_tr_formacontable c, rf_tr_formas_funciones f
+    where c.idforma = f.forma_contable_id
+  )
+order by forma
+    </select>
+    <select id="RfTcFormasContables">
+select 
+  t.forma 
+from 
+  rf_tc_formas_contables t
+where 
+  t.esmanual = 0 and t.id_catalogo_cuenta = 1
+order by forma
+    </select>
+    <select id="RfTcFunciones">
+select 
+  F.IDFUNCION, F.NOMBREVARIABLE || ' - ' || decode(TIPO,null,'T',TIPO) FUNCION_NOMBRE_VARIABLE, replace(regla_contable,chr(10),'') REGLA_CONTABLE, TIPO, VT.NOMBREVARIABLE VARIABLE_NOMBRE_VARIABLE   
+from 
+  RF_TC_FUNCIONES F, RF_TC_VARIABLES_TOTAL VT
+WHERE
+  F.IDVARIABLE (+) =  VT.IDVARIABLE
+  :idFuncion
+order by f.nombrevariable
+    </select>
+    <select id="RfTrFormacontable-getFormas">
+select 
+  idforma, forma 
+from 
+  rf_tr_formacontable f
+where 1=1
+  :forma --f.forma = ':forma' 
+  :idforma
+    </select>
+    <select id="RfTrEventocontable">
+select 
+  idEvento, primeramay(descripcion) descripcion
+from
+  rf_tr_eventocontable
+order by descripcion
+    </select>
+    <select id="RfTrFormacontable-Resultado">
+select 
+  distinct f.forma, f.idevento, primeramay(e.descripcion) descripcion, idforma
+from 
+  rf_tr_eventocontable e, rf_tr_formacontable f, rf_tr_formas_funciones ff, rf_tc_funciones fu, rf_tc_variables_total vt
+where
+  e.IDEVENTO = f.IDEVENTO and f.IDFORMA = ff.FORMA_CONTABLE_ID and ff.IDFUNCION = fu.IDFUNCION and fu.IDVARIABLE = vt.IDVARIABLE
+  :evento -- and e.DESCRIPCION like '%%'
+  :forma  -- and f.FORMA like '%%'
+  :nombre -- and fu.NOMBREVARIABLE like '%%'
+  :tipo   -- and vt.NOMBREVARIABLE like '%%'
+    </select>
+    <select id="RfTrFormacontable-Detalle">
+select 
+  F.IDFUNCION, F.NOMBREVARIABLE FUNCION_NOMBRE_VARIABLE, REGLA_CONTABLE, TIPO, VT.NOMBREVARIABLE VARIABLE_NOMBRE_VARIABLE, ff.FORMA_CONTABLE_ID   
+from 
+  RF_TC_FUNCIONES F, RF_TC_VARIABLES_TOTAL VT, RF_TR_FORMAS_FUNCIONES ff
+WHERE
+  F.IDVARIABLE (+) =  VT.IDVARIABLE and ff.IDFUNCION = F.idfuncion
+  :idForma
+order by ff.forma_contable_id, F.NOMBREVARIABLE
+    </select>
+  </submodulo>
+</dml>

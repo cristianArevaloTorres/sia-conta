@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/ContaProcu">
+    <!--  Default set of monitored resources 
+  --> 
+  <WatchedResource>WEB-INF/web.xml</WatchedResource> 
+- <!--  Uncomment this to disable session persistence across Tomcat restarts 
+  --> 
+- <!-- 
+    <Manager pathname="" />
+     <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/rf_contabilidadDS" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.159:1521:siasen" username="rf_conta_ift" password="Uk5Afusy#18"/>   
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/rf_tesoreriaDS" password="Uk5Afusy#18" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.159:1521:siasen" username="rf_tesoreria_ift"/>   
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/mipfDS" password="Uk5Afusy#18" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.159:1521:siasen" username="sapfin_pa"/>   
+  
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/rf_contabilidadDS" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.200:1521:siasen" username="rf_conta_ift" password="C4l1d4d200#18"/>   
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/rf_tesoreriaDS" password="C4l1d4d200#18" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.200:1521:siasen" username="rf_tesoreria_ift"/>   
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/mipfDS" password="C4l1d4d200#18" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.200:1521:siasen" username="sapfin_pa"/>   
+  
+  --> 
+ <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/rf_contabilidadDS" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.200:1521:siasen" username="rf_conta_ift" password="C4l1d4d200#18"/>   
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/rf_tesoreriaDS" password="C4l1d4d200#18" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.200:1521:siasen" username="rf_tesoreria_ift"/>   
+  <Resource auth="Container" driverClassName="oracle.jdbc.OracleDriver" maxActive="-1" maxIdle="10" maxWait="-1" name="jdbc/mipfDS" password="C4l1d4d200#18" type="javax.sql.DataSource" url="jdbc:oracle:thin:@192.168.10.200:1521:siasen" username="sapfin_pa"/>   
+</Context>

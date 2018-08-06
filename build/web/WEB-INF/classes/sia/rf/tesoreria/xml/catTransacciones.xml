@@ -1,0 +1,216 @@
+<dml>
+<submodulo id="catalogos">
+  <select id="obtieneTransacciones">
+select 
+  CT.clave_trans,
+   --siafm.primeramay(CT.descripcion) CTDescripcion,
+   CT.descripcion CTDescripcion,
+    CT.vigencia_ini,
+   to_char(CT.vigencia_ini,'dd/mm/yyyy') fechaformato, 
+  CT.vigencia_fin, TAT.descripcion TATDescripcion, CoT.limite_inferior, CoT.limite_superior,
+  CoT.costo, CT.id_clave_trans, CT.id_tipo_aplica, CoT.id_costo_transaccion, CT.id_clave_egreso,
+  (select clave_trans||' '||descripcion
+   from RF_TC_CLAVES_TRANSACCION
+   where
+         id_tipo_aplica = 'E' and
+        id_clave_trans = CT.id_clave_egreso) ClaveEgreso  
+from 
+  RF_TC_CLAVES_TRANSACCION CT, RF_TC_TIPO_APLICACION_TRANS TAT, RF_TC_COSTOS_TRANSACCION CoT  
+where  
+  CT.id_tipo_aplica = TAT.id_tipo_aplica and
+  CT.id_clave_trans = CoT.id_clave_trans(+)  
+order by clave_trans, vigencia_ini, limite_inferior
+  </select>
+  <select id="rfTcTipoTransaccion">
+select  
+ ID_TIPO_APLICA,DESCRIPCION   
+from  
+ RF_TC_TIPO_APLICACION_TRANS
+  </select>
+  <select id="rfTcClavesTb">
+select  
+ ID_CLAVE_TB,DESCRIPCION  
+from  
+ RF_TC_CLAVES_TB 
+  </select>
+  <select id="obtenerIdClaveTrans">
+select 
+ SEQ_RF_TC_CLAVES_TRANSACCION.nextval idClaveTrans  
+from 
+ dual 
+  </select>
+  <select id="obtenerEgresos">
+select 
+ id_clave_trans, clave_trans claveTrans, descripcion, clave_trans || ' ' || descripcion claveDescrip   
+from 
+ RF_TC_CLAVES_TRANSACCION
+where
+  id_tipo_aplica = 'E' and 
+  id_clave_egreso is null 
+union
+select 
+  0  id_clave_trans, '0000' claveTrans, '-Ningún egreso-' descripcion ,  '0000 -Ningún egreso-'  claveDescrip  
+from 
+ dual 
+order by claveTrans 
+  </select>
+  <select id="detTransModificar">
+select 
+    CT.clave_trans,
+--     siafm.primeramay(CT.descripcion) descripcionClave,
+     CT.descripcion descripcionClave,
+      CT.vigencia_ini,CT.ID_CLAVE_TB,
+  CT.vigencia_fin, TAT.descripcion TATDescripcion, CoT.limite_inferior, CoT.limite_superior,
+  CoT.costo, CT.id_clave_trans, CT.id_tipo_aplica, CoT.id_costo_transaccion, CT.id_clave_egreso,
+  (select clave_trans||' '||descripcion
+   from RF_TC_CLAVES_TRANSACCION
+   where
+         id_tipo_aplica = 'E' and
+        id_clave_trans = CT.id_clave_egreso) ClaveEgreso , 
+  (select ID_CLAVE_TB||' '||descripcion
+   from RF_TC_CLAVES_TB   
+   where
+         ID_CLAVE_TB = CT.ID_CLAVE_TB) ClaveTb    
+from 
+  RF_TC_CLAVES_TRANSACCION CT, RF_TC_TIPO_APLICACION_TRANS TAT, RF_TC_COSTOS_TRANSACCION CoT   
+where  
+  CT.id_tipo_aplica = TAT.id_tipo_aplica and
+  CT.id_clave_trans = CoT.id_clave_trans(+)  
+  and CT.id_clave_trans = :idClaveTrans
+  </select>
+</submodulo>
+<submodulo id="criterios">
+  <select id="detalleTransaccion">
+select 
+  CT.clave_trans, siafm.primeramay(CT.descripcion) CTDescripcion, CT.vigencia_ini,
+  CT.vigencia_fin, TAT.descripcion TATDescripcion, CoT.limite_inferior, CoT.limite_superior,
+  CoT.costo, CT.id_clave_trans, CT.id_tipo_aplica, CoT.id_costo_transaccion, CT.id_clave_egreso,
+  (select clave_trans||' '||descripcion
+   from RF_TC_CLAVES_TRANSACCION
+   where
+         id_tipo_aplica = 'E' and
+        id_clave_trans = CT.id_clave_egreso) ClaveEgreso  
+from 
+  RF_TC_CLAVES_TRANSACCION CT, RF_TC_TIPO_APLICACION_TRANS TAT, RF_TC_COSTOS_TRANSACCION CoT   
+where  
+  CT.id_tipo_aplica = TAT.id_tipo_aplica and
+  CT.id_clave_trans = CoT.id_clave_trans(+)  
+  and CT.id_clave_trans = :idClaveTrans   
+order by clave_trans, vigencia_ini, limite_inferior 
+  </select>
+  <select id="existenMov">
+select 
+ count(*) cuantos  
+from 
+  RF_TR_MOVIMIENTOS_CUENTA  
+where
+  id_clave_trans = :idClaveTrans  
+  </select>
+  <select id="periodosAntes">
+select 
+ count(*) antes 
+from  
+ RF_TC_CLAVES_TRANSACCION  
+where
+  id_clave_trans = :idClaveTrans and  
+  trunc(vigencia_ini) &lt; to_date(':fechaInicio','yyyy-mm-dd')
+  </select>
+  <select id="periodosDesp">
+select 
+ count(*) despues 
+from 
+ RF_TC_CLAVES_TRANSACCION 
+where 
+  id_clave_trans = :idClaveTrans and
+  trunc(vigencia_ini) > to_date(':fechaInicio','yyyy-mm-dd')
+  </select>
+   <select id="maximaFechaClave">
+select
+  id_clave_trans idClaveTransAnt,
+  max(vigencia_ini) fechaMaxAnt
+from
+  RF_TC_CLAVES_TRANSACCION
+where
+  id_clave_trans = :idClaveTrans and
+  trunc(vigencia_ini)  &lt; to_date(':fechaInicio','yyyy-mm-dd')
+group by id_clave_trans  
+order by fechaMaxAnt desc
+  </select>
+  <select id="maxFechaClaveAnt">
+select 
+ id_clave_trans  
+from
+  RF_TC_CLAVES_TRANSACCION 
+where 
+  id_clave_trans = :idClaveTrans and
+  vigencia_ini = (select max(vigencia_ini) as IdClave_trans
+                  from
+                    RF_TC_CLAVES_TRANSACCION
+                  where
+                     id_clave_trans = :idClaveTrans)
+  </select>
+  <select id="obtenIdTipoAplicaTrans">
+select 
+  id_tipo_aplica 
+from 
+  RF_TC_CLAVES_TRANSACCION 
+where  
+  clave_trans = :claveTrans 
+  </select>
+  <select id="obtenCuantasFechasExisten">
+select 
+ count(*) cuantasFechasExisten 
+from 
+ RF_TC_CLAVES_TRANSACCION 
+where 
+  clave_trans = ':claveTrans' and 
+  trunc(vigencia_ini) = to_date(':fecha','dd/mm/yyyy') 
+  </select>
+  <select id="obtenCuantosPeriodosAntes">
+select 
+  count(*) cuantosPeriodosAntes 
+from   
+  RF_TC_CLAVES_TRANSACCION  
+where  
+  clave_trans = ':claveTrans' and 
+  trunc(vigencia_ini) &lt; to_date(':fecha','dd/mm/yyyy')
+  </select>
+  <select id="obtenCuantosPeriodosDespues">
+select 
+  count(*) cuantosPeriodosDespues 
+from   
+  RF_TC_CLAVES_TRANSACCION 
+where
+  clave_trans = ':claveTrans' and 
+  trunc(vigencia_ini) &lt; to_date(':fecha','dd/mm/yyyy') 
+  </select>
+  <select id="obtenFechaMaximaAnterior">
+select  
+  id_clave_trans idClaveTransAnterior, max(vigencia_ini) fechaMaximaAnterior  
+from 
+  RF_TC_CLAVES_TRANSACCION 
+where 
+  clave_trans = ':claveTrans' and 
+  trunc(vigencia_ini) &lt; to_date(':fecha','dd/mm/yyyy') 
+group by id_clave_trans 
+order by fechaMaximaAnterior desc 
+  </select>
+  <select id="obtenFechaMinSiguiente">
+select 
+  to_char(min(vigencia_ini)-1,'dd/mm/yyyy') fechaMinima 
+from 
+  RF_TC_CLAVES_TRANSACCION 
+where 
+  clave_trans = ':claveTrans' 
+  </select>
+  <select id="obtenFechaMinimaSiguiente">
+select 
+  to_char(min(vigencia_ini),'dd/mm/yyyy') fechaMinimaSig
+from 
+  RF_TC_CLAVES_TRANSACCION 
+where 
+  clave_trans = ':claveTrans' and 
+  trunc(vigencia_ini) > to_date(':fecha','dd/mm/yyyy') 
+  </select>
+</submodulo>
+</dml>

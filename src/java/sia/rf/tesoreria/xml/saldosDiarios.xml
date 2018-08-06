@@ -1,0 +1,13 @@
+<dml>
+<submodulo id="criterios">
+<select id="fechaUltimoSaldo">
+select 
+ to_char(max(FECHA),'dd/mm/yyyy') fecha 
+from 
+ RF_TR_SALDOS_DIARIOS sd, RF_TR_CUENTAS_BANCARIAS cb 
+where 
+      sd.id_cuenta = cb.id_cuenta  and 
+      cb.id_tipo_programa in (:idProg)
+</select>
+</submodulo>
+</dml>

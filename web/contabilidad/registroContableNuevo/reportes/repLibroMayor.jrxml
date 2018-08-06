@@ -1,0 +1,1753 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="repLibroMayor"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Portrait"
+		 pageWidth="595"
+		 pageHeight="842"
+		 columnWidth="555"
+		 columnSpacing="0"
+		 leftMargin="20"
+		 rightMargin="20"
+		 topMargin="20"
+		 bottomMargin="20"
+		 whenNoDataType="NoPages"
+		 scriptletClass="sia.scriptlets.SaldosLibros"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="2" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+	<import value="sia.scriptlets.SaldosLibros" />
+
+	<parameter name="SIA_QUERY_REPORT" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="EJERCICIO" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression ><![CDATA[new String("2011")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="numPagina" isForPrompting="false" class="java.lang.Integer">
+		<defaultValueExpression ><![CDATA[new Integer(56)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SIA_RECORD_COUNT" isForPrompting="false" class="java.lang.Integer"/>
+	<parameter name="SIA_OUT_REPORT" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="SIA_FORM_REPORT" isForPrompting="false" class="java.lang.String"/>
+	<queryString><![CDATA[select substr(t.cuenta_contable,1,5) cuenta, t.descripcion, t.ene_cargo_ini, t.ene_abono_ini,cc.naturaleza,
+t.ene_cargo, t.ene_abono,
+t.feb_cargo,t.feb_abono, t.mar_cargo,t.mar_abono,t.abr_cargo,t.abr_abono,
+t.may_cargo, t.may_abono, t.jun_cargo,t.jun_abono,t.jul_cargo, t.jul_abono,
+t.ago_cargo, t.ago_abono, t.sep_cargo, t.sep_abono, t.oct_cargo, t.oct_abono,
+t.nov_cargo, t.nov_abono, t.dic_cargo, t.dic_abono,
+t.ene_cargo_acum, t.ene_abono_acum,
+t.feb_cargo_acum,t.feb_abono_acum, t.mar_cargo_acum,t.mar_abono_acum,t.abr_cargo_acum,t.abr_abono_acum,
+t.may_cargo_acum, t.may_abono_acum, t.jun_cargo_acum,t.jun_abono_acum,t.jul_cargo_acum, t.jul_abono_acum,
+t.ago_cargo_acum, t.ago_abono_acum, t.sep_cargo_acum, t.sep_abono_acum, t.oct_cargo_acum, t.oct_abono_acum,
+t.nov_cargo_acum, t.nov_abono_acum, t.dic_cargo_acum, t.dic_abono_acum
+from rf_tr_cuentas_contables t, RF_TC_CLASIFICADOR_CUENTAS cc
+where t.nivel=1 and to_char(t.fecha_vig_fin,'yyyy')='2010' and t.id_catalogo_cuenta=1 and t.cuenta_mayor_id= cc.cuenta_mayor_id
+and cc.fecha_vig_ini<=t.fecha_vig_ini and cc.fecha_vig_fin>=t.fecha_vig_fin
+order by t.cuenta_contable]]></queryString>
+
+	<field name="CUENTA" class="java.lang.String"/>
+	<field name="DESCRIPCION" class="java.lang.String"/>
+	<field name="ENE_CARGO_INI" class="java.lang.Double"/>
+	<field name="ENE_ABONO_INI" class="java.lang.Double"/>
+	<field name="NATURALEZA" class="java.lang.String"/>
+	<field name="ENE_CARGO" class="java.lang.Double"/>
+	<field name="ENE_ABONO" class="java.lang.Double"/>
+	<field name="FEB_CARGO" class="java.lang.Double"/>
+	<field name="FEB_ABONO" class="java.lang.Double"/>
+	<field name="MAR_CARGO" class="java.lang.Double"/>
+	<field name="MAR_ABONO" class="java.lang.Double"/>
+	<field name="ABR_CARGO" class="java.lang.Double"/>
+	<field name="ABR_ABONO" class="java.lang.Double"/>
+	<field name="MAY_CARGO" class="java.lang.Double"/>
+	<field name="MAY_ABONO" class="java.lang.Double"/>
+	<field name="JUN_CARGO" class="java.lang.Double"/>
+	<field name="JUN_ABONO" class="java.lang.Double"/>
+	<field name="JUL_CARGO" class="java.lang.Double"/>
+	<field name="JUL_ABONO" class="java.lang.Double"/>
+	<field name="AGO_CARGO" class="java.lang.Double"/>
+	<field name="AGO_ABONO" class="java.lang.Double"/>
+	<field name="SEP_CARGO" class="java.lang.Double"/>
+	<field name="SEP_ABONO" class="java.lang.Double"/>
+	<field name="OCT_CARGO" class="java.lang.Double"/>
+	<field name="OCT_ABONO" class="java.lang.Double"/>
+	<field name="NOV_CARGO" class="java.lang.Double"/>
+	<field name="NOV_ABONO" class="java.lang.Double"/>
+	<field name="DIC_CARGO" class="java.lang.Double"/>
+	<field name="DIC_ABONO" class="java.lang.Double"/>
+	<field name="ENE_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="ENE_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="FEB_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="FEB_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="MAR_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="MAR_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="ABR_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="ABR_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="MAY_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="MAY_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="JUN_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="JUN_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="JUL_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="JUL_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="AGO_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="AGO_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="SEP_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="SEP_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="OCT_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="OCT_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="NOV_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="NOV_ABONO_ACUM" class="java.lang.Double"/>
+	<field name="DIC_CARGO_ACUM" class="java.lang.Double"/>
+	<field name="DIC_ABONO_ACUM" class="java.lang.Double"/>
+
+	<variable name="ENE_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="FEB_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAR_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ABR_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAY_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUN_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUL_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="AGO_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="SEP_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="OCT_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="NOV_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="DIC_INI_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ENE_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="FEB_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAR_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ABR_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAY_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUN_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUL_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="AGO_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="SEP_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="OCT_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="NOV_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="DIC_FINAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="DIC_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="NOV_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="OCT_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="SEP_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="AGO_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUL_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUN_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAY_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ABR_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAR_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="FEB_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ENE_FINAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="DIC_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="NOV_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="OCT_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="SEP_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="AGO_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUL_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="JUN_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAY_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ABR_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="MAR_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="FEB_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="ENE_INI_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="TOTAL_ABONO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+	<variable name="TOTAL_CARGO" class="java.lang.Double" resetType="Report" calculation="Nothing">
+	</variable>
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</title>
+		<pageHeader>
+			<band height="136"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="90"
+						y="78"
+						width="465"
+						height="13"
+						key="textField-1"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new String("LIBRO MAYOR CORRESPONDIENTE AL EJERCICIO "+$P{EJERCICIO})]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="0"
+						y="102"
+						width="55"
+						height="28"
+						key="staticText-1"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[CUENTA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="195"
+						y="102"
+						width="90"
+						height="14"
+						key="staticText-2"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[SALDO INICIAL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="285"
+						y="102"
+						width="90"
+						height="28"
+						key="staticText-3"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[MOVIMIENTO
+DEUDOR]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="375"
+						y="102"
+						width="90"
+						height="28"
+						key="staticText-4"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[MOVIMIENTO
+ACREEDOR]]></text>
+				</staticText>
+				<image  evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="0"
+						width="90"
+						height="90"
+						key="image-1"/>
+					<box></box>
+					<graphicElement stretchType="NoStretch"/>
+					<imageExpression class="java.lang.String"><![CDATA["C:\\SOFTWARE\\jdeveloperbase\\jdev\\mywork\\siafm13Mayo\\SIAFM\\public_html\\Librerias\\Imagenes\\logoINEGILetras.jpg"]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement
+						x="90"
+						y="0"
+						width="465"
+						height="13"
+						key="staticText-18"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[INSTITUTO NACIONAL DE ESTADÍSTICA Y GEOGRAFÍA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="90"
+						y="13"
+						width="465"
+						height="13"
+						key="staticText-19"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[ORGANISMO AUTÓNOMO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="90"
+						y="26"
+						width="465"
+						height="13"
+						key="staticText-20"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DIRECCIÓN GENERAL DE ADMINISTRACIÓN]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="90"
+						y="39"
+						width="465"
+						height="13"
+						key="staticText-21"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DIRECCIÓN GENERAL ADJUNTA DE LA UNIDAD DE PROGRAMACIÓN, ORGANIZACIÓN Y PRESUPUESTO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="90"
+						y="52"
+						width="465"
+						height="13"
+						key="staticText-22"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DIRECCIÓN DE CONTABILIDAD INSTITUCIONAL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="90"
+						y="65"
+						width="465"
+						height="13"
+						key="staticText-23"/>
+					<box></box>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[RFC - INE0804164Z7]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="478"
+						y="8"
+						width="77"
+						height="17"
+						key="textField-43"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[new java.lang.String("Página "+(new Integer($P{numPagina}.intValue()-1+$V{PAGE_NUMBER}.intValue())).toString())]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="55"
+						y="102"
+						width="111"
+						height="28"
+						key="staticText-24"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DESCRIPCIÓN DE LA CUENTA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="166"
+						y="102"
+						width="29"
+						height="28"
+						key="staticText-25"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[MES]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="195"
+						y="116"
+						width="45"
+						height="14"
+						key="staticText-26"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DEBE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="240"
+						y="116"
+						width="45"
+						height="14"
+						key="staticText-27"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[HABER
+]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="465"
+						y="102"
+						width="90"
+						height="14"
+						key="staticText-28"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[SALDOS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="465"
+						y="116"
+						width="45"
+						height="14"
+						key="staticText-29"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[DEBE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="510"
+						y="116"
+						width="45"
+						height="14"
+						key="staticText-30"/>
+					<box>					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<text><![CDATA[HABER
+]]></text>
+				</staticText>
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="303"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="0"
+						y="12"
+						width="47"
+						height="24"
+						key="textField-2"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{CUENTA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="55"
+						y="12"
+						width="142"
+						height="26"
+						key="textField-3"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA[$F{DESCRIPCION}.toUpperCase()]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement
+						x="132"
+						y="39"
+						width="62"
+						height="18"
+						key="staticText-6"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[ENERO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="59"
+						width="62"
+						height="18"
+						key="staticText-7"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[FEBRERO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="79"
+						width="62"
+						height="18"
+						key="staticText-8"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[MARZO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="100"
+						width="62"
+						height="18"
+						key="staticText-9"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[ABRIL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="120"
+						width="62"
+						height="18"
+						key="staticText-10"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[MAYO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="140"
+						width="62"
+						height="18"
+						key="staticText-11"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[JUNIO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="160"
+						width="62"
+						height="18"
+						key="staticText-12"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[JULIO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="180"
+						width="62"
+						height="18"
+						key="staticText-13"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[AGOSTO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="199"
+						width="62"
+						height="18"
+						key="staticText-14"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[SEPTIEMBRE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="220"
+						width="62"
+						height="18"
+						key="staticText-15"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[OCTUBRE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="240"
+						width="62"
+						height="18"
+						key="staticText-16"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[NOVIEMBRE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement
+						x="132"
+						y="260"
+						width="62"
+						height="18"
+						key="staticText-17"/>
+					<box></box>
+					<textElement>
+						<font fontName="Arial" size="9"/>
+					</textElement>
+				<text><![CDATA[DICIEMBRE]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="39"
+						width="60"
+						height="18"
+						key="textField-4"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ENE_CARGO}.intValue()>0?$F{ENE_CARGO} :new Double(0)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="59"
+						width="60"
+						height="18"
+						key="textField-5"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{FEB_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="79"
+						width="60"
+						height="18"
+						key="textField-6"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{MAR_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="100"
+						width="60"
+						height="18"
+						key="textField-7"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ABR_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="120"
+						width="60"
+						height="18"
+						key="textField-8"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{MAY_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="140"
+						width="60"
+						height="18"
+						key="textField-9"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{JUN_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="160"
+						width="60"
+						height="18"
+						key="textField-10"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{JUL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="180"
+						width="60"
+						height="18"
+						key="textField-11"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{AGO_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="199"
+						width="60"
+						height="18"
+						key="textField-12"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{SEP_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="220"
+						width="60"
+						height="18"
+						key="textField-13"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{OCT_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="240"
+						width="60"
+						height="18"
+						key="textField-14"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{NOV_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="260"
+						width="60"
+						height="18"
+						key="textField-15"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{DIC_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="39"
+						width="60"
+						height="18"
+						key="textField-16"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ENE_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="59"
+						width="60"
+						height="18"
+						key="textField-17"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{FEB_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="79"
+						width="60"
+						height="18"
+						key="textField-18"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{MAR_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="100"
+						width="60"
+						height="18"
+						key="textField-19"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{ABR_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="120"
+						width="60"
+						height="18"
+						key="textField-20"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{MAY_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="140"
+						width="60"
+						height="18"
+						key="textField-21"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{JUN_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="160"
+						width="60"
+						height="18"
+						key="textField-22"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{JUL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="180"
+						width="60"
+						height="18"
+						key="textField-23"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{AGO_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="199"
+						width="60"
+						height="18"
+						key="textField-24"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{SEP_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="220"
+						width="60"
+						height="18"
+						key="textField-25"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{OCT_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="240"
+						width="60"
+						height="18"
+						key="textField-26"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{NOV_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="260"
+						width="60"
+						height="18"
+						key="textField-27"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$F{DIC_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="39"
+						width="60"
+						height="18"
+						key="textField-28"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ENE_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="59"
+						width="60"
+						height="18"
+						key="textField-29"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{FEB_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="79"
+						width="60"
+						height="18"
+						key="textField-30"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAR_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="100"
+						width="60"
+						height="18"
+						key="textField-31"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ABR_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="120"
+						width="60"
+						height="18"
+						key="textField-32"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAY_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="140"
+						width="60"
+						height="18"
+						key="textField-33"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUN_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="160"
+						width="60"
+						height="18"
+						key="textField-34"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUL_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="180"
+						width="60"
+						height="18"
+						key="textField-35"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{AGO_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="199"
+						width="60"
+						height="18"
+						key="textField-36"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{SEP_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="220"
+						width="60"
+						height="18"
+						key="textField-37"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{OCT_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="240"
+						width="60"
+						height="18"
+						key="textField-38"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{NOV_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="260"
+						width="60"
+						height="18"
+						key="textField-39"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{DIC_FINAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="39"
+						width="60"
+						height="18"
+						key="textField-40"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ENE_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<line direction="TopDown">
+					<reportElement
+						x="206"
+						y="282"
+						width="349"
+						height="0"
+						key="line-1"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<line direction="TopDown">
+					<reportElement
+						x="206"
+						y="284"
+						width="349"
+						height="0"
+						key="line-2"/>
+					<graphicElement stretchType="NoStretch"/>
+				</line>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="314"
+						y="285"
+						width="60"
+						height="18"
+						key="textField-41"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[new Double($F{ENE_CARGO}.doubleValue()+$F{FEB_CARGO}.doubleValue()+$F{MAR_CARGO}.doubleValue()
++$F{ABR_CARGO}.doubleValue()+$F{MAY_CARGO}.doubleValue()+$F{JUN_CARGO}.doubleValue()
++$F{JUL_CARGO}.doubleValue()+$F{AGO_CARGO}.doubleValue()+$F{SEP_CARGO}.doubleValue()
++$F{OCT_CARGO}.doubleValue()+$F{NOV_CARGO}.doubleValue()+$F{DIC_CARGO}.doubleValue()
+)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="374"
+						y="285"
+						width="60"
+						height="18"
+						key="textField-42"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[new Double($F{ENE_ABONO}.doubleValue()+$F{FEB_ABONO}.doubleValue()+$F{MAR_ABONO}.doubleValue()
++$F{ABR_ABONO}.doubleValue()+$F{MAY_ABONO}.doubleValue()+$F{JUN_ABONO}.doubleValue()
++$F{JUL_ABONO}.doubleValue()+$F{AGO_ABONO}.doubleValue()+$F{SEP_ABONO}.doubleValue()
++$F{OCT_ABONO}.doubleValue()+$F{NOV_ABONO}.doubleValue()+$F{DIC_ABONO}.doubleValue()
+)]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="39"
+						width="60"
+						height="18"
+						key="textField-44"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="8" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ENE_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="39"
+						width="60"
+						height="18"
+						key="textField-45"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ENE_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="59"
+						width="60"
+						height="18"
+						key="textField-46"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{FEB_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="79"
+						width="60"
+						height="18"
+						key="textField-47"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAR_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="100"
+						width="60"
+						height="18"
+						key="textField-48"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ABR_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="120"
+						width="60"
+						height="18"
+						key="textField-49"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAY_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="140"
+						width="60"
+						height="18"
+						key="textField-50"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUN_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="160"
+						width="60"
+						height="18"
+						key="textField-51"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUL_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="180"
+						width="60"
+						height="18"
+						key="textField-52"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{AGO_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="199"
+						width="60"
+						height="18"
+						key="textField-53"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{SEP_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="220"
+						width="60"
+						height="18"
+						key="textField-54"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{OCT_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="240"
+						width="60"
+						height="18"
+						key="textField-55"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{NOV_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="260"
+						width="60"
+						height="18"
+						key="textField-56"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{DIC_FINAL_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="59"
+						width="60"
+						height="18"
+						key="textField-57"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{FEB_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="59"
+						width="60"
+						height="18"
+						key="textField-58"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{FEB_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="79"
+						width="60"
+						height="18"
+						key="textField-59"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAR_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="79"
+						width="60"
+						height="18"
+						key="textField-60"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAR_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="100"
+						width="60"
+						height="18"
+						key="textField-61"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ABR_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="100"
+						width="60"
+						height="18"
+						key="textField-62"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{ABR_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="120"
+						width="60"
+						height="18"
+						key="textField-63"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAY_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="120"
+						width="60"
+						height="18"
+						key="textField-64"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{MAY_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="140"
+						width="60"
+						height="18"
+						key="textField-65"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUN_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="140"
+						width="60"
+						height="18"
+						key="textField-66"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUN_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="160"
+						width="60"
+						height="18"
+						key="textField-67"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUL_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="160"
+						width="60"
+						height="18"
+						key="textField-68"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{JUL_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="180"
+						width="60"
+						height="18"
+						key="textField-69"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{AGO_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="180"
+						width="60"
+						height="18"
+						key="textField-70"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{AGO_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="199"
+						width="60"
+						height="18"
+						key="textField-71"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{SEP_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="199"
+						width="60"
+						height="18"
+						key="textField-72"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{SEP_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="220"
+						width="60"
+						height="18"
+						key="textField-73"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{OCT_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="220"
+						width="60"
+						height="18"
+						key="textField-74"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{OCT_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="240"
+						width="60"
+						height="18"
+						key="textField-75"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{NOV_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="240"
+						width="60"
+						height="18"
+						key="textField-76"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{NOV_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="194"
+						y="260"
+						width="60"
+						height="18"
+						key="textField-77"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{DIC_INI_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="254"
+						y="260"
+						width="60"
+						height="18"
+						key="textField-78"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="8"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{DIC_INI_ABONO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="434"
+						y="285"
+						width="60"
+						height="18"
+						key="textField-79"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{TOTAL_CARGO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="false" pattern="#,##0.00" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						x="495"
+						y="285"
+						width="60"
+						height="18"
+						key="textField-80"/>
+					<box></box>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" pdfFontName="Helvetica-Bold" size="9" isBold="true"/>
+					</textElement>
+				<textFieldExpression   class="java.lang.Double"><![CDATA[$V{TOTAL_ABONO}]]></textFieldExpression>
+				</textField>
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="54"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>

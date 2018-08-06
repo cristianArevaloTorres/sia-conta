@@ -1,0 +1,14 @@
+function window_open(campo,actualizo,opc)
+{
+  var newWindow;
+  var urlstring = '/Librerias/Javascript/Calendar/Calendar.htm?campo='+campo;
+  newWindow = window.open(urlstring,'','height=220,width=280,toolbar=no,minimize=no,status=no,memubar=no,location=no,scrollbars=no')
+  banActualizo(actualizo,opc,campo);
+}
+
+  <input name="FOPER1" type="text" value="1/8/2003" size="12" maxlength="10" readonly="">
+  <a href="javascript: void(0);" onmouseover="if (timeoutId) clearTimeout(timeoutId);return true;"
+    onclick="window_open('Datos.FOPER1','document.Datos.Actualizo1',1)">
+  <img src="/Librerias/Javascript/Calendar/calendar.gif" name="imgCalendar" width="34" height="21" border="0" alt=""></a>					 
+  <input type="hidden" name="Consec1" value='1'>
+  <input type="hidden" name="FOPER1H" value='0'>	

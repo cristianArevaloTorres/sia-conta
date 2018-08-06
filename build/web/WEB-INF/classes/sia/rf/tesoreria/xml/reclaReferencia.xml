@@ -1,0 +1,41 @@
+<dml>
+<submodulo id="catalogos">
+<select id="RfTrCuentasBancarias">
+select
+ ID_CUENTA,NUM_CUENTA,ENTIDAD,NOMBRE_CTA,UNIDAD_EJECUTORA,AMBITO
+from 
+ RF_TR_CUENTAS_BANCARIAS
+where 
+ id_cuenta in (957,1035)
+</select> 
+<select id="RfTrRefenciasIxv">
+select 
+ ID_CUENTA idcuenta,REFERENCIA 
+from 
+ RF_TR_REFENCIAS_IXV 
+where 
+ id_cuenta in (:idCuenta) 
+</select> 
+</submodulo>
+<submodulo id="movimientos">
+<select id="listadoMovimientos">
+select mov.ID_CUENTA,cb.num_cuenta,ID_MOVIMIENTO,FECHA_HORA,MONTO,NUMERO_CHEQUE,NUMERO_FOLIO, 
+       DESCRIPCION,REFERENCIA,CLAVE_TRANS_RECLA, REFERENCIA_ANT 
+from RF_TR_MOVIMIENTOS_CUENTA mov, RF_TR_CUENTAS_BANCARIAS cb 
+where mov.id_cuenta = cb.id_cuenta and  
+      (trunc(fecha_hora) >= to_date(':fechaInicio','dd/mm/yyyy') and trunc(fecha_hora) &lt;= to_date(':fechaFinal','dd/mm/yyyy'))  and  
+      mov.id_tipo_trans = 'C' and
+      mov.id_cuenta in (:idCuenta) and substr(mov.referencia,1,10) not in (select referencia from RF_TR_REFENCIAS_IXV) 
+order by 2,3
+</select> 
+<select id="regMovModificar">
+select mov.ID_CUENTA,cb.num_cuenta,ID_MOVIMIENTO,FECHA_HORA,MONTO,NUMERO_CHEQUE,NUMERO_FOLIO,
+       DESCRIPCION,REFERENCIA,CLAVE_TRANS_RECLA, REFERENCIA_ANT
+from 
+  RF_TR_MOVIMIENTOS_CUENTA mov, rf_tr_cuentas_bancarias cb
+where 
+      cb.id_cuenta = mov.id_cuenta and mov.id_cuenta = :idCuente
+      and id_movimiento = idMovimiento
+</select> 
+</submodulo>
+</dml>

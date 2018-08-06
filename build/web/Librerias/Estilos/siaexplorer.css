@@ -1,0 +1,500 @@
+/* Sistema Integral de Administraci�n SIA  */
+/* Hoja de Estilo                          */ 
+/*                                         */
+
+body {
+      background-image  :  url(../Imagenes/fondo.gif);
+      font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+      font-size			: 7pt;
+	  font-weight 	 	: normal;
+	  text-decoration 	: none;
+	  color 		: #000000;
+
+	scrollbar-3dlight-color : #CCCCCC;
+	scrollbar-arrow-color   : #FFFFFF;
+	scrollbar-base-color    : #000066;
+	scrollbar-darkshadow-color: #000000;
+	scrollbar-face-color    :0099CC; 
+	scrollbar-highlight-color: #37CDFF;
+	scrollbar-track-color   : #eff5f9;
+	scrollbar-shadow-color  : #33CCFF;
+
+
+	 }
+
+a	 {
+	  font-family	 	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  color			 	: #000000;
+	  text-decoration 	: underline;
+	  cursor			: pointer
+	 }
+
+a:Link
+	 {
+ 	  color 			:  #000000; 
+	  font-size 		: 8pt;
+	  text-decoration 	: underline
+	 }
+
+a:Visited
+	 {
+	  color 			: #009ee2; 
+	  font-size 		: 8pt;
+	  text-decoration 	: underline
+	 }
+
+a:hover
+	 {
+	  color 			: red;
+	  font-size 		: 8pt;
+	  text-decoration 	: none
+	 }
+
+address 
+     {
+  	  font-family 		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			:#000066 ;
+	  text-decoration 	: none
+	 }	
+
+
+th
+   {
+ 	  font-family     : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+  	color           : #000000; 
+	  font-size 	   	: 8pt;
+	  text-decoration : none;
+     } 	
+
+td
+     {
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  text-decoration   : none;
+     } 	
+
+
+				 	  
+table.general 
+   	 {
+	  border-style	  	: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+	  empty-cells 		: show
+     }	  
+
+th.general
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+ 	  font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 		    : #ffffff;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+	  background-color  : #006699
+     } 	
+
+td.general
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+	  text-decoration   : none;
+	  font-weight 	  	: normal
+     } 	
+
+table.resultado 
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #DDDEDF;
+      border-style      : solid   ;
+	  empty-cells 		: show
+     }	  
+
+th.resultado
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #ffffff;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+	  background-color  : #0099cc
+     } 
+	 
+tr.resGrisClaro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #DDDEDF;
+      border-style      : solid   ;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #E8E8E8;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resGrisOscuro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #D7D7D7;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resGrisOscuroOver
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #DDDEDF;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #D7D7D7;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resAzulClaro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #CEE9F7;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resAzulOscuro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #bbdff3;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+	
+
+td.resultado
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+
+h1   {
+      color				: #000066;
+      font-size			: 20Pt;
+ 	  font-family      	: Times;
+     }
+
+h2   {
+      color				: #000066;
+      font-size			: 12Pt;
+ 	  font-family      	: Times;
+	  text-align 		: left;
+     }
+
+h3   {
+      color				: #000066;
+ 	  font-family      	: Times;
+      font-size			: 10Pt;
+     }
+
+
+h4   {
+      color				: #000066;
+      font-size			: 20Pt;
+      font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+     }
+
+h5   {
+      color				: #000066;
+      font-size			: 12Pt;
+      font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  text-align 		: left;
+     }
+
+h6   {
+      color				: #000066;
+      font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+      font-size			: 10Pt;
+     }
+
+
+li   {
+      color				: navy;
+     }
+
+p    {
+      font-size			: 8pt;
+     }
+
+
+...negrita
+     {
+      font-weight		: bold;
+     }
+
+...azul{
+      color				: #37689D;
+     }
+
+...opcion
+     {
+	  font-family	 	: Verdana;
+	  background-color 	: #eff5f9;
+	 }
+
+label 
+     {
+	  font-size 		: 7pt;
+	  font-weight		:bold;
+     }	  	  
+
+fieldset 
+     {
+	  font-weight		:bold;
+     }	  	  
+
+hr
+     {
+    color: #DDDEDF;
+    background-color: #006699;
+    border-style: none ;
+    line-height: 1px;
+	 }  
+
+hr.piePagina {
+    color: #DDDEDF;
+    background-color: #006699;
+    width: 70%;
+    border-style: none ;
+    line-height: 1px;
+        
+}
+
+hr.normal {
+    color: #006699;
+    background-color: #006699;
+    width: 75%;
+    border-style: none ;
+}
+
+hr.menu {
+    color: #DDDEDF;
+    background-color: #006699;
+    width: 100%;
+    border-style: none ;
+    line-height: 1px;
+}
+
+/*Fin de Archivo de Estilos             */
+.cajaTexto {
+font-size:8pt;
+MARGIN-top:0px;
+MARGIN-left:0px;
+background-color 	: #eff5f9;
+color				: navy;
+border: thin #000066 solid; 
+font-weight: normal;
+font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.boton {  
+font-family: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog; 
+font-size: 8pt; 
+font-style: bold; 
+line-height: normal; 
+font-weight: bold; 
+color: #FFFFFF; 
+background-color: #0099CC; 
+border-color: #37CDFF #33CCFF #33CCFF; 
+border-style: outset; 
+border-top-width: thin; 
+border-right-width: thin; 
+border-bottom-width: thin; 
+border-left-width: thin; 
+cursor: pointer
+}
+links {
+
+	  font-family	 	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  text-decoration 	: none;
+}
+
+.Arbol {
+	border-right-width: thin;
+	border-right-style: solid;
+	border-right-color: #000066;
+}
+
+..cajaTexto2 {
+font-size:7pt;
+MARGIN-top:0px;
+MARGIN-left:0px;
+background-color 	: #ffffff;
+color				: #666666;
+border: thin #666666 solid; 
+font-weight: normal;
+}
+
+.btnform {
+	BORDER-RIGHT: 0px; BORDER-TOP: 0px; FONT-SIZE: 12px; BORDER-LEFT: 0px; WIDTH: 100%; CURSOR: pointer; BORDER-BOTTOM: 0px; FONT-FAMILY: tahoma, verdana; HEIGHT: 18px; BACKGROUND-COLOR: #dbeaf5; TEXT-ALIGN: center
+}
+.btn {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; BACKGROUND-COLOR: #dbeaf5
+}
+
+.azulCla
+{
+          border-color: #006699;
+          border-style: solid ;
+          border-width: 1pt ;
+          font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+		  font-size 	   	: 8pt;
+		  color 		    : #ffffff;
+		  text-decoration   : none;
+		  font-weight 	    : normal;
+		  background-color  : #0099CC;
+          width: 100%;
+          text-align: left;
+          text-indent: 5pt;
+          cursor: pointer;
+}
+
+.azulClaCen
+{
+          border-color: #006699;
+          border-style: solid ;
+          border-width: 1pt ;
+          font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+          font-size 	   	: 8pt;
+          color 		    : #ffffff;
+          text-decoration   : none;
+          font-weight 	    : normal;
+          background-color  : #0099CC;
+          text-align: center;
+          cursor: pointer;
+}
+
+.tabAzulObs {
+  color : White; background-color : #006699;
+}
+
+.tabAzulCla {
+  background-color : #D5D5D5;
+}
+
+.azulObs
+{
+          border-color: #0099CC;
+          border-style: solid ;
+          border-width: 1pt ;
+          font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+          font-size 	   	: 8pt;
+          color 		    : White;
+          text-decoration   : none;
+          font-weight 	    : normal;
+          background-color  : #006699;
+          text-align: center;
+          
+          /*width: 100%;*/
+          cursor: pointer;
+          
+}
+
+.azulObsLt
+{
+          border-color: #0099CC;
+          border-style: solid ;
+          border-width: 1pt ;
+          font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+          font-size 	   	: 8pt;
+          color 		    : White;
+          text-decoration   : none;
+          font-weight 	    : normal;
+          background-color  : #006699;
+          text-align: left;
+          
+}
+
+.azulObsRt
+{
+          border-color: #0099CC;
+          border-style: solid ;
+          border-width: 1pt ;
+          font-family     	: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+          font-size 	   	: 8pt;
+          color 		    : White;
+          text-decoration   : none;
+          font-weight 	    : normal;
+          background-color  : #006699;
+          text-align: right;
+          
+}
+
+.blanco
+{
+  color: White;
+}
+
+.verde
+{
+  color: #19FF05;
+}
+
+.preload16 {background: url(../Imagenes/pro16_2.gif);}
+.preload16a {background: url(../Imagenes/pro16_2a.gif);}
+
+.pro16 {padding:0 0 0 1em; margin:0; list-style:none; height:0px; position:relative; background:transparent url(../Imagenes/pro16_back.gif) repeat-x left top; font-size:11px;}
+.pro16 li {float:left; height:43px;}
+.pro16 li a {display:block; float:left; height:40px; line-height:35px; color:#888; text-decoration:none; font-family:arial, verdana, sans-serif; font-weight:bold; text-align:center; padding:0 0 0 10px; cursor:pointer; background:url(../Imagenes/pro16_0a.gif) no-repeat;}
+.pro16 li a b {float:left; display:block; padding:0 60px 0 0; background:url(../Imagenes/pro16_0.gif) no-repeat left top;}
+.pro16 li a.usuarios b {float:left; display:block; padding:0 60px 0 0; background:url(../Imagenes/pro16_Usuarios.gif) no-repeat left top;}
+.pro16 li a.configuracion b {float:left; display:block; padding:0 60px 0 0; background:url(../Imagenes/pro16_Config.gif) no-repeat left top;}
+.pro16 li a.reportes b {float:left; display:block; padding:0 60px 0 0; background:url(../Imagenes/pro16_Reportes.gif) no-repeat left top;}
+.pro16 li a.bloqueos b {float:left; display:block; padding:0 60px 0 0; background:url(../Imagenes/pro16_Bloqueos.gif) no-repeat left top;}
+.pro16 li a.current b {color:#000; background:url(../Imagenes/pro16_2.gif) no-repeat right top;}
+.pro16 li a.current {color:#000; background:url(../Imagenes/pro16_2a.gif) no-repeat;}
+.pro16 li.current a {color:#000; background:url(../Imagenes/pro16_2a.gif) no-repeat;}
+.pro16 li.current a b {color:#000; background:url(../Imagenes/pro16_2.gif) no-repeat right top;}
+.pro16 li a:hover {color:#000; background: url(../Imagenes/pro16_2a.gif) no-repeat;}
+.pro16 li a:hover b {color:#000; background:url(../Imagenes/pro16_2.gif) no-repeat right top;}
+.pro16 li.current a:hover {color:#000; cursor:default;}
+

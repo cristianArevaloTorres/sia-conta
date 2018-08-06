@@ -1,0 +1,244 @@
+<dml>
+  <submodulo id="aut">
+    <select id="procesarEmpleado">
+select
+ '' as credencial, '' exento, 
+ '' curp, unidad_ejecutora, ambito, '' clave_adsc_func, 
+ '' desUnidad, '' desAmbito, entidad, '' municipio, 
+ '' desEntidad, '' desMunicipio, genero, e.nombres, e.apellido_pat, e.apellido_mat, 
+ '' desSiglasUE, 
+ '' desSiglasEntidad 
+from
+ rh_tv_empleados e 
+where
+ e.num_empleado= :numEmpleado
+order by
+ e.curp 
+    </select>
+    <select id="RhTcArbolMenu-Inicial">
+select distinct 
+  am.consecutivo,
+  am.clave,
+  am.des,
+  am.ruta,
+  am.publicar,
+  length(am.clave)-2 espacios, 
+  decode(ruta,null,'cerrado.gif','table.jsp','cerrado.gif','hoja.gif') imagen, 
+  am.des descripcion,
+  substr(am.clave,0,length(am.clave)-2) padre
+from 
+  sg_tr_usuarios_perfil up,
+  sg_tr_usuarios us,
+  sg_tr_modulos_perfil mp,
+  sg_tc_arbol_menu am
+WHERE 
+up.num_empleado = us.num_empleado
+and mp.cve_perfil = up.cve_perfil
+AND mp.consecutivo = am.consecutivo
+and us.login = ':login'
+AND publicar = '1'
+ORDER BY clave
+    </select>
+    <select id="RhTrUsuariosPerfil-tabla">
+select 
+  up.num_empleado,up.cve_perfil
+from 
+  sg_tr_usuarios_perfil up
+where 1=1
+  :numEmpleado
+    </select>
+    <select id="tieneAccesoBD">
+select 
+  LOGIN,PASSWORD,NUM_EMPLEADO,FECHA 
+from 
+  SG_TR_USUARIOS
+where
+  num_empleado = :numEmpleado
+    </select>
+    <select id="tieneAccesoComun">
+select
+ u.login, u.password, u.num_empleado, u.fecha, up.cve_perfil,
+ p.descripcion, p.cve_grupo, 
+ g.descripcion 
+from
+ sg_tr_usuarios u 
+ inner join sg_tr_usuarios_perfil up on u.num_empleado = up.num_empleado
+ inner join sg_tc_perfil p on up.cve_perfil=p.cve_perfil 
+ inner join sg_tc_grupo g on g.cve_grupo=p.cve_grupo 
+where
+ u.num_empleado= :numEmpleado 
+order by
+ num_empleado 
+    </select>
+    <select id="tieneAccesoDirectorio">
+select
+  num_empleado 
+from
+ rh_tv_empleados 
+where
+ curp= ':curp'
+order by
+ num_empleado 
+    </select>
+    <select id="verificaAcceso">
+select
+ u.login, u.password, u.num_empleado, u.fecha
+from
+ sg_tr_usuarios u 
+where
+ login = ':login'
+order by
+ login 
+    </select>
+    <select id="verificaAccesoBD">
+select
+ u.login, u.password, up.cve_perfil, u.num_empleado, u.fecha,
+ p.descripcion, p.cve_grupo, 
+ g.descripcion  
+from
+ sg_tr_usuarios u 
+ inner join SG_TR_USUARIOS_PERFIL up on u.num_empleado = up.num_empleado
+ inner join sg_tc_perfil p on up.cve_perfil=p.cve_perfil 
+ inner join sg_tc_grupo g on g.cve_grupo=p.cve_grupo 
+where
+ login = ':login'
+order by
+ login 
+    </select>
+  </submodulo>
+  <submodulo id="mensajitos">
+    <select id="bienvenue">
+select * from (
+select m.id_mensaje, to_char(m.registro, 'dd/MM/yyyy') fecha, to_char(registro, 'HH24:MI:SS') hora, 
+  m.id_tipo_mensaje relacion, 
+  m.descripcion_1 mensaje, m.id_tipo_mensaje,-- tm.descripcion tipo_mensaje, 
+  1 id_area, 'alguna' area, 
+  'http://intranet.wapp.senado.gob.mx/intranet/servicios/directorios/telefonico/?donde=Nombre+completo'||'&amp;'||'condicion=contiene'||'&amp;'||'dirtexto='
+  ||e.nombres||'+'||e.apellido_pat||'+'||e.apellido_mat||'#resultado' destino, m.url_seguimiento, g.cve_grupo, p.cve_perfil, me.num_empleado, mu.consecutivo 
+from sg_tr_mensajes m --mensajes generales
+  left join sg_tr_mensajes_grupo g on g.id_mensaje = m.id_mensaje --mensajes x grupo
+  left join sg_tr_mensajes_perfil p on p.id_mensaje = m.id_mensaje --mensajes x perfil
+  left join sg_tr_mensajes_empleados me on me.id_mensaje = m.id_mensaje --mensajes x empleado
+  left join sg_tr_mensajes_procesos mp on mp.id_mensaje = m.id_mensaje --mensajes x proceso
+  left join sg_tr_mensajes_menu mu on mu.ID_MENSAJE = m.id_mensaje --mensajes x opcion del menu
+  --inner join rh_tc_areas_responsables a on a.id_area=m.id_area 
+  --inner join rh_tc_tipo_mensajes tm on m.id_tipo_mensaje=tm.id_tipo_mensaje 
+  inner join rh_tv_empleados e on m.num_empleado=e.num_empleado   
+where --m.id_tipo_mensaje=1 and 
+  sysdate between m.fecha_vig_ini and m.fecha_vig_fin
+) where (cve_grupo=:cveGrupo or cve_perfil=:cvePerfil or num_empleado = :numEmpleado or id_tipo_mensaje=1 or 
+      consecutivo in (
+      SELECT distinct mp.consecutivo
+      FROM rh_tv_empleados u, sg_tr_usuarios_perfil up, sg_tc_perfil p,
+       sg_tr_modulos_perfil mp, sg_tc_arbol_menu am
+      WHERE u.num_empleado = :numEmpleado and u.num_empleado = up.num_empleado 
+      and up.cve_perfil = p.cve_perfil and p.CVE_PERFIL=mp.cve_perfil
+      and mp.consecutivo=am.consecutivo
+    )
+)
+    </select>
+    <select id="RhTrMensajes">
+select * from (
+select m.id_mensaje, to_char(m.registro, 'dd/MM/yyyy') fecha, to_char(registro, 'HH24:mi:ss') hora, descripcion_corta, i.grupo, i.perfil, i.opcion, i.empleado,
+case when m.fecha_vig_fin>= sysdate and sysdate >= m.fecha_vig_ini then 's3.gif' else 's1.gif' end estatus,
+to_char(m.fecha_vig_fin,'dd/MM/yyyy HH24:mi:ss') fecha_vig_fin, to_char(m.fecha_vig_ini,'dd/MM/yyyy HH24:mi:ss') fecha_vig_ini,fecha_vig_fin fecha_fin, fecha_vig_ini fecha_ini,
+  m.id_tipo_mensaje relacion, 
+  m.descripcion mensaje, m.id_tipo_mensaje, --tm.descripcion tipo_mensaje, 
+  --a.id_area, a.descripcion area, 
+  m.url_seguimiento
+from sg_tr_mensajes m
+  left join ( select m. id_mensaje, g.grupo, p.perfil, mu.opcion, me.empleado from sg_tr_mensajes m --mensajes generales
+    left join (select id_mensaje, count(cve_grupo) grupo from sg_tr_mensajes_grupo group by id_mensaje) g on g.id_mensaje = m.id_mensaje --mensajes x grupo
+    left join (select id_mensaje, count(cve_perfil) perfil from sg_tr_mensajes_perfil group by id_mensaje) p on p.id_mensaje = m.id_mensaje --mensajes x perfil
+    left join (select id_mensaje, count(num_empleado) empleado from sg_tr_mensajes_empleados group by id_mensaje) me on me.id_mensaje = m.id_mensaje --mensajes x empleado
+    --left join (select id_mensaje, count(cve_perfil) perfil from sg_tr_mensajes_procesos group by id_mensaje) mp on mp.id_mensaje = m.id_mensaje --mensajes x proceso
+    left join (select id_mensaje, count(consecutivo) opcion from sg_tr_mensajes_menu group by id_mensaje) mu on mu.ID_MENSAJE = m.id_mensaje --mensajes x opcion del menu
+  ) i on m.id_mensaje = i.id_mensaje
+  --inner join sg_tc_areas_responsables a on a.id_area=m.id_area 
+  --inner join sg_tc_tipo_mensajes tm on m.id_tipo_mensaje=tm.id_tipo_mensaje 
+--where --m.id_tipo_mensaje=1 and 
+  --sysdate between m.fecha_vig_ini and m.fecha_vig_fin
+)
+order by fecha_fin desc
+    </select>
+    <select id='Mensajes_Detalle'>
+select '1' tipo, mg.cve_grupo cve, g.descripcion
+from 
+  sg_tr_mensajes_grupo mg
+  inner join sg_tc_grupo g on g.cve_grupo = mg.cve_grupo
+where 1=1 :idMensaje
+union
+select '2' tipo, mp.cve_perfil, p.descripcion
+from 
+  sg_TR_MENSAJES_PERFIL mp
+  inner join sg_tc_perfil p on p.cve_perfil = mp.cve_perfil
+where 1=1 :idMensaje
+union
+select '3' tipo, mm.consecutivo, am.des
+from 
+  sg_TR_MENSAJES_MENU mm
+  inner join sg_tc_arbol_menu am on am.consecutivo = mm.consecutivo
+where 1=1 :idMensaje
+union
+select '4' tipo, me.num_empleado, e.nombres || ' ' || e.apellido_pat || e.apellido_mat nombre
+from 
+  sg_TR_MENSAJES_EMPLEADOS me
+  inner join rh_tv_empleados e on e.num_empleado = me.num_empleado
+where 1=1 :idMensaje
+    </select>
+  </submodulo>
+  
+  <submodulo id="Admin">
+    <select id="RhTrGrupo">
+select 
+  cve_grupo, descripcion, cve_grupo || ' ' || descripcion desc_completa 
+from 
+  sg_tc_GRUPO
+order by 
+  cve_grupo
+    </select>
+    <select id="RhTrPerfil">
+select 
+  p.cve_perfil, p.descripcion, cve_perfil || ' ' || descripcion desc_completa
+from 
+  sg_tc_perfil p
+where
+  1=1
+  :cveGrupo
+order by cve_perfil
+    </select>
+    <select id="RhTrUsuariosPerfil">
+select 
+  p.cve_grupo, p.cve_perfil, g.descripcion nombre_grupo, p.descripcion nombre_perfil
+from 
+  sg_tc_usuarios_perfil up, sg_tc_perfil p,
+  sg_tc_grupo g
+where 
+  up.cve_perfil = p.cve_perfil and p.cve_grupo = g.cve_grupo
+  :numEmpleado
+  :cvePerfil
+    </select>
+    <select id="RhTcArbolMenu-AbolIdentado">
+select t.consecutivo, 
+  decode(length(t.clave),4,'&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;',
+  8,'&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;','') espacios, 
+  decode(ruta,null,'cerrado.gif','table.jsp','cerrado.gif','hoja.gif') imagen, 
+  t.des descripcion,
+  substr(rtrim(t.clave,'0'),1,
+    length(rtrim(t.clave,'0'))-decode(length(rtrim(t.clave,'0'))/2-trunc(length(rtrim(t.clave,'0'))/2),0.5,1,2)) padre,
+  decode(ruta,null,0,'table.jsp',0,1) mostrar, 0 en_servidor,t.* 
+from sg_tc_arbol_menu t
+where publicar='1'
+order by t.clave
+    </select>
+    <select id="RhTrUsuarios">
+select  
+  e.num_empleado, apellido_pat || ' ' || apellido_mat || ' ' || nombres || ' ' || curp  nombre
+from 
+  rh_tv_empleados e, sg_tr_usuarios u
+where e.num_empleado = u.num_empleado
+  :nombre
+order by apellido_pat
+    </select>
+  </submodulo>
+</dml>

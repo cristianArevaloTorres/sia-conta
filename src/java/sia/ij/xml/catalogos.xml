@@ -1,0 +1,108 @@
+<dml>
+ <submodulo id="cat_instjuridico">
+  <select id="instjuridico_registros">
+    select t.idinstjuridico, t.descripcion, t.siglas, v.descripcion as desc_estatus
+    from ij_tc_instjuridico t, ij_tc_listas v
+    where t.estatus = v.idlista
+    order by t.descripcion
+  </select>
+  <select id="ijTcListas_estatusCatalogos">
+    select idlista, descripcion 
+    from ij_tc_listas 
+    where idlista like '14%' and idlista &lt;> '1400'
+  </select>
+ </submodulo>
+ <submodulo id="cat_dirregionales">
+  <select id="dirregionales_registros">
+    select t.iddregional, t.descripcion, v.descripcion as desc_estatus
+    from ij_tc_dregional t, ij_tc_listas v
+    where t.estatus = v.idlista
+    order by t.descripcion
+  </select>
+ </submodulo>
+ <submodulo id="cat_tipoobjetivo">
+  <select id="tipoobjetivo_registros">
+    select t.idtipoobjetivo, t.descripcion, v.descripcion as desc_estatus
+    from ij_tc_tipoobjetivo t, ij_tc_listas v
+    where t.estatus = v.idlista
+    order by t.descripcion
+  </select>
+ </submodulo>
+ <submodulo id="cat_titulo">
+  <select id="titulo_registros">
+    select t.idtitulo, t.descripcion, t.abrevia, t.abrevia||' '||t.descripcion todo
+    from ij_tc_titulo t
+    order by t.descripcion
+  </select>
+ </submodulo>
+ <submodulo id="cat_areas">
+  <select id="areas_registros">
+    select t.idareas, t.descripcion, v.descripcion as desc_estatus
+    from ij_tc_areas t, ij_tc_listas v
+    where t.estatus = v.idlista
+    order by t.descripcion
+  </select>
+ </submodulo>
+ <submodulo id="cat_firmantesinegi">
+  <select id="firmantesinegi_registros">
+    select t.idfirmante,t.nombre, t.apellidopat, t.apellidomat, t.cargo, 
+    u.descripcion as desc_estatus, v.descripcion as desc_titulo, 
+    z.descripcion as desc_area, to_char(t.fecactualiza,'dd/mm/yyyy') as fecactualiza 
+    from ij_tc_firmantes t, ij_tc_listas u, ij_tc_titulo v, ij_tc_areas z
+    where t.estatus = u.idlista and t.idtitulo = v.idtitulo and t.idareas = z.idareas
+    order by t.apellidopat, t.apellidomat, t.nombre
+  </select>
+ </submodulo>
+ <submodulo id="cat_firmantesexternos">
+  <select id="firmantesexternos_registros">
+    select t.idexternos,t.nombres, t.apellidopat, t.apellidomat, t.cargo,
+    u.descripcion as desc_estatus, v.descripcion as desc_titulo, 
+    z.organismo as desc_organismo, to_char(t.fecactualiza,'dd/mm/yyyy') as fecactualiza 
+    from ij_tc_externos t, ij_tc_listas u, ij_tc_titulo v, ij_tc_organismo z
+    where t.estatus = u.idlista and t.idtitulo = v.idtitulo and t.idorganismo = z.idorganismo 
+    order by t.apellidopat, t.apellidomat, t.nombres
+  </select>
+ </submodulo>
+ <submodulo id="cat_conclusion">
+  <select id="conclusion_registros">
+    select t.idconclusion, t.descripcion, v.descripcion as desc_estatus
+    from ij_tc_conclusion t, ij_tc_listas v
+    where t.estatus = v.idlista
+    order by t.descripcion
+  </select>
+ </submodulo>
+ <submodulo id="cat_organismos">
+  <select id="organismos_registros">
+    select t.idorganismo, t.organismo
+    from ij_tc_organismo t
+    order by t.organismo
+  </select>
+  <select id="dependencias_registros">
+    Select t.idorganismo, t.organismo, t.siglas, z.descripcion as desc_sector, w.descripcion as desc_estatus,
+           DECODE(t.idpais,'',t.paisd,v.descripcion) as desc_pais,
+           DECODE(t.identidad,'',t.entidadd,u.descripcion) as desc_entidad
+    from ij_tc_organismo t,ij_tc_entidades u, ij_tc_paises v, ij_tc_listas w, ij_tc_listas z
+    where t.identidad=u.identidad(+) and t.idpais=v.idpais(+) and t.estatus=w.idlista and t.sector=z.idlista 
+    order by t.organismo
+  </select>
+  <select id="ijTcListas_sectorCatalogos">
+    select idlista, descripcion 
+    from ij_tc_listas 
+    where idlista like '18%' and idlista &lt;> '1800'
+  </select>
+ </submodulo>
+ <submodulo id="cat_pais">
+  <select id="pais_registros">
+    select t.idpais, t.descripcion
+    from ij_tc_paises t
+    order by t.descripcion
+  </select>
+ </submodulo>
+ <submodulo id="cat_entidad">
+  <select id="entidad_registros">
+    select t.identidad, t.descripcion 
+    from ij_tc_entidades t
+    order by t.descripcion   
+  </select>
+ </submodulo>
+</dml>    

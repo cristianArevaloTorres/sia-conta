@@ -1,0 +1,68 @@
+<dml>
+<submodulo id="catalogos">
+<select id="RfTrCuentasBancarias">
+select 
+  ID_CUENTA,NUM_CUENTA,ENTIDAD,ID_BANCO,NOMBRE_CTA,UNIDAD_EJECUTORA,ID_TIPO_CTA,ID_TIPO_PROGRAMA,OPERACION_CENTRAL,ID_ESTATUS_CTA_PROG,AMBITO,PROCESAR,FECHA_OPERACION,FECHA_FIN_OPERACION 
+from 
+  RF_TR_CUENTAS_BANCARIAS 
+where 
+  :tipoCuenta 
+order by unidad_ejecutora, ambito 
+</select> 
+<select id="RfTcClavesTransaccion">
+select 
+  id_clave_trans, clave_trans, descripcion 
+from  
+  RF_TC_CLAVES_TRANSACCION 
+where 
+  (to_date(':fechaMov','dd/mm/yyyy') >= trunc(vigencia_ini) and to_date(':fechaMov','dd/mm/yyyy') &lt;= trunc(vigencia_fin)) or 
+  (to_date(':fechaMov','dd/mm/yyyy') >= trunc(vigencia_ini) and vigencia_fin is null) 
+order by 
+  clave_trans, descripcion
+</select> 
+</submodulo>
+<submodulo id="criterios">
+<select id="ultimaFechaCargada">
+select 
+  max(trunc(fecha_movimientos)) fecha  
+from 
+  RF_TR_BITACORA_ACTUALIZACION  
+where 
+  id_tipo_programa = :idPrograma or id_tipo_programa = decode(:idPrograma,9,7,:idPrograma)
+</select>
+<select id="listaClavesTrans">
+select 
+ mc.id_cuenta ,mc.id_movimiento,cb.num_cuenta,mc.fecha_hora,
+ mc.monto,mc.id_clave_trans,mc.clave_trans,mc.id_clave_trans_recla,
+ mc.clave_trans_recla ,mc.clave_trans_recla || ' ' || ct.descripcion cveTransSec,
+ mc.numero_cheque,mc.descripcion descripcion,
+ mc.saldo,mc.referencia,  to_char(mc.fecha_hora,'dd/mm/yyyy') fechaHoraFormato 
+from
+  RF_TR_MOVIMIENTOS_CUENTA mc, RF_TR_CUENTAS_BANCARIAS cb, RF_TC_CLAVES_TRANSACCION ct  
+where 
+  mc.id_cuenta = cb.id_cuenta and 
+  mc.id_clave_trans_recla = ct.id_clave_trans and
+  mc.id_cuenta in (:pCuentas) and
+  trunc(mc.fecha_hora) between to_date(':pFechaIni','dd/mm/yyyy') and to_date(':pFechaFin','dd/mm/yyyy')  
+order by  
+  cb.num_cuenta, mc.fecha_hora, mc.monto
+</select>
+<select id="obtenerNumCuenta">
+select 
+  ID_CUENTA,NUM_CUENTA,ENTIDAD,ID_BANCO,NOMBRE_CTA,UNIDAD_EJECUTORA,ID_TIPO_CTA,ID_TIPO_PROGRAMA,OPERACION_CENTRAL,
+  ID_ESTATUS_CTA_PROG,AMBITO,PROCESAR,FECHA_OPERACION,FECHA_FIN_OPERACION,CUENTA_ENCR,SUCURSAL_APERTURA,NUM_CUENTABAN,
+  NUM_CLIENTE,ALIAS_CHEQUERA1,ALIAS_CHEQUERA2,CUENTA_SPEI  
+from 
+  RF_TR_CUENTAS_BANCARIAS   
+where id_cuenta = :idCuenta
+</select>
+<select id="obtenerClaveTrans">
+select 
+  id_clave_trans, clave_trans, descripcion 
+from  
+  RF_TC_CLAVES_TRANSACCION 
+where 
+   id_clave_trans = :idClaveMod
+</select>
+</submodulo>
+</dml>

@@ -1,0 +1,161 @@
+.azulObs {
+  background-color 	: #C5DDEA;
+  font-size         : 9pt;
+  text-align        : center;
+  border-style	  	: solid;
+  border-width		  : thin;
+  border-collapse 	: collapse;
+  border-color		  : #8AC4E4;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.azulObsIzq {
+  background-color 	: #C5DDEA;
+  font-size         : 9pt;
+  text-align        : left;
+  border-style	  	: solid;
+  border-width		  : thin;
+  border-collapse 	: collapse;
+  border-color		  : #8AC4E4;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.azulObsDer {
+  background-color 	: #C5DDEA;
+  font-size         : 9pt;
+  text-align        : right;
+  border-style	  	: solid;
+  border-width		  : thin;
+  border-collapse 	: collapse;
+  border-color		  : #8AC4E4;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}  
+
+
+.azulCla {
+  background-color 	: #EAEAEA;
+  font-size         : 9pt;
+  text-align        : center;
+  border-style	  	: solid;
+  border-width		  : thin;
+  border-collapse 	: collapse;
+  border-color		  : #CFCFCF;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.azulClaIzq {
+  background-color 	: #EAEAEA;
+  font-size         : 9pt;
+  text-align        : left;
+  border-style	  	: solid;
+  border-width		  : thin;
+  border-collapse 	: collapse;
+  border-color		  : #CFCFCF;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.azulClaDer {
+  background-color 	: #EAEAEA;
+  font-size         : 9pt;
+  text-align        : right;
+  border-style	  	: solid;
+  border-width		  : thin;
+  border-collapse 	: collapse;
+  border-color		  : #CFCFCF;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.cajaTexto {
+  background-color 	: #FFFFFF;
+  color             : #3D3D3D;
+  border            : thin #9E9E9E solid; 
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+  
+}
+
+.boton {
+  background-color 	: #DBEEF4;
+  color             : #396292;
+  border            : thin #95B3D7 solid; 
+}
+
+table {
+  font-size:9pt; 
+  font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+table.general 
+{
+	  border-style	  	: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+	  empty-cells 		: show;
+    font-family		  : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}	  
+
+tr {
+  font-size:9pt;
+  font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+td {
+  font-size:9pt;
+  font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+a	 
+{
+  font-size : 9pt;
+  text-decoration 	: underline;
+  cursor			: pointer;
+  font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+a:Visited 
+{
+  font-size : 9pt;
+  text-decoration 	: underline;
+  cursor			      : pointer;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+  color: Black;
+}
+
+a:hover 
+{
+  font-size : 9pt;
+  text-decoration 	: underline;
+  cursor			      : pointer;
+  font-family		    : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+  color: Navy;
+}
+
+.pesAzul {
+  font-size     : 8pt;
+  font-weight   : bold;
+  color         : White;
+  background-color 	: #3399CC;
+  cursor        :pointer;
+  font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.pesGris {
+  background-color 	: #EAEAEA;
+  font-size         :8pt;
+  cursor            :pointer;
+  font-family		: Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+}
+
+.bordeAzul {
+    border-style	  	: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+}
+
+img {
+  border: 0pt ;
+  
+}
+
+.imgcomp { padding:0px; border-width:0px; margin:0px; display: block}

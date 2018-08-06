@@ -1,0 +1,281 @@
+<dml>
+<submodulo id="catalogos">
+ <select id="RfTcTipoPrograma">
+select 
+  ID_TIPO_PROGRAMA,DESCRIPCION,ID_ESTATUS_CTA_PROG,DESC_CORTA 
+from 
+ RF_TC_TIPO_PROGRAMA 
+WHERE 
+  ID_ESTATUS_CTA_PROG = 1 
+  :filtroProg
+</select> 
+<select id="RfTrBitacoraActualizacion">
+select 
+   to_char(max(fecha_movimientos),'dd/mm/yyyy') fecha 
+from 
+  RF_TR_BITACORA_ACTUALIZACION 
+where 
+ id_tipo_programa = :prog
+</select> 
+<select id="RfTcClavesTransaccion">
+select 
+ id_tipo_aplica tipoTrans 
+from 
+ RF_TC_CLAVES_TRANSACCION 
+where 
+ clave_trans = ':clave' 
+</select> 
+</submodulo>
+<submodulo id="criterios">
+<select id="nuevasClaveTrans">
+select 
+ clave, descripcion , rownum llave 
+from ( 
+      select 
+        distinct clave_trans clave, descripcion 
+      from 
+        RF_TR_MOVIMIENTOS_CUENTA_TMP  
+      where 
+         clave_trans not in (select distinct clave_trans from RF_TC_CLAVES_TRANSACCION)) 
+</select> 
+<select id="ctaBancariaNoExisten">
+select 
+ distinct num_cuenta 
+from 
+ RF_TR_MOVIMIENTOS_CUENTA_TMP 
+where 
+ num_cuenta not in ( 
+  select 
+    num_cuenta 
+  from 
+    RF_TR_CUENTAS_BANCARIAS
+  where 
+    id_estatus_cta_prog = 1)
+</select> 
+<select id="ctaBanOtroProg">
+SELECT 
+ movs.num_cuenta 
+FROM 
+ RF_TR_MOVIMIENTOS_CUENTA_TMP movs, RF_TR_CUENTAS_BANCARIAS ctas 
+WHERE 
+ movs.num_cuenta = ctas.num_cuenta and  ctas.id_tipo_programa not in (:prog)
+</select> 
+<select id="unicaFecha">
+select 
+  distinct(to_char(fecha_hora,'dd/MM/yyyy')) fecha 
+FROM 
+  RF_TR_MOVIMIENTOS_CUENTA_TMP
+</select> 
+<select id="ctaSinSaldo">
+select 
+ id_cuenta, num_cuenta 
+from 
+ (select 
+    distinct trunc(mt.fecha_hora)  fecha, id_cuenta, cb.num_cuenta 
+  from 
+    RF_TR_MOVIMIENTOS_CUENTA_TMP mt, RF_TR_CUENTAS_BANCARIAS cb  
+  where 
+    mt.num_cuenta = cb.num_cuenta) res 
+where 
+  id_cuenta not in 
+                (select id_cuenta
+                 from RF_TR_SALDOS_DIARIOS 
+                 where fecha = to_date(res.fecha, 'DD/MM/YY'))
+</select> 
+<select id="registrosDuplicados">
+select 
+    d.clave_trans,d.num_cuenta,d.fecha_hora,d.id_tipo_trans, d.sucursal,d.monto, d.numero_cheque, d.numero_folio, d.operador, 
+    d.descripcion, d.saldo, d.tipo_saldo, d.referencia,
+    referencia2, referencia3, referencia4, referencia5, saldoinicial,
+    d.TOTAL,cb.nombre_cta as unidad_ejecutora 
+from 
+    (SELECT clave_trans,num_cuenta,fecha_hora, id_tipo_trans, sucursal,monto, numero_cheque, numero_folio, operador,descripcion, 
+            saldo, tipo_saldo, referencia, 
+            referencia2, referencia3, referencia4, referencia5, saldoinicial,
+            COUNT(*) AS TOTAL 
+     FROM RF_TR_MOVIMIENTOS_CUENTA_TMP 
+     GROUP BY clave_trans,num_cuenta,fecha_hora, id_tipo_trans, sucursal, monto, numero_cheque, numero_folio, operador, 
+              descripcion, saldo, tipo_saldo, referencia,
+              referencia2, referencia3, referencia4, referencia5, saldoinicial HAVING COUNT(*)> 1) d,
+              RF_TR_CUENTAS_BANCARIAS cb 
+where d.num_cuenta = cb.num_cuenta
+</select> 
+<select id="idRegDuplicados">
+select a.id_movimiento, a.clave_trans,a.num_cuenta,a.fecha_hora, a.id_tipo_trans, a.sucursal, a.monto, a.numero_cheque, a.numero_folio, 
+         a.operador, a.descripcion, a.saldo, a.tipo_saldo, a.referencia, a.referencia2, a.referencia3, a.referencia4, a.referencia5
+ from  RF_TR_MOVIMIENTOS_CUENTA_TMP a, 
+       (SELECT clave_trans,num_cuenta,fecha_hora, id_tipo_trans, sucursal,monto, numero_cheque, numero_folio, operador,descripcion, 
+               saldo, tipo_saldo, referencia, referencia2, referencia3, referencia4, referencia5, COUNT(*) AS TOTAL 
+        FROM RF_TR_MOVIMIENTOS_CUENTA_TMP 
+        GROUP BY clave_trans,num_cuenta,fecha_hora, id_tipo_trans, sucursal, monto, numero_cheque, numero_folio, operador, 
+                 descripcion, saldo, tipo_saldo, referencia,
+                 referencia2, referencia3, referencia4, referencia5 HAVING COUNT(*)> 1) b
+ where a.clave_trans = b.clave_trans and a.num_cuenta = b.num_cuenta and a.fecha_hora = b.fecha_hora and 
+       a.id_tipo_trans = b.id_tipo_trans and 
+       (a.sucursal = b.sucursal or  ( a.sucursal is null and b.sucursal is null )) and a.monto = b.monto and 
+       (a.numero_cheque = b.numero_cheque or  ( a.numero_cheque is null and b.numero_cheque is null )) and
+       (a.numero_folio = b.numero_folio or  ( a.numero_folio is null and b.numero_folio is null )) and
+       ( a.operador = b.operador or  ( a.operador is null and b.operador is null )) and 
+       a.descripcion = b.descripcion and a.saldo = b.saldo and 
+       ( a.tipo_saldo = b.tipo_saldo or (a.tipo_saldo is null and b.tipo_saldo is null)) and
+       ( a.referencia = b.referencia or (a.referencia is null and b.referencia is null)) and
+       ( a.referencia2 = b.referencia2 or (a.referencia2 is null and b.referencia2 is null) ) and       
+       ( a.referencia3 = b.referencia3 or (a.referencia3 is null and b.referencia3 is null) ) and
+       ( a.referencia4 = b.referencia4 or (a.referencia4 is null and b.referencia4 is null) ) and
+       ( a.referencia5 = b.referencia5 or (a.referencia5 is null and b.referencia5 is null) ) 
+ group by a.id_movimiento, a.clave_trans,a.num_cuenta,a.fecha_hora, a.id_tipo_trans, a.sucursal, a.monto, a.numero_cheque, a.numero_folio, 
+          a.operador, a.descripcion, a.saldo, a.tipo_saldo, a.referencia, a.referencia2, a.referencia3, a.referencia4, a.referencia5 
+order by a.id_movimiento 
+</select> 
+<insert id="insertaMovBancariosSder">
+insert into  RF_TR_MOVIMIENTOS_CUENTA 
+ (id_cuenta, id_movimiento, fecha_hora, sucursal, clave_trans, monto, numero_cheque, numero_folio, operador, descripcion, saldo, 
+ tipo_saldo, referencia, id_tipo_trans, clave_trans_recla) 
+ SELECT cb.id_cuenta,  id_movimiento, fecha_hora, sucursal, clave_trans, monto, numero_cheque, numero_folio, operador, descripcion, saldo, 
+  tipo_saldo, referencia || ' ' || referencia2 , id_tipo_trans, clave_trans 
+ FROM  rf_tr_movimientos_cuenta_tmp x, RF_TR_CUENTAS_BANCARIAS CB  
+ where x.NUM_CUENTA = CB.NUM_CUENTA  
+ order by x.id_movimiento
+</insert>
+<insert id="insertaMovBancarios">
+insert into  RF_TR_MOVIMIENTOS_CUENTA 
+ (id_cuenta, id_movimiento, fecha_hora, sucursal, clave_trans, monto, numero_cheque, numero_folio, operador, descripcion, saldo, 
+ tipo_saldo, referencia, id_tipo_trans, clave_trans_recla) 
+ SELECT cb.id_cuenta,  id_movimiento, fecha_hora, sucursal, clave_trans, monto, numero_cheque, numero_folio, operador, descripcion, saldo, 
+  tipo_saldo, referencia, id_tipo_trans, clave_trans 
+ FROM  rf_tr_movimientos_cuenta_tmp x, RF_TR_CUENTAS_BANCARIAS CB  
+ where x.NUM_CUENTA = CB.NUM_CUENTA  
+ order by x.id_movimiento
+</insert>
+<insert id="insertaMovBancariosBMX">
+insert into  RF_TR_MOVIMIENTOS_CUENTA 
+(id_cuenta, id_movimiento, fecha_hora, sucursal, clave_trans, monto, numero_cheque, numero_folio, operador, descripcion, saldo, 
+tipo_saldo, referencia, id_tipo_trans, clave_trans_recla, id_clave_trans, id_clave_trans_recla, SALDOCALCULADO) 
+SELECT cb.id_cuenta,  id_movimiento, fecha_hora, sucursal, clave_trans, monto, numero_cheque, numero_folio, operador, descripcion, saldo, 
+tipo_saldo, referencia, id_tipo_trans, clave_trans_recla, id_clave_trans, id_clave_trans_recla, SALDOCALCULADO 
+FROM ( 
+SELECT movs.num_cuenta,  
+  movs.id_movimiento, movs.fecha_hora, movs.sucursal, movs.clave_trans, movs.monto, movs.numero_cheque, 
+  movs.numero_folio, movs.operador, 
+  (select ct.descripcion from RF_TC_CLAVES_TRANSACCION ct
+   where movs.clave_trans = ct.clave_trans) || decode(movs.descripcion,'NONREF','',' '||movs.descripcion) descripcion, 
+  movs.saldo, movs.tipo_saldo, 
+  decode(movs.referencia,'NONREF','',movs.referencia)||
+  decode(instr('/'||movs.referencia||'/','/'||movs.referencia2||'/'),0,decode(nvl(movs.referencia2,'NONREF'),'NONREF','','/'||movs.referencia2),'')||
+  decode(instr('/'||movs.referencia||'/'||movs.referencia2||'/','/'||movs.referencia3||'/'),0,decode(nvl(movs.referencia3,'NONREF'),'NONREF','','/'||movs.referencia3),'')||
+  decode(instr('/'||movs.referencia||'/'||movs.referencia2||'/'||movs.referencia3||'/','/'||movs.referencia4||'/'),0,decode(nvl(movs.referencia4,'NONREF'),'NONREF','','/'||movs.referencia4),'')||
+  decode(instr('/'||movs.referencia||'/'||movs.referencia2||'/'||movs.referencia3||'/'||movs.referencia5||'/','/'||movs.referencia5||'/'),0,decode(nvl(movs.referencia5,'NONREF'),'NONREF','','/'||movs.referencia5),'') referencia, 
+  movs.id_tipo_trans, movs.clave_trans clave_trans_recla, null id_clave_trans, null id_clave_trans_recla,
+  pvaraux.obten_saldocal(movs.num_cuenta, movs.monto, movs.saldoinicial,movs.id_movimiento,rownum-1) saldoCalculado 
+FROM (select * from rf_tr_movimientos_cuenta_tmp order by id_movimiento) MOVS ) x, 
+RF_TR_CUENTAS_BANCARIAS CB  
+where x.NUM_CUENTA = CB.NUM_CUENTA  
+order by x.id_movimiento 
+</insert>
+<select id="calculaSaldos">
+select cb.id_cuenta, sa.fecha, MC.TOTMOV, 
+     CASE WHEN mc.total IS NULL THEN 0 ELSE mc.total END TOTAL, 
+     sa.saldo_calculado, sa.saldo_banco 
+from RF_TR_CUENTAS_BANCARIAS cb , RF_TR_SALDOS_DIARIOS sa, 
+   (select mc2.num_cuenta, trunc(mc2.FECHA_HORA) fecha, COUNT(*) TOTMOV, SUM(mc2.MONTO * tt.aplicacion) total 
+    from RF_TR_MOVIMIENTOS_CUENTA_tmp mc2, RF_TC_TIPO_TRANSACCION tt 
+    where  mc2.id_tipo_trans = tt.id_tipo_trans(+) and  mc2.FECHA_hora >= to_date(':fechaCarga','dd/mm/yyyy') and 
+          mc2.FECHA_hora &lt;= to_date(':fechaCarga','dd/mm/yyyy')+1 
+    GROUP BY mc2.num_cuenta, trunc(mc2.fecha_HORA)) mc 
+where cb.num_cuenta = mc.num_cuenta(+) and cb.id_cuenta = sa.id_cuenta(+) and to_date(':fechaAntHabil','dd/mm/yyyy') = sa.fecha(+) and 
+      cb.id_tipo_programa in (:programa)
+</select>
+<select id="calculaSaldosBBVA">
+select cb.id_cuenta, sa.fecha, MC.TOTMOV, 
+     CASE WHEN mc.total IS NULL THEN 0 ELSE mc.total END TOTAL, 
+     sa.saldo_calculado, sa.saldo_banco 
+from RF_TR_CUENTAS_BANCARIAS cb , RF_TR_SALDOS_DIARIOS sa, 
+   (select mc2.num_cuenta, trunc( mc2.FECHA_HORA ) fecha, COUNT(*) TOTMOV, SUM(mc2.MONTO) total 
+    from RF_TR_MOVIMIENTOS_CUENTA_tmp mc2
+    where  mc2.FECHA_hora >= to_date(':fechaCarga','dd/mm/yyyy') and 
+          mc2.FECHA_hora &lt;= to_date(':fechaCarga','dd/mm/yyyy')+1 
+    GROUP BY mc2.num_cuenta, trunc( mc2.fecha_HORA)) mc 
+where cb.num_cuenta = mc.num_cuenta(+) and cb.id_cuenta = sa.id_cuenta(+) and to_date(':fechaAntHabil','dd/mm/yyyy') = sa.fecha(+) and 
+      cb.id_tipo_programa in (:programa)
+</select>
+<select id="diaAnteriorHabil">
+select 
+ to_char(tsr.obten_anterior_dia_habil(to_date(':fechaCarga','dd/mm/yyyy')),'dd/mm/yyyy') fecha_inicial 
+from dual 
+</select>
+<select id="diaAnterior">
+select 
+ to_char((to_date(':fechaCarga','dd/mm/yyyy')-1),'dd/mm/yyyy') fecha_inicial 
+from dual 
+</select>
+<select id="saldoInicialFinal"> 
+select 
+ cb.id_cuenta, tmp.monto, (tmp.SALDO * ta2.APLICACION) saldo, (tmp.SALDO * ta2.APLICACION) - (tmp.monto * ta.APLICACION) SALDOINICIAL  
+from 
+ RF_TR_MOVIMIENTOS_CUENTA_tmp tmp, RF_TR_CUENTAS_BANCARIAS cb, rf_tc_tipo_transaccion ta,rf_tc_tipo_transaccion ta2 
+where 
+  trunc(tmp.fecha_hora) = to_date(':fecha','dd/mm/yyyy') and 
+  cb.num_cuenta = tmp.num_cuenta and (:idCuenta IS NULL OR cb.id_cuenta = :idCuenta) and
+  tmp.id_tipo_trans = ta.ID_TIPO_TRANS and  
+  tmp.tipo_saldo = ta2.ID_TIPO_trans
+order by tmp.id_movimiento
+</select>
+<select id="saldoInicialFinalBMX"> 
+select 
+  cb.id_cuenta, tmp.monto, tmp.saldo, tmp.SALDOINICIAL 
+from 
+  RF_TR_MOVIMIENTOS_CUENTA_tmp tmp, RF_TR_CUENTAS_BANCARIAS cb 
+where 
+  to_char(tmp.fecha_hora,'dd/mm/yyyy') =':fecha' and 
+  cb.num_cuenta = tmp.num_cuenta and (:idCuenta IS NULL OR cb.id_cuenta = :idCuenta)  
+order by tmp.id_movimiento
+</select>
+ <select id="seqSaldoDiario"> 
+select 
+  SEQ_TR_SALDOS_DIARIOS.nextval seq 
+from 
+  dual 
+  </select>
+<select id="diferenciaSaldo"> 
+select 
+ fecha_inicio 
+from 
+ RF_TR_DIFERENCIAS_CUENTAS 
+where 
+ id_cuenta = :idCuenta and to_date(to_char(fecha_inicio,'dd/mm/yyyy'),'dd/mm/yyyy') = to_date(':fecha','dd/mm/yyyy')
+</select>
+<select id="cuentasSobregiradas">
+select s.saldo_calculado, s.FECHA, cb.id_tipo_programa 
+from (select sd.saldo_calculado, sd.FECHA, sd.id_cuenta 
+      from RF_TR_SALDOS_DIARIOS sd  
+      where sd.saldo_calculado &lt; 0 and sd.fecha = to_date(':fechaCarga','dd/mm/yyyy')) s, RF_TR_CUENTAS_BANCARIAS cb 
+where s.ID_CUENTA = cb.id_cuenta and 
+      cb.id_tipo_programa in (:prog)
+</select>
+<select id="registraronDiferencias">
+select d.fecha_inicio, d.id_cuenta, cb.id_tipo_programa, d.diferencia_real 
+from ( select fecha_inicio, id_cuenta, diferencia_real, id_estatus_dif 
+       from RF_TR_DIFERENCIAS_CUENTAS 
+       where id_estatus_dif = 2 and fecha_inicio = to_date(':fechaCarga','dd/mm/yyyy')) d, RF_TR_CUENTAS_BANCARIAS cb 
+where d.ID_CUENTA = cb.id_cuenta and cb.id_tipo_programa in (:prog)
+</select>
+<select id="repSaldoDiario">
+select 
+  sd.saldo_banco, sd.saldo_calculado, cb.num_cuenta, cb.nombre_cta 
+from 
+  RF_TR_SALDOS_DIARIOS sd, RF_TR_CUENTAS_BANCARIAS cb 
+where 
+  trunc(fecha) = to_date(':fecha','dd/mm/yyyy') and cb.id_tipo_programa = :idPrograma and  sd.id_cuenta = cb.id_cuenta 
+order by cb.num_cuenta 
+</select>
+ <update id="actualizaSaldos"> 
+update 
+ RF_TR_MOVIMIENTOS_CUENTA 
+set 
+ saldo = saldocalculado 
+where 
+ id_movimiento in (select id_movimiento from RF_TR_MOVIMIENTOS_CUENTA m, RF_TR_CUENTAS_BANCARIAS cb 
+                   where fecha_hora = to_date(':fecha','dd/mm/yyyy') and m.id_cuenta = cb.id_cuenta and cb.id_tipo_programa in (:idPrograma)) 
+  </update>
+</submodulo>
+</dml>

@@ -1,0 +1,37 @@
+<%  
+    }  
+    else {
+      out.println("Error en la conexion, pruebe el cargar la página de nuevo. !");
+    }
+  }
+  catch(Exception e) {
+    java.util.Date fecha    = new java.util.Date();
+    java.text.DateFormat df = new java.text.SimpleDateFormat("dd/MM/yyyy");
+    String formattedDate    = df.format(fecha);
+    java.text.DateFormat df2= new java.text.SimpleDateFormat("HH:mm:ss");
+    String formattedTime    = df2.format(fecha);
+    StringBuffer mensajeFinal= new StringBuffer();
+    mensajeFinal.append("\nFecha: ["+ formattedDate+ "] Hora:["+formattedTime+ "]");
+    mensajeFinal.append("\nPagina: ["+ request.getRequestURI()+ "]");
+    System.err.println("\nError: "+ mensajeFinal.toString()+ e.getMessage());
+		e.printStackTrace(System.out);
+    fecha = null;
+    df    = null;
+    df2   = null; 
+    mensajeFinal= null;
+  }
+  finally {
+    if(statement!= null)
+      statement.close();
+    statement= null;
+      if(conection!= null) {
+        if(!conection.getAutoCommit()) {
+   	      conection.rollback();
+          conection.setAutoCommit(true);
+        }  
+        conection.close();
+      }; // if  
+      conection=null;
+
+  }
+%>

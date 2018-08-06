@@ -1,0 +1,56 @@
+<dml>
+<submodulo id="catalogos">
+    <select id="obtieneIdCuenta">
+select 
+  id_cuenta 
+from 
+  RF_TR_CUENTAS_BANCARIAS 
+where 
+  num_cuenta = :numCuenta 
+</select> 
+</submodulo>
+<submodulo id="criterios">
+<select id="existeSaldoReserva">
+select 
+ distinct(sr.id_cuenta) id_cuenta 
+from 
+ RF_TR_SALDOS_RESERVA sr, RF_TR_CUENTAS_BANCARIAS cb 
+where 
+ trunc(fecha) = to_date(':fechaCarga','dd/mm/yyyy') and 
+ sr.id_cuenta = :idCuenta and sr.id_cuenta = cb.id_cuenta
+</select>
+<select id="ultimaCarga">
+select 
+ to_char(max(FECHA),'dd/mm/yyyy') fecha 
+from 
+ RF_TR_SALDOS_RESERVA 
+where 
+ banco = ':siglas'
+</select>
+<select id="ultimaCargaBMX">
+select 
+ to_char(max(FECHA),'dd/mm/yyyy') fecha 
+from 
+ RF_TR_SALDOS_RESERVA 
+where 
+ banco is null 
+</select>
+<select id="obtieneIdCuenta">
+select 
+  id_cuenta 
+from 
+  RF_TR_CUENTAS_BANCARIAS 
+where 
+  num_cuenta = :numCuenta and id_tipo_programa = :idPrograma 
+</select>
+<select id="existeSaldoReserva">
+select 
+ sr.id_cuenta 
+from 
+ RF_TR_SALDOS_RESERVA sr, RF_TR_CUENTAS_BANCARIAS cb 
+where 
+ trunc(fecha) = to_date(':fechaCarga','dd/mm/yyyy') and 
+ sr.id_cuenta = cb.id_cuenta and sr.id_cuenta = :idCuenta 
+</select>
+</submodulo>
+</dml>

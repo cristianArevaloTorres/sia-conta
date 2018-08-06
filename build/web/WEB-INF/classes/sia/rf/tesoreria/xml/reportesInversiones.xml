@@ -1,0 +1,650 @@
+<dml>
+<submodulo id="catalogos">
+   <select id="RfTrCuentasInversion">
+select 
+  ID_CUENTA_INVERSION,bi.ID_BANCO,ESTATUS,CONTRATO_CUENTA,to_char(FECHA_APERTURA,'dd/mm/yyyy') FECHA_APERTURA, bi.nombre_corto 
+from 
+  RF_TR_CUENTAS_INVERSION cb, RF_TC_BANCOS_INVERSION bi
+where 
+  cb.id_banco = bi.id_banco :idBanco
+  </select> 
+  <select id="RfTrHistoricoReportesFolios">
+select substr(t.consecutivo,1,length(t.consecutivo)-3) reporte, 
+       substr(t.consecutivo,1,length(t.consecutivo)-3) || min(substr(t.consecutivo,length(t.consecutivo)-2,3)) minimo, 
+       substr(t.consecutivo,1,length(t.consecutivo)-3) || max(substr(t.consecutivo,length(t.consecutivo)-2,3)) maximo 
+from rf_tr_historico_reportes t 
+where t.reporte = 2 
+group by substr(t.consecutivo,1,length(t.consecutivo)-3)  
+order by minimo, maximo 
+  </select>
+<select id="RfTcBancosInversion">
+select 
+ ID_BANCO,CLAVE_BANCO,NOMBRE,NACIONAL,NOMBRE_CORTO,MOSTRAR  
+from 
+ RF_TC_BANCOS_INVERSION  
+where  
+ id_banco in (select distinct(id_banco) from RF_TR_CUENTAS_INVERSION)  
+</select>
+<select id="RfTrTasasRendExisten">
+select 
+ rownum id, plazo 
+from (
+   select 
+    distinct PLAZO 
+   from 
+    RF_TR_TASAS_REND_DETALLE)
+</select>
+<select id="RfTrCuentasInversionExisten">
+ select 
+   ID_CUENTA_INVERSION,ID_BANCO,ESTATUS,CONTRATO_CUENTA,FECHA_APERTURA 
+ from 
+   RF_TR_CUENTAS_INVERSION 
+</select> 
+<select id="RfTrComprasInversion">
+select  
+  ID_COMPRA_INVERSION,ID_CUENTA_INVERSION,ID_TIPO_INVERSION,FECHA,PLAZO,TASA,VENCIMIENTO,NUM_OPERACION,ESTATUS   
+from  
+  RF_TR_COMPRAS_INVERSION   
+where   
+  id_cuenta_inversion = :idCuentaInversion   
+order by FECHA desc  
+</select>
+<select id="RfTcClaveReportes">
+select 
+ REPORTE,DESCRIPCION 
+from 
+ RF_TC_CLAVE_REPORTES 
+where 
+ reporte!=2
+</select>
+<select id="RfTrTasasRendimientoBancosCotizacion">
+select x.id_banco, b.nombre_corto institucion_financiera, max(x.dia_1) dia_1, max(x.dias_7) dias_7, max(x.dias_14) dias_14, 
+max(x.dias_21) dias_21, max(x.dias_28) dias_28  
+from (select r.id_banco,  
+             decode(decode(rd.plazo,1,1,2,1,3,1,decode(rd.plazo,6,7,7,7,rd.plazo)),1,rd.tasa,0) dia_1,
+             decode(decode(rd.plazo,1,1,2,1,3,1,decode(rd.plazo,6,7,7,7,rd.plazo)),7,rd.tasa,0) dias_7,
+             decode(decode(rd.plazo,1,1,2,1,3,1,decode(rd.plazo,6,7,7,7,rd.plazo)),14,rd.tasa,0) dias_14,
+             decode(decode(rd.plazo,1,1,2,1,3,1,decode(rd.plazo,6,7,7,7,rd.plazo)),21,rd.tasa,0) dias_21,
+             decode(decode(rd.plazo,1,1,2,1,3,1,decode(rd.plazo,6,7,7,7,rd.plazo)),28,rd.tasa,0) dias_28
+      from rf_tr_tasas_rend_detalle rd, rf_tr_tasas_rendimiento r
+      where r.id_rendimiento = rd.id_rendimiento 
+      and trunc(r.fecha) = to_date(':dia','dd/mm/yyyy') 
+     ) x, rf_tc_bancos_inversion b 
+where b.id_banco = x.id_banco and b.id_banco != 498   
+group by x.id_banco, b.nombre_corto   
+order by x.id_banco 
+</select>
+</submodulo>
+<submodulo id="listados">
+<select id="listaRepHist">
+select 
+ hr.REPORTE,to_char(FECHA,'dd/mm/yyyy') FECHA,CONSECUTIVO,DESCRIPCION,INFORMACION   
+from 
+ RF_TR_HISTORICO_REPORTES hr, rf_tc_clave_reportes  cr  
+where hr.reporte = cr.reporte and hr.reporte = :idReporte  
+order by to_DATE(FECHA,'dd/mm/yyyy') desc,  CONSECUTIVO desc 
+</select>
+</submodulo>
+<submodulo id="consultas">
+<select id="consolidadoTransf">
+select REPORTE,CONSECUTIVO folio, 
+       substr(INFORMACION,1,instr(INFORMACION,'~')-1) fecha,
+        to_char(substr(INFORMACION,12,instr(INFORMACION,'~',12)-12),'999,999,999,999,999.99') importe         
+from RF_TR_HISTORICO_REPORTES   
+where reporte = 2   
+      and (trunc(fecha) >= to_date(':fechaInicio','dd/mm/yyyy') and trunc(fecha) &lt;= to_date(':fechaFin','dd/mm/yyyy')) 
+      :folios   
+      :importe 
+order by folio,fecha  
+</select>
+<select id="consolidadoRendimientos">
+select bi.nombre_corto banco, coi.fecha, coi.PLAZO, coi.VENCIMIENTO vence, imp monto_invertido, rend rendimiento, coi.tasa porcentaje, 1 compras 
+from RF_TC_BANCOS_INVERSION bi, RF_TR_CUENTAS_INVERSION ci, RF_TR_COMPRAS_INVERSION coi, 
+(select id_compra_inversion, sum(dci.importe) imp, sum(dci.rendimiento) rend 
+   from RF_TR_DETALLE_COMPRA dci 
+   group by  dci.id_compra_inversion) dci  
+where ci.id_banco = bi.id_banco  and 
+      coi.id_cuenta_inversion = ci.id_cuenta_inversion and 
+      to_date(to_char(coi.vencimiento,'dd/mm/yyyy'),'dd/mm/yyyy') >= to_date(':fechaInicio','dd/mm/yyyy') 
+      and to_date(to_char(coi.vencimiento,'dd/mm/yyyy'),'dd/mm/yyyy') &lt;= to_date(':fechaFin','dd/mm/yyyy') 
+      and dci.id_compra_inversion = coi.id_compra_inversion  
+union all  
+select bi.nombre_corto banco, fecha, null plazo, vincimiento vence, importe monto_invertido, rendimiento, null porcentaje, 2 efectivo  
+from rf_tr_efectivo_inversion ei, RF_TR_CUENTAS_INVERSION ci, RF_TC_BANCOS_INVERSION bi  
+where to_date(to_char(vincimiento,'dd/mm/yyyy'),'dd/mm/yyyy') >= to_date(':fechaInicio','dd/mm/yyyy') and 
+      to_date(to_char(vincimiento,'dd/mm/yyyy'),'dd/mm/yyyy') &lt;= to_date(':fechaFin','dd/mm/yyyy') 
+      and ei.id_cuenta_inversion = ci.id_cuenta_inversion
+      and ci.id_banco = bi.id_banco  
+order by fecha
+</select>
+<select id="tasasPactadasIDF">
+select c.ID_COMPRA_INVERSION, fecha, plazo, tasa, banco, sum(d.importe) importe 
+from  
+(select ID_COMPRA_INVERSION, fecha, plazo, tasa, nombre_corto banco 
+from RF_TR_COMPRAS_INVERSION ci,  RF_TR_CUENTAS_INVERSION cta, RF_TC_BANCOS_INVERSION bi 
+where ci.ID_CUENTA_INVERSION = cta.ID_CUENTA_INVERSION  
+      and cta.ID_BANCO = bi.ID_BANCO
+      and trunc(fecha) between to_date(':fechaInicio','dd/mm/yyyy') and to_date(':fechaFin','dd/mm/yyyy')) c, RF_TR_DETALLE_COMPRA d  
+where c.ID_COMPRA_INVERSION = d.ID_COMPRA_INVERSION  
+group by c.ID_COMPRA_INVERSION, fecha, plazo, tasa, banco   
+order by fecha  
+</select>
+<select id="detalleOperaciones">
+select tioper,tiafec, asr,id_cuenta_inversion,id_tipo_operacion,id_operacion, to_char(fecha,'dd/mm/yyyy') fecha, plazo, orden, descripcion, tipoinv, emision, 
+       titulos, importe, tasa, saldo_anterior, saldo_actual, saldo_real
+from (  
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr, 
+      o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, null plazo, null orden, tio.descripcion, null tipoinv, null emision, 
+      null titulos, e.rendimiento importe, null tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real   
+from rf_tr_operaciones_inversion o, rf_tr_efectivo_inversion e, rf_tc_tipo_operacion tio   
+where o.id_operacion = e.id_operacion and o.id_tipo_operacion = tio.id_tipo_operacion   
+union   
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr,  
+      o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, null plazo, null orden, tio.descripcion, null tipoinv, null emision, 
+      null titulos, o.importe, null tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real    
+from rf_tr_operaciones_inversion o, rf_tr_efectivo_inversion depo, rf_tc_tipo_operacion tio    
+where o.id_operacion = depo.id_operacion_deposito and o.id_tipo_operacion = tio.id_tipo_operacion    
+union    
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr,
+      o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, null plazo, null orden, tio.descripcion, null tipoinv, null emision, 
+      null titulos, o.importe, null tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real    
+from rf_tr_operaciones_inversion o, rf_tr_efectivo_inversion depo, rf_tc_tipo_operacion tio     
+where o.id_operacion = depo.id_operacion_recupera and o.id_tipo_operacion = tio.id_tipo_operacion 
+union 
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr,
+       o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, c.plazo plazo, c.num_operacion orden, tio.descripcion, ti.descripcion tipoinv, v.descripcion emision, 
+       d.titulos_acciones titulos, o.importe, c.tasa tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real 
+from rf_tr_operaciones_inversion o, rf_tr_detalle_compra d, rf_tr_compras_inversion c, 
+     rf_tc_tipo_operacion tio, rf_tc_tipo_valores v, rf_tc_tipos_inversion ti 
+where o.id_operacion = d.id_operacion and o.id_tipo_operacion = tio.id_tipo_operacion and
+      d.id_compra_inversion = c.id_compra_inversion and v.id_tipo_valores = d.id_tipo_valores
+      and ti.id_tipo_inversion = c.id_tipo_inversion 
+union 
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr, 
+       o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, c.plazo plazo, c.num_operacion orden, tio.descripcion, ti.descripcion tipoinv, v.descripcion emision, 
+       d.titulos_acciones titulos, o.importe, c.tasa tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real 
+from rf_tr_operaciones_inversion o, rf_tr_detalle_compra d, rf_tr_compras_inversion c, 
+     rf_tc_tipo_operacion tio, rf_tc_tipo_valores v, rf_tc_tipos_inversion ti 
+where o.id_operacion = d.id_operacion_recupera and o.id_tipo_operacion = tio.id_tipo_operacion and
+      d.id_compra_inversion = c.id_compra_inversion and v.id_tipo_valores = d.id_tipo_valores
+       and ti.id_tipo_inversion = c.id_tipo_inversion 
+union 
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr,
+       o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, c.plazo plazo, c.num_operacion orden, tio.descripcion, ti.descripcion tipoinv, v.descripcion emision, 
+       d.titulos_acciones titulos, d.rendimiento, c.tasa tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real 
+from rf_tr_operaciones_inversion o, rf_tr_detalle_compra d, rf_tr_compras_inversion c, 
+     rf_tc_tipo_operacion tio, rf_tc_tipo_valores v, rf_tc_tipos_inversion ti 
+where o.id_operacion = d.id_operacion_rend and o.id_tipo_operacion = tio.id_tipo_operacion and
+      d.id_compra_inversion = c.id_compra_inversion and v.id_tipo_valores = d.id_tipo_valores 
+       and ti.id_tipo_inversion = c.id_tipo_inversion 
+union 
+select decode(o.id_tipo_operacion,7,4,8,6,o.id_tipo_operacion) tioper,decode(TIO.AFECTACION,'C',1,-1) tiafec, TIO.AFECTA_SALDO_REAL asr,
+       o.id_cuenta_inversion,o.id_tipo_operacion,o.id_operacion, o.fecha, null plazo, null orden, tio.descripcion, null tipoinv, null emision, 
+       null titulos, o.importe, null tasa, o.saldo_anterior, o.saldo_actual, o.saldo_real 
+from rf_tr_operaciones_inversion o, 
+     rf_tc_tipo_operacion tio 
+where o.id_tipo_operacion = tio.id_tipo_operacion  and o.id_tipo_operacion in (1,2) 
+)
+   where 1=1 
+        :idCuentaInversion  
+        :periodo  
+order by 7 desc,2, 1 desc,6 desc 
+</select>
+<select id="invDispAPlazos">   
+select fecha fecha_inversion, sum(x.dia_1) plazo1dia, sum(x.dias_7) plazo7dias, sum(x.dias_14) plazo14dias, 
+sum(x.dias_21) plazo21dias, sum(x.dias_28) plazo28dias , 
+sum(x.dia_1) + sum(x.dias_7) + sum(x.dias_14) +sum(x.dias_21) + sum(x.dias_28) total 
+from (select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+             case when i.plazo > b.cons then d.importe else 0 end dia_1, 0 dias_7, 0 dias_14, 0 dias_21, 0 dias_28
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+           (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 6) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+      and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+      and i.plazo in (1,2,3,4,5,6)
+      union all --plazo 7 dias
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, case when i.plazo > b.cons then d.importe else 0 end dias_7, 0 dias_14, 0 dias_21, 0 dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 12) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and i.plazo in (7,8,9,10,11,12)
+      union all -- plazo 14 dias  
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, 0 dias_7, case when i.plazo > b.cons then d.importe else 0 end dias_14, 0 dias_21, 0 dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 20) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and i.plazo in (13,14,15,16,17,18,19,20)
+      union all --plazo 21 dias
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, 0 dias_7, 0 dias_14, case when i.plazo > b.cons then d.importe else 0 end dias_21, 0 dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 27) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and i.plazo in (21,22,23,24,25,26,27)
+      union all -- plazo 28 dias
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, 0 dias_7, 0 dias_14, 0 dias_21, case when i.plazo > b.cons then d.importe else 0 end dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 28) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and i.plazo = 28 
+      ) x 
+group by x.fecha 
+order by x.fecha
+</select>
+<select id="invDispAPlazosIF">   
+select fecha fecha_inversion, sum(x.dia_1) plazo1dia, sum(x.dias_7) plazo7dias, sum(x.dias_14) plazo14dias, 
+sum(x.dias_21) plazo21dias, sum(x.dias_28) plazo28dias , 
+sum(x.dia_1) + sum(x.dias_7) + sum(x.dias_14) +sum(x.dias_21) + sum(x.dias_28) total 
+from (select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+             case when i.plazo > b.cons then d.importe else 0 end dia_1, 0 dias_7, 0 dias_14, 0 dias_21, 0 dias_28
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+           (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 6) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+      and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+      and c.id_banco = :idbanco and c.contrato_cuenta = ':contrato' and i.plazo in (1,2,3,4,5,6)
+      union all --plazo 7 dias
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, case when i.plazo > b.cons then d.importe else 0 end dias_7, 0 dias_14, 0 dias_21, 0 dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 12) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and c.id_banco = :idbanco and c.contrato_cuenta = ':contrato' and i.plazo in (7,8,9,10,11,12)
+      union all -- plazo 14 dias  
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, 0 dias_7, case when i.plazo > b.cons then d.importe else 0 end dias_14, 0 dias_21, 0 dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 20) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and c.id_banco = :idbanco and c.contrato_cuenta = ':contrato' and i.plazo in (13,14,15,16,17,18,19,20)
+      union all --plazo 21 dias
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, 0 dias_7, 0 dias_14, case when i.plazo > b.cons then d.importe else 0 end dias_21, 0 dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 27) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and c.id_banco = :idbanco and c.contrato_cuenta = ':contrato' and i.plazo in (21,22,23,24,25,26,27)
+      union all -- plazo 28 dias
+      select c.id_banco,c.contrato_cuenta,i.fecha+ b.cons fecha, 
+            0 dia_1, 0 dias_7, 0 dias_14, 0 dias_21, case when i.plazo > b.cons then d.importe else 0 end dias_28 
+      from rf_tr_compras_inversion i, rf_tr_detalle_compra d, rf_tr_cuentas_inversion c,
+            (select  rownum-1 cons from rf_tc_bancos_inversion b where rownum &lt;= 28) b
+      where i.id_cuenta_inversion = c.id_cuenta_inversion and i.id_compra_inversion = d.id_compra_inversion
+             and to_char(i.fecha+ b.cons,'yyyy-mm-dd') between ':fechaInicial' and ':fechaFinal'
+             and c.id_banco = :idbanco and c.contrato_cuenta = ':contrato' and i.plazo = 28
+      ) x   
+group by x.fecha 
+order by x.fecha
+</select>
+<select id="importeInvTipoInstrumento">   
+select sum(importe) importe from ( 
+ select 
+      sum(dc.importe) importe 
+ from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas
+ where ci.id_compra_inversion = dc.id_compra_inversion and 
+      dc.id_tipo_valores = tv.id_tipo_valores and 
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion and 
+      ci.id_cuenta_inversion in (:idCuentaInversion) and 
+      ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha &lt;= to_date(':fechaFinal','yyyy-mm-dd') and 
+      ctas.id_banco in (:idBanco) 
+ group by tv.id_tipo_valores, tv.descripcion      
+ order by tv.id_tipo_valores)
+</select>
+<select id="invTipoInstrumento">   
+ select 
+     tv.id_tipo_valores, tv.descripcion, count(*) numero, sum(dc.titulos_acciones) titulos, sum(dc.importe) importe 
+ from rf_tr_compras_inversion ci,  rf_tr_detalle_compra dc, rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas  
+ where ci.id_compra_inversion = dc.id_compra_inversion and
+      dc.id_tipo_valores = tv.id_tipo_valores  and
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion and 
+      ci.id_cuenta_inversion in (:idCuentaInversion) and  
+      ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha &lt;= to_date(':fechaFinal','yyyy-mm-dd') and 
+      ctas.id_banco in (:idBanco) 
+ group by tv.id_tipo_valores, tv.descripcion      
+ order by tv.id_tipo_valores
+</select>
+<select id="importeInvTipoInstrumentoGlobal">   
+select sum(importe) importe from ( 
+ select 
+      sum(dc.importe) importe 
+ from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas   
+ where ci.id_compra_inversion = dc.id_compra_inversion  and
+       dc.id_tipo_valores = tv.id_tipo_valores  and 
+       ci.id_cuenta_inversion = ctas.id_cuenta_inversion  and 
+       ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha &lt;= to_date(':fechaFinal','yyyy-mm-dd')  
+ group by tv.id_tipo_valores, tv.descripcion      
+ order by tv.id_tipo_valores) 
+</select>
+<select id="invTipoInstrumentoGlobal">   
+ select 
+     tv.id_tipo_valores, tv.descripcion, count(*) numero, sum(dc.titulos_acciones) titulos, sum(dc.importe) importe 
+ from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas
+ where ci.id_compra_inversion = dc.id_compra_inversion  and 
+      dc.id_tipo_valores = tv.id_tipo_valores  and 
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion and 
+      ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha &lt;= to_date(':fechaFinal','yyyy-mm-dd')  
+ group by tv.id_tipo_valores, tv.descripcion      
+ order by tv.id_tipo_valores 
+</select>
+<select id="compCarteraFechaInversion">   
+select ci.fecha, dc.id_detalle_compra, tv.descripcion, 
+       dc.titulos_acciones, dc.valor, dc.importe, ci.plazo, ci.vencimiento, ci.tasa
+ from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas  
+ where ci.id_compra_inversion = dc.id_compra_inversion  and
+      dc.id_tipo_valores = tv.id_tipo_valores and
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion and   
+      ci.id_cuenta_inversion in (:idCuentaInversion) and 
+      ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha &lt;= to_date(':fechaFinal','yyyy-mm-dd') and 
+      ctas.id_banco in (:idBanco) 
+ order by fecha, id_detalle_compra
+</select> 
+<select id="importeCarteraInstFinCierre">
+select 
+  nvl(sum(dc.importe),0) importe  
+from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, rf_tc_tipo_valores tv, 
+     rf_tr_cuentas_inversion ctas 
+where ci.id_compra_inversion = dc.id_compra_inversion  and 
+      dc.id_tipo_valores = tv.id_tipo_valores and 
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion and 
+      ci.id_cuenta_inversion in (:idCuentaInversion) and 
+      ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha+ci.plazo &lt;= to_date(':fechaFinal','yyyy-mm-dd') and 
+      ctas.id_banco in (:idBanco)
+</select>
+<select id="carteraInstFinCierre">
+select tv.descripcion instrumento, dc.titulos_acciones, dc.importe, ci.plazo,
+       ci.fecha inicia, ci.fecha+ci.plazo vence, ci.tasa, dc.rendimiento 
+from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc,
+     rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas 
+where ci.id_compra_inversion = dc.id_compra_inversion and
+      dc.id_tipo_valores = tv.id_tipo_valores and
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion and 
+      ci.id_cuenta_inversion in (:idCuentaInversion) and 
+      ci.fecha >= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha+ci.plazo &lt;= to_date(':fechaFinal','yyyy-mm-dd') and 
+      ctas.id_banco in (:idBanco)
+</select>
+<select id="importeCarteraCierreMes">
+select 
+  sum(dc.importe) importe  
+from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, 
+     rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas   
+where ci.id_compra_inversion = dc.id_compra_inversion  and 
+      dc.id_tipo_valores = tv.id_tipo_valores and
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion  and 
+      ci.fecha &lt;= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha+ci.plazo > to_date(':fechaFinal','yyyy-mm-dd')  
+</select> 
+<select id="carteraCierreMes">
+select tv.descripcion instrumento, dc.titulos_acciones, dc.importe, ci.plazo,
+       ci.fecha inicia, ci.fecha+ci.plazo vence, ci.tasa, dc.rendimiento, bi.nombre_corto
+from rf_tr_compras_inversion ci, rf_tr_detalle_compra dc, 
+     rf_tc_tipo_valores tv, rf_tr_cuentas_inversion ctas, 
+     RF_TC_BANCOS_INVERSION bi 
+where ci.id_compra_inversion = dc.id_compra_inversion  and 
+      dc.id_tipo_valores = tv.id_tipo_valores  and 
+      ci.id_cuenta_inversion = ctas.id_cuenta_inversion  and 
+      ctas.id_banco = bi.id_banco and 
+      ci.fecha &lt;= to_date(':fechaInicial','yyyy-mm-dd') and ci.fecha+ci.plazo > to_date(':fechaFinal','yyyy-mm-dd') 
+</select>
+<select id="reserva">
+select 
+   FECHA, MONTO/1000000 reserva,round(PORCENTAJE,1) otras_cuentas  
+from 
+   RF_TR_FONDO_RESERVA  
+where 
+   trunc(fecha) >= to_date (':fechaInicial','yyyy-mm-dd') AND trunc(fecha)  &lt;= to_date (':fechaFinal','yyyy-mm-dd')  
+order by fecha 
+</select>
+<select id="tasasRendimientoIF">
+select fecha, sum(decode (plazo, 1, tasa, 0)) as plazo1, sum(decode (plazo, 7, tasa, 0)) as plazo7, 
+              sum(decode (plazo, 14, tasa, 0)) as plazo14, sum(decode (plazo, 21, tasa, 0)) as plazo21, 
+              sum(decode (plazo, 28, tasa, 0)) as plazo28 
+  from (
+    select tr.fecha, tr.id_banco, bcos.nombre_corto, trd.plazo, trd.tasa
+    from rf_tr_tasas_rendimiento tr, rf_tc_bancos_inversion bcos,
+          rf_tr_tasas_rend_detalle trd 
+    where tr.id_banco = bcos.id_banco  and
+          tr.id_rendimiento = trd.id_rendimiento and 
+          fecha >= to_date (':fechaInicial','yyyy-mm-dd') AND  fecha &lt;= to_date (':fechaFinal','yyyy-mm-dd') and 
+          tr.id_banco in (:idBanco) and
+          trd.plazo in (:plazos)
+    order by fecha, plazo ) tasas
+ group by fecha 
+</select>
+<select id="tasasRendimiento">
+ select fecha, plazo, 
+       sum(decode (id_banco, 6, tasa, 0)) as NAFIN, 
+       sum(decode (id_banco, 7, tasa, 0)) as BMX, 
+       sum(decode (id_banco, 35, tasa, 0)) as HSBC
+  from (
+    select tr.fecha, tr.id_banco, bcos.nombre_corto, trd.plazo, trd.tasa
+    from rf_tr_tasas_rendimiento tr, rf_tc_bancos_inversion bcos, rf_tr_tasas_rend_detalle trd
+    where 
+      tr.id_banco = bcos.id_banco and 
+      tr.id_rendimiento = trd.id_rendimiento and
+      trunc(fecha) >= to_date(':fechaInicial','yyyy-mm-dd') and trunc(fecha) &lt;= to_date(':fechaFinal','yyyy-mm-dd') and
+      tr.id_banco in (6, 7, 35) and
+      trd.plazo in (:plazo)
+    order by plazo, fecha, id_banco
+    ) tasas
+ group by fecha, plazo
+</select>
+<select id="rendimientosIF">   
+select  coi.fecha, coi.PLAZO, coi.VENCIMIENTO vence, imp monto_invertido, rend rendimiento, coi.tasa porcentaje, 1 compras  
+from RF_TC_BANCOS_INVERSION bi, RF_TR_CUENTAS_INVERSION ci, RF_TR_COMPRAS_INVERSION coi ,  
+(select id_compra_inversion, sum(dci.importe) imp, sum(dci.rendimiento) rend  
+   from RF_TR_DETALLE_COMPRA dci 
+   group by  dci.id_compra_inversion) dci  
+where ci.id_cuenta_inversion=:idCuentaInversion and 
+      ci.id_banco = bi.id_banco  and 
+      coi.id_cuenta_inversion = ci.id_cuenta_inversion and 
+      to_date(to_char(coi.vencimiento,'yyyy-mm-dd'),'yyyy-mm-dd') >= to_date(':fechaInicial','yyyy-mm-dd') and to_date(to_char(coi.vencimiento,'yyyy-mm-dd'),'yyyy-mm-dd') &lt;= to_date(':fechaFinal','yyyy-mm-dd') 
+      and dci.id_compra_inversion = coi.id_compra_inversion  
+union all   
+select fecha, null plazo, vincimiento vence, importe monto_invertido, rendimiento, null porcentaje, 2 efectivo from rf_tr_efectivo_inversion  
+where to_date(to_char(vincimiento,'yyyy-mm-dd'),'yyyy-mm-dd') >= to_date(':fechaInicial','yyyy-mm-dd') and   
+     to_date(to_char(vincimiento,'yyyy-mm-dd'),'yyyy-mm-dd') &lt;= to_date(':fechaFinal','yyyy-mm-dd') 
+     and id_cuenta_inversion=:idCuentaInversion  
+order by fecha 
+</select>
+<select id="autorizaInversionDF">   
+ select replace(nombre,'Institucion de Banca Multiple','') nombre_corto, contrato_cuenta, coi.tasa, coi.fecha, vencimiento, 
+  imp monto, rend, coi.plazo, ei.importe 
+ from RF_TC_BANCOS_INVERSION bi 
+ inner join RF_TR_CUENTAS_INVERSION ci on ci.id_banco = bi.id_banco  
+ inner join RF_TR_COMPRAS_INVERSION coi on coi.id_cuenta_inversion = ci.id_cuenta_inversion 
+ inner join ( 
+  select id_compra_inversion, sum(dci.importe) imp, sum(dci.rendimiento) rend 
+  from RF_TR_DETALLE_COMPRA dci 
+  where id_compra_inversion = :idCompraInversion 
+  group by id_compra_inversion 
+ ) dci on dci.id_compra_inversion = coi.id_compra_inversion 
+ left join rf_tr_efectivo_inversion ei 
+ on coi.ID_COMPRA_INVERSION = ei.id_compras_inversion 
+</select>
+<select id="obtenConsecutivo">
+ select nvl(LPAD(max(sigFolio+1),3,'0'),'001') conSig from ( 
+ select fecha, consecutivo, reporte, 
+    CASE WHEN length(consecutivo)&lt;=7 THEN substr(consecutivo,5,3) 
+                                     ELSE substr(consecutivo,8,3) END sigFolio 
+ from  
+  RF_TR_HISTORICO_REPORTES ) 
+ where  
+  reporte = :idReporte and substr(consecutivo,1,4) >= ':anio' 
+</select> 
+<select id="totalDisponbilidadFinancieraSV">
+ select decode(sum(saldo_cierre),null,0,sum(saldo_cierre)) totalDisponibilidad 
+   from (
+      select saldo_cierre, decode(id_cuenta,680,1,524,2,951,1,950,2,1051,2,1055,2,1057,2,1059,2,1060,2) orden
+      from RF_TR_SALDOS_reserva
+      where id_cuenta in (680,524,951,950,1051,1055,1057,1059,1060) and 
+             to_char(fecha,'yyyy-mm-dd') = ':fechaInicial'
+      union all 
+      select sum(saldo_cierre), 3 orden
+      from RF_TR_SALDOS_reserva sd, RF_TR_CUENTAS_BANCARIAS cb
+      where sd.id_cuenta not in (680,524,679,951,950,1059) and 
+            cb.id_cuenta = sd.id_cuenta and
+            cb.id_tipo_programa in (6,7) and cb.id_tipo_cta !=8 and
+             to_char(fecha,'yyyy-mm-dd') = ':fechaInicial'
+      union all
+      select sum(importe) importe, 5 orden 
+      from ( 
+            select a.importe+e.importe importe from (     
+            select sum(importe) importe, r.id_compra_inversion  
+            from (
+                  select i.fecha, i.vencimiento, d.importe, d.rendimiento,d.importe+d.rendimiento total, i.* 
+                  from rf_tr_compras_inversion i, rf_tr_detalle_compra d
+                  where to_char(i.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' 
+                        and to_char(i.vencimiento,'yyyy-mm-dd') > ':fechaInicial' 
+                        and d.id_compra_inversion = i.id_compra_inversion 
+                 ) r
+           group by id_compra_inversion) a, rf_tr_efectivo_inversion e 
+           where e.id_compras_inversion = a.id_compra_inversion
+          )
+    )
+</select>
+<select id="totalDisponbilidadFinanciera">
+select decode(sum(saldo_cierre),null,0,sum(saldo_cierre)) totalDisponibilidad 
+   from (
+      select saldo_cierre, decode(id_cuenta,680,1,524,2,951,1,950,2,1051,2,1055,2,1057,2,1059,2,1060,2) orden
+      from RF_TR_SALDOS_reserva                                           
+      where id_cuenta in (680,524,951,950,1051,1055,1057,1059,1060) and 
+             to_char(fecha,'yyyy-mm-dd') = ':fechaInicial'
+      union all 
+      select sum(saldo_cierre), 3 orden
+      from RF_TR_SALDOS_reserva sd, RF_TR_CUENTAS_BANCARIAS cb
+      where sd.id_cuenta not in (680,524,951,950,1051,1055,1057,1059,1060) and 
+            cb.id_cuenta = sd.id_cuenta and
+            cb.id_tipo_programa in (6,7) and cb.id_tipo_cta !=8 and
+             to_char(fecha,'yyyy-mm-dd') = ':fechaInicial'
+      union all
+      select sum(total), 4 orden  
+      from (
+            select sum(d.importe+d.rendimiento) total
+            from rf_tr_compras_inversion i, rf_tr_detalle_compra d, RF_TR_CUENTAS_INVERSION ci
+            where to_char(i.fecha,'yyyy-mm-dd') &lt;= ':fechaInicial' and to_char(i.vencimiento,'yyyy-mm-dd') = ':fechaInicial' and
+                  d.id_compra_inversion = i.id_compra_inversion
+                  and ci.id_banco not in (35,7) and ci.id_cuenta_inversion = i.id_cuenta_inversion
+            union
+            select sum(e.importe+e.rendimiento) total
+            from rf_tr_efectivo_inversion e, RF_TR_CUENTAS_INVERSION ci
+            where to_char(e.fecha,'yyyy-mm-dd') &lt;= ':fechaInicial' and to_char(e.vincimiento,'yyyy-mm-dd') = ':fechaInicial'
+                  and (select nvl(sum(d.importe+d.rendimiento),0)
+                      from rf_tr_compras_inversion i, rf_tr_detalle_compra d
+                      where to_char(i.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' and to_char(i.vencimiento,'yyyy-mm-dd') = ':fechaInicial'
+                            and d.id_compra_inversion = i.id_compra_inversion) > 0
+                  and ci.id_banco not in (7) and ci.id_cuenta_inversion = e.id_cuenta_inversion 
+          )
+      union all
+      select sum(importe) importe, 5 orden 
+      from ( 
+            select sum(importe) importe  
+            from (
+                  select i.fecha, i.vencimiento, d.importe, d.rendimiento,d.importe+d.rendimiento total, i.* 
+                  from rf_tr_compras_inversion i, rf_tr_detalle_compra d
+                  where to_char(i.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' and to_char(i.vencimiento,'yyyy-mm-dd') > ':fechaInicial' and
+                        d.id_compra_inversion = i.id_compra_inversion 
+                  )
+        
+          )
+    )
+</select>
+<select id="disponibilidadFinanciera">   
+select sum(decode(orden,1,saldo_cierre, 0)) conIngresos, 
+       sum(decode(orden,2,saldo_cierre, 0)) conEgresos, 
+       sum(decode(orden,3,saldo_cierre, 0)) otrasCtas, 
+       sum(decode(orden,4,saldo_cierre, 0)) vencimientoDia, 
+       sum(decode(orden,5,saldo_cierre, 0)) inversiones, 
+       sum(decode(orden,6,saldo_cierre, 0)) conclusion  
+from (
+      select saldo_cierre, decode(id_cuenta,680,1,524,2,679,6,951,1,950,2,1051,2,1055,2,1057,2,1059,2,1060,2) orden
+      from RF_TR_SALDOS_reserva
+      where id_cuenta in (680,524,679,951,950,1051,1055,1057,1059.1060) and 
+            to_char(fecha,'yyyy-mm-dd') = ':fechaInicial'
+      union all 
+      select sum(saldo_cierre), 3 orden
+      from RF_TR_SALDOS_reserva sd, RF_TR_CUENTAS_BANCARIAS cb
+      where sd.id_cuenta not in (680,524,679,951,950,1051,1055,1057,1059.1060) and 
+            cb.id_cuenta = sd.id_cuenta and
+            cb.id_tipo_programa in (6,7) and cb.id_tipo_cta !=8 and
+             to_char(fecha,'yyyy-mm-dd') = ':fechaInicial'
+      union all
+      select sum(total), 4 orden  
+      from (
+            select sum(d.importe+d.rendimiento) total
+            from rf_tr_compras_inversion i, rf_tr_detalle_compra d, RF_TR_CUENTAS_INVERSION ci
+            where to_char(i.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' and to_char(i.vencimiento,'yyyy-mm-dd') = ':fechaInicial' and
+                  d.id_compra_inversion = i.id_compra_inversion
+                  and ci.id_banco not in (35,7) and ci.id_cuenta_inversion = i.id_cuenta_inversion
+            union
+            select sum(e.importe+e.rendimiento) total
+            from rf_tr_efectivo_inversion e, RF_TR_CUENTAS_INVERSION ci
+            where to_char(e.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' and to_char(e.vincimiento,'yyyy-mm-dd') = ':fechaInicial'
+                 and (select nvl(sum(d.importe+d.rendimiento),0)
+                      from rf_tr_compras_inversion i, rf_tr_detalle_compra d
+                      where to_char(i.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' and to_char(i.vencimiento,'yyyy-mm-dd') = ':fechaInicial'
+                            and d.id_compra_inversion = i.id_compra_inversion) > 0
+                and ci.id_banco not in (7) and ci.id_cuenta_inversion = e.id_cuenta_inversion 
+          )
+      union all
+      select sum(importe) importe, 5 orden 
+      from ( 
+            select a.importe+e.importe importe from (     
+            select sum(importe) importe, r.id_compra_inversion  
+            from (
+                  select i.fecha, i.vencimiento, d.importe, d.rendimiento,d.importe+d.rendimiento total, i.* 
+                  from rf_tr_compras_inversion i, rf_tr_detalle_compra d
+                  where to_char(i.fecha,'yyyy-mm-dd') &lt; ':fechaInicial' 
+                        and to_char(i.vencimiento,'yyyy-mm-dd') > ':fechaInicial' 
+                        and d.id_compra_inversion = i.id_compra_inversion 
+                 ) r
+           group by id_compra_inversion) a, rf_tr_efectivo_inversion e 
+           where e.id_compras_inversion = a.id_compra_inversion
+           )
+    )
+</select>
+<select id="tasaBanxico">
+ select 
+  tasa 
+ from 
+  RF_TR_TASAS_REND_DETALLE 
+ where 
+  id_rendimiento = (
+                    select id_rendimiento from RF_TR_TASAS_RENDIMIENTO
+                    where trunc(fecha) = to_date(':fechaInicial','dd/mm/yyyy') and 
+                          id_banco = 498)  and 
+ tasa != 0
+</select>
+<select id="venDispCotTasas">
+select decode(sum(total),null,0,sum(total)) total, orden from ( 
+ select i.id_cuenta_inversion , sum(d.IMPORTE + d.RENDIMIENTO) total, decode(nombre_corto,'NACIONAL FINANCIERA',1,'HSBC',2,'BANAMEX',3,nombre_corto) orden 
+ from rf_tr_compras_inversion i, rf_tr_detalle_compra d, RF_TR_CUENTAS_INVERSION inv, RF_TC_BANCOS_INVERSION b 
+ where trunc(i.fecha)  &lt;= to_date(':fechaInicial','dd/mm/yyyy') and trunc(i.vencimiento) = to_date(':fechaInicial','dd/mm/yyyy') and  
+      d.id_compra_inversion = i.id_compra_inversion and
+      i.id_cuenta_inversion = inv.id_cuenta_inversion and
+      inv.id_banco = b.id_banco
+ group by i.id_cuenta_inversion, nombre_corto 
+ union 
+ select e.id_cuenta_inversion, sum(e.importe + e.rendimiento) total, decode(nombre_corto,'NACIONAL FINANCIERA',1,'HSBC',2,'BANAMEX',3,nombre_corto) orden 
+ from rf_tr_efectivo_inversion e, RF_TR_CUENTAS_INVERSION inv, RF_TC_BANCOS_INVERSION b 
+ where trunc(e.fecha) &lt;= to_date(':fechaInicial','dd/mm/yyyy') and trunc(e.vincimiento) = to_date(':fechaInicial','dd/mm/yyyy')
+ and  e.id_cuenta_inversion = inv.id_cuenta_inversion and 
+      inv.id_banco = b.id_banco
+ group by e.id_cuenta_inversion, nombre_corto 
+ union 
+ select 0 id_cuenta_inversion, sum(saldo_cierre) total , 4 orden 
+ from RF_TR_SALDOS_RESERVA  
+ where id_cuenta in (950,524,1051,1055,1057,1059,1060) and 
+       trunc(fecha) = to_date(':fechaInicial','dd/mm/yyyy') 
+ ) 
+ group by  orden 
+ order by orden 
+</select>
+</submodulo>
+</dml>

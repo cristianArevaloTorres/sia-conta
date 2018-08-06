@@ -1,0 +1,141 @@
+
+body {
+	background-image  :  url(../../../Librerias/Imagenes/fondo.gif);
+	font-family: tahoma;
+	font-size: 70%;
+	
+}
+
+table.table td {
+	font-family: tahoma;
+	font-size: 70%;
+}
+
+p {
+	text-align: justify;        
+}
+
+h1 {
+	font-size: 130%;
+	font-family: arial;
+}
+
+pre {
+	font-size: 9pt;
+	padding: 10px;
+	background-color: #F8F8F8;
+	border: 1px solid #F0F0F0;
+}
+
+.clsNode { font-family: tahoma; font-size: 8pt; text-decoration: none; cursor: hand; color: black; padding-left: 5pt; padding-right: 5pt }
+.clsNodeSelected { font-weight:bold; font-family: tahoma; font-size: 8pt; text-decoration: none; cursor: hand; color: black; padding-left: 5pt; padding-right: 5pt } 
+.clsNode:hover { text-decoration: none; color: #eeeeee; background-color: #003366; padding-left: 5pt; padding-right: 5pt }
+
+p {
+	font-family: tahoma; font-size: 8pt;
+}
+
+p a {
+	color: black;
+	text-decoration: none;
+}
+
+p a:hover {
+	color: #0066CC;
+}
+
+
+
+
+td {
+	font-size: 8pt;
+}
+
+.frameForSamples { border-collapse: collapse; border: 1px solid silver; background-color: white; }
+.frameForSamples .heading th { font: bold 14pt Trebuchet MS, Arial; background-color: #D0D0D0; border: 1px solid silver; }
+.frameForSamples .content { padding: 10px; vertical-align: top; }
+
+.treeNode {
+	text-decoration: none; color: black; font: 8pt tahoma;
+}
+
+.treeNodeSpec0 {
+	text-decoration: none; color: white; font: bold 8pt tahoma;
+	background: right top url(Librerias/Imagenes/cooltree/join.gif);
+	display: block;
+	height: 16px;
+	padding: 2px 6px 0 4px;
+}
+
+.treeNodeSpec0:hover {
+	background-image: url(Librerias/Imagenes/cooltree/join.gif);
+}
+
+.treeNodeSpec1 {
+	text-decoration: none;
+	color: black;
+	font: 7pt tahoma;
+	background: right top url(Librerias/Imagenes/cooltree/join.gif);
+	display: block;
+	height: 15px;
+	padding: 3px 6px 0 4px;
+}
+
+.treeNodeSpec1:hover {
+	color: blue;
+}
+
+.largeTreeNode {
+	text-decoration: none; color: #404040; font: bold 10pt Arial;
+}
+
+.treeNodeRich0 {
+	text-decoration: none;
+	color: black;
+	font: bold 8pt tahoma;
+	background: right top url(Librerias/Imagenes/cooltree/join.gif);
+	display: block;
+	height: 14px;
+	padding: 2px 6px 0 4px;
+	text-align: right;
+}
+
+.treeNodeRich1 {
+	text-decoration: none;
+	color: black;
+	font: 8pt tahoma;
+	background: right top url(Librerias/Imagenes/cooltree/join.gif);
+	display: block;
+	height: 14px;
+	padding: 2px 6px 0 4px;
+	text-align: right;
+}
+
+h1.title {
+	font: bold 10pt Arial;
+	border: 1px solid silver;
+	margin: 3px;
+	padding: 2px 10px;
+	background-color: white;
+}
+
+.ctrl label {
+	width: 130px;
+	font: 8pt Verdana;
+	padding-top: 4px;
+	display: block;
+	float: left;
+}
+
+.ctrl input.text, .ctrl input.password {
+	width: 130px;
+	border: 1px solid silver;
+	background-color: #F0F0FF;
+	font: 9pt Verdana;
+}
+
+.ctrl select {
+	width: 134px;
+	background-color: #F0F0FF;
+	font: 9pt Verdana;
+}

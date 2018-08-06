@@ -1,0 +1,1 @@
+registroContableNuevo.bcRegistrosContables

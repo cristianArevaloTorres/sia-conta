@@ -1,0 +1,234 @@
+<dml>
+  <submodulo id="cuentasInversion">
+    <select id="RfTcBancosInversion">
+select 
+  ID_BANCO,CLAVE_BANCO,NOMBRE,NACIONAL,NOMBRE_CORTO,MOSTRAR 
+from 
+  RF_TC_BANCOS_INVERSION
+where nombre_corto is not null
+order by nombre_corto
+   </select>
+  </submodulo>
+  <submodulo id="depositosRetiros">
+    <select id="RfTrOperacionesInversion-resultado">
+select * from ( 
+  select 
+    id_operacion, to_char(oi.FECHA,'dd/mm/yyyy') fecha, bi.nombre_corto || ' ' || contrato_cuenta contrato, tio.DESCRIPCION tipo_operacion, importe,to_char(fecha,'yyyymmdd') fecha_ordena 
+  from RF_TR_OPERACIONES_INVERSION oi, RF_TR_CUENTAS_INVERSION cui, RF_TC_BANCOS_INVERSION bi, RF_TC_TIPO_OPERACION tio
+  where 
+    oi.id_tipo_operacion in (1,2) and oi.ID_CUENTA_INVERSION = cui.ID_CUENTA_INVERSION 
+    and cui.ID_BANCO = bi.ID_BANCO and oi.ID_TIPO_OPERACION = tio.ID_TIPO_OPERACION
+    :fecha
+    :idCuentaInversion
+)
+order by fecha_ordena desc
+    </select>
+  </submodulo>
+
+
+  <submodulo id="compraInversion">
+    <select id="RfTrComprasInversion-AsociaEfectivo">
+SELECT 
+  NUM_OPERACION, ID_COMPRA_INVERSION 
+FROM 
+  RF_TR_COMPRAS_INVERSION ci
+where 1 = 1 
+  :idCuentaInversion--and ci.id_cuenta_inversion = 6
+  :fecha--and to_char(ci.FECHA,'dd/mm/yyyy') = '07/07/2009'
+    </select>
+    <select id="RfTrCuentasInversion">
+select 
+  ID_CUENTA_INVERSION,bi.ID_BANCO,ESTATUS,CONTRATO_CUENTA,to_char(FECHA_APERTURA,'dd/mm/yyyy') FECHA_APERTURA, bi.nombre_corto 
+from 
+  RF_TR_CUENTAS_INVERSION cb, RF_TC_BANCOS_INVERSION bi
+where 
+  cb.id_banco = bi.id_banco :idBanco 
+    </select> 
+    <select id="RfTcTiposInversion">
+select 
+ ID_TIPO_INVERSION,DESCRIPCION,TIPO_INVERSION 
+from 
+ RF_TC_TIPOS_INVERSION 
+   </select>
+   <select id="RfTcTipoValores">
+select 
+ID_TIPO_VALORES,DESCRIPCION,ESTATUS 
+from 
+RF_TC_TIPO_VALORES
+   </select> 
+   <select id="RfTrOperacionesInversion-SaldoAnteriorMismaFechaOAnterior">
+-- RfTrOperacionesInversion-SaldoAnteriorMismaFechaOAnterior;
+select 
+  ID_OPERACION,ID_CUENTA_INVERSION,o.ID_TIPO_OPERACION,FECHA,IMPORTE,ESTATUS,SALDO_ANTERIOR,SALDO_ACTUAL,FECHA_REGISTRO,SALDO_REAL 
+from 
+  rf_tr_operaciones_inversion o, rf_tc_tipo_operacion t 
+where 
+  o.ID_TIPO_OPERACION = t.ID_TIPO_OPERACION and
+  o.fecha = (
+     select max(o.fecha) 
+     from rf_tr_operaciones_inversion o
+     where o.id_cuenta_inversion = :idCuentaInversion and trunc(o.fecha) &lt;= to_date(':fecha','dd/mm/yyyy')
+  ) and o.id_cuenta_inversion = :idCuentaInversion
+order by 
+  o.fecha desc,decode(t.AFECTACION,'C',1,-1),decode(t.id_tipo_operacion,7,4,8,6,t.id_tipo_operacion)  desc, o.id_operacion  desc
+   </select>
+   <!--QUERYS UTILIZADOS PARA CALCULO Y RECALCULO-->
+   <!--QUERY PARA OBTENER SALDO ANTERIOR-->
+   <select id="RfTrOperacionesInversion-SaldoDeFechaAnterior">
+-- RfTrOperacionesInversion-SaldoDeFechaAnterior;  
+select 
+  ID_OPERACION,ID_CUENTA_INVERSION,o.ID_TIPO_OPERACION,FECHA,IMPORTE,ESTATUS,SALDO_ANTERIOR,SALDO_ACTUAL,FECHA_REGISTRO,SALDO_REAL 
+from 
+  rf_tr_operaciones_inversion o, rf_tc_tipo_operacion t 
+where 
+  o.ID_TIPO_OPERACION = t.ID_TIPO_OPERACION and
+  o.fecha = (
+     select max(o.fecha) 
+     from rf_tr_operaciones_inversion o
+     where o.id_cuenta_inversion = :idCuentaInversion and trunc(o.fecha) &lt; (select nvl(min(fecha),to_date(':fecha','dd/mm/yyyy'))fecha from rf_tr_operaciones_inversion o
+where (saldo_actual is null or saldo_anterior is null or saldo_real is null)
+and trunc(o.fecha) &lt; to_date(':fecha','dd/mm/yyyy') and o.id_cuenta_inversion = :idCuentaInversion)
+  ) and o.id_cuenta_inversion = :idCuentaInversion
+order by 
+  o.fecha desc,decode(t.AFECTACION,'C',1,-1),decode(t.id_tipo_operacion,7,4,8,6,t.id_tipo_operacion)  desc, o.id_operacion  desc
+
+   </select>
+   <!--QUERY PARA OBTENER LOS REGISTROS QUE SE CALCULARAN-->
+   <select id='RfTrOperacionesInversion-OrdenadoMovimientosSiguientes'>
+--RfTrOperacionesInversion-OrdenadoMovimientosSiguientes  
+select 
+  o.id_operacion, o.id_cuenta_inversion, o.id_tipo_operacion, to_char(o.fecha,'dd/mm/yyyy') fecha, o.importe, o.estatus, o.saldo_anterior, 
+  o.saldo_actual, to_char(o.fecha_registro,'dd/mm/yyyy hh24.mi.ss') fecha_registro, o.saldo_real, afectacion, afecta_saldo_real
+from  
+  rf_tr_operaciones_inversion o, rf_tc_tipo_operacion t
+where 
+  t.id_tipo_operacion = o.id_tipo_operacion and id_cuenta_inversion = :idCuentaInversion and (to_char(fecha,'yyyymmdd') >= 
+  to_char(
+    (select nvl(min(fecha),to_date(':fechax','yyyymmdd')) fecha from rf_tr_operaciones_inversion o
+    where (saldo_actual is null or saldo_anterior is null or saldo_real is null)
+    and trunc(o.fecha) &lt; to_date(':fechax','yyyymmdd') and id_cuenta_inversion = :idCuentaInversion),'yyyymmdd'))
+order by 
+  o.fecha,decode(t.AFECTACION,'C',1,-1) desc,decode(t.id_tipo_operacion,7,4,8,6,t.id_tipo_operacion), o.id_operacion
+   </select>
+   <!--QUERYS UTILIZADOS PARA CALCULO Y RECALCULO-->
+   <select id="ObtenDiaSiguienteHabil">
+select 
+  to_char(tsr.OBTEN_SIGUIENTE_DIA_HABIL(to_date(':fecha','dd/mm/yyyy')+:plazo-1),'dd/mm/yyyy') campo1
+from 
+  dual
+   </select>
+   <select id="RfTrComprasInversion-Vigentes">	
+select 
+  bi.nombre_corto || ' ' || contrato_cuenta contrato, coi.ID_COMPRA_INVERSION,coi.ID_CUENTA_INVERSION,coi.ID_TIPO_INVERSION,to_char(coi.FECHA,'dd/mm/yyyy') fecha,
+  coi.PLAZO,coi.TASA,to_char(coi.VENCIMIENTO,'dd/mm/yyyy') vencimiento,coi.NUM_OPERACION,coi.ESTATUS, 
+  to_char(VENCIMIENTO,'yyyyMM'), bi.nombre_corto nombre_banco, coi.importe_global, coi.fecha ordena
+from 
+  RF_TR_COMPRAS_INVERSION coi, RF_TR_CUENTAS_INVERSION cui, RF_TC_BANCOS_INVERSION bi 
+where 
+coi.id_cuenta_inversion = cui.id_cuenta_inversion
+and bi.id_banco = cui.id_banco :fecha :idCuentaInversion and 
+to_char(VENCIMIENTO,'yyyyMM') > (
+  select max(ANIO_MES) from RF_TR_CIERRES_INVERSION
+) or (
+  select max(ANIO_MES) from RF_TR_CIERRES_INVERSION
+) is null order by ordena desc, id_compra_inversion desc
+	</select>
+    <select id='RfTrDetalleCompra'>
+select 
+  ID_COMPRA_INVERSION,ID_DETALLE_COMPRA,ID_OPERACION,dc.ID_TIPO_VALORES,
+  TITULOS_ACCIONES,VALOR,IMPORTE,VALOR_ACCION_VENTA,RENDIMIENTO,
+  ID_OPERACION_REND,ID_OPERACION_RECUPERA, TV.DESCRIPCION TIPO_VALOR 
+from 
+  RF_TR_DETALLE_COMPRA DC, RF_TC_TIPO_VALORES TV
+where TV.ID_TIPO_VALORES = DC.ID_TIPO_VALORES :idCompraInversion
+    </select>
+  </submodulo>  
+  
+  <submodulo id="tasasRendimiento">
+    <select id="RfTcBancosInversion-bancosConInversion">
+select 
+  ID_BANCO,CLAVE_BANCO,NOMBRE,NACIONAL,NOMBRE_CORTO,MOSTRAR 
+from 
+  RF_TC_BANCOS_INVERSION 
+where
+  id_banco in (select distinct(id_banco) from RF_TR_CUENTAS_INVERSION)
+order by nombre_corto
+    </select>
+    <select id="RfTrTasasRendimiento-resultado">
+select * from (
+select 
+  nombre_corto, to_char(FECHA,'dd/mm/yyyy') fecha,tr.ID_BANCO,ID_RENDIMIENTO, to_char(fecha,'yyyymmdd') ordena 
+from 
+  RF_TR_TASAS_RENDIMIENTO tr
+  inner join rf_tc_bancos_inversion bi on bi.id_banco = tr.id_banco
+where
+  1=1
+  :idBanco -- and tr.id_banco = :idBanco
+  :fecha -- and to_char(tr.fecha,'dd/mm/yyyy) = :fecha
+) order by ordena desc
+    </select>
+    <select id="RfTrTasasRendDetalle">
+select 
+  PLAZO,TASA,ID_RENDIMIENTO 
+from 
+  RF_TR_TASAS_REND_DETALLE
+where 
+  1=1
+  :idRendimiento -- id_rendimiento = :idRendimiento
+    </select>
+  </submodulo>
+  
+  <submodulo id="vencimiento">
+    <select id="RfTrComprasInversion-Vencimiento">
+select *
+from (
+  select 
+    bi.nombre_corto || ' ' || contrato_cuenta contrato, coi.ID_COMPRA_INVERSION,coi.ID_CUENTA_INVERSION,coi.ID_TIPO_INVERSION,to_char(coi.FECHA,'dd/mm/yyyy') fecha,
+    coi.PLAZO,coi.TASA,to_char(coi.VENCIMIENTO,'dd/mm/yyyy') vencimiento,coi.NUM_OPERACION,coi.ESTATUS,  to_char(vencimiento,'yyyymmdd') fecha_vence,
+    to_char(VENCIMIENTO,'yyyyMM'), bi.nombre_corto nombre_banco, coi.importe_global,
+    case when to_char(vencimiento,'yyyymmdd') &lt;= to_char(sysdate,'yyyymmdd') then 1 else 0 end vencido
+  from 
+    RF_TR_COMPRAS_INVERSION coi, RF_TR_CUENTAS_INVERSION cui, RF_TC_BANCOS_INVERSION bi 
+  where 
+  coi.id_cuenta_inversion = cui.id_cuenta_inversion
+  and bi.id_banco = cui.id_banco :fecha :idCuentaInversion :estatus and 
+  to_char(VENCIMIENTO,'yyyyMM') > (
+    select max(ANIO_MES) from RF_TR_CIERRES_INVERSION
+  ) or (
+    select max(ANIO_MES) from RF_TR_CIERRES_INVERSION
+  ) is null
+)
+order by fecha_vence desc, id_compra_inversion desc 
+	</select>
+    <select id="RfTrComprasInversion-formularioCompra">
+select 
+  bi.nombre_corto || ' ' || cui.contrato_cuenta cuenta_inversion,
+  ti.descripcion tipo_inversion,
+  to_char(fecha,'dd/mm/yyyy') fecha,
+  plazo plazo,
+  tasa tasa, 
+  to_char(vencimiento, 'dd/mm/yyyy') vencimiento,
+  num_operacion, coi.id_tipo_inversion, id_compra_inversion, coi.id_cuenta_inversion, coi.estatus
+from RF_TR_COMPRAS_INVERSION coi, RF_TR_CUENTAS_INVERSION cui, 
+RF_TC_BANCOS_INVERSION bi, RF_TC_TIPOS_INVERSION ti
+where cui.id_cuenta_inversion = coi.id_cuenta_inversion and bi.id_banco = cui.id_banco and ti.id_tipo_inversion = coi.id_tipo_inversion
+  :idCompraInversion
+    </select>
+  </submodulo>
+  
+  
+  <submodulo id="rendimientoEfectivo">
+    <select id="RfTrEfectivoInversion">
+select * from (
+select 
+  bi.nombre_corto || ' ' || cui.contrato_cuenta contrato, ID_EFECTIVO_INVERSION,ID_OPERACION,ei.ID_CUENTA_INVERSION,IMPORTE,to_char(FECHA,'dd/mm/yyyy') fecha,to_char(VINCIMIENTO,'dd/mm/yyyy') vincimiento,
+  RENDIMIENTO,ID_OPERACION_RECUPERA,ID_OPERACION_DEPOSITO, decode(id_operacion,null,0,1) rendimiento_registrado, to_char(fecha,'yyyymmdd') fecha_ordena 
+from 
+  RF_TR_EFECTIVO_INVERSION ei, rf_tr_cuentas_inversion cui, rf_tc_bancos_inversion bi
+  where ei.id_cuenta_inversion = cui.id_cuenta_inversion and cui.id_banco = bi.id_banco 
+  :fecha
+  :idCuentaInversion
+) order by fecha_ordena desc
+   </select>
+  </submodulo>
+</dml>

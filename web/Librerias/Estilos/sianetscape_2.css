@@ -1,0 +1,339 @@
+/* Sistema Integral de Administración SIA  */
+/* Hoja de Estilo                          */ 
+/*                                         */
+
+body {
+      background-image  :  url(/sia/Librerias/Imagenes/fondo.gif);
+      font-family		:   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+      font-size			: 8pt;
+	  font-weight 	 	: normal;
+	  text-decoration 	: none;
+	  color 		 	: #000000
+	 }
+
+a	 {
+	  font-family	 	:   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  color			 	: #000000;
+	  text-decoration 	: underline;
+	  cursor			: pointer
+	 }
+
+a:Link
+	 {
+ 	  color 			:  #000000; 
+	  font-size 		: 8pt;
+	  text-decoration 	: underline
+	 }
+
+a:Visited
+	 {
+	  color 			: #009ee2; 
+	  font-size 		: 8pt;
+	  text-decoration 	: underline
+	 }
+
+a:hover
+	 {
+	  color 			: red;
+	  font-size 		: 8pt;
+	  text-decoration 	: none
+	 }
+
+address 
+     {
+  	  font-family 		:   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			:#000066 ;
+	  text-decoration 	: none
+	 }	
+
+
+th
+     {
+ 	  font-family     	:   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  text-decoration   : none;
+     } 	
+
+td
+     {
+ 	  font-family       :   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  text-decoration   : none;
+     } 	
+
+
+				 	  
+table.general 
+   	 {
+	  border-style	  	: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+	  empty-cells 		: show
+     }	  
+
+th.general
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+ 	  font-family     	:   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 		    : #ffffff;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+	  background-color  : #006699
+     } 	
+
+td.general
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #3399cc;
+ 	  font-family       :   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+	  text-decoration   : none;
+	  font-weight 	  	: normal
+     } 	
+
+table.resultado 
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+	  empty-cells 		: show
+     }	  
+
+th.resultado
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       :   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #ffffff;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+	  background-color  : #0099cc
+     } 
+	 
+tr.resGrisClaro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       :   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #E8E8E8;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resGrisOscuro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       :   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #D7D7D7;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resAzulClaro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       :  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #CEE9F7;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+tr.resAzulOscuro
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       :   Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+ 	  background-color  : #bbdff3;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+	
+
+td.resultado
+     {
+	  border-style		: solid;
+	  border-width		: thin;
+	  border-collapse 	: collapse;
+	  border-color		: #006699;
+ 	  font-family       :  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  font-size 	   	: 8pt;
+	  color 			: #000000;
+	  text-decoration   : none;
+	  font-weight 	    : normal;
+     } 	
+
+h1   {
+      color				: #000066;
+      font-size			: 20Pt;
+ 	  font-family      	: Times;
+     }
+
+h2   {
+      color				: #000066;
+      font-size			: 12Pt;
+ 	  font-family      	: Times;
+	  text-align 		: left;
+     }
+
+h3   {
+      color				: #000066;
+ 	  font-family      	: Times;
+      font-size			: 10Pt;
+     }
+
+
+h4   {
+      color				: #000066;
+      font-size			: 20Pt;
+      font-family       :  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+     }
+
+h5   {
+      color				: #000066;
+      font-size			: 12Pt;
+      font-family       :  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  text-align 		: left;
+     }
+
+h6   {
+      color				: #000066;
+      font-family       :  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+      font-size			: 10Pt;
+     }
+
+
+li   {
+      color				: navy;
+     }
+
+p    {
+      font-size			: 8pt;
+     }
+
+
+.negrita
+     {
+      font-weight		: bold;
+     }
+
+.azul{
+      color				: #37689D;
+     }
+
+.opcion
+     {
+	  font-family	 	: Verdana;
+	  background-color 	: #eff5f9;
+	 }
+
+label 
+     {
+	  font-size 		: 7pt;
+	  font-weight		:bold;
+     }	  	  
+
+fieldset 
+     {
+	  font-weight		:bold;
+     }	  	  
+
+hr
+     {
+	border: medium solid #006699;
+	 }  
+
+hr.piePagina {
+	border-style	  	: solid;
+	border-color		: #0099CC;
+	width: 70%;
+}
+
+/*Fin de Archivo de Estilos             */
+.cajaTexto {
+font-size:9pt;
+MARGIN-top:0px;
+MARGIN-left:0px;
+background-color 	: #eff5f9;
+color				: navy;
+border: thin #000066 solid; 
+font-weight: normal;
+}
+.boton {  
+font-family: Verdana,  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog; 
+font-size: 8pt; 
+/*font-style: bold; */
+line-height: normal; 
+font-weight: bold; 
+color: #FFFFFF; 
+background-color: #0099CC; 
+border-color: #37CDFF #33CCFF #33CCFF; 
+border-style: outset; 
+border-top-width: thin; 
+border-right-width: thin; 
+border-bottom-width: thin; 
+border-left-width: thin; 
+cursor: pointer
+}
+links {
+
+	  font-family	 	:  Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+	  text-decoration 	: none;
+}
+
+.Arbol {
+	border-right-width: thin;
+	border-right-style: solid;
+	border-right-color: #000066;
+}
+
+.cajaTexto2 {
+font-size:9pt;
+MARGIN-top:0px;
+MARGIN-left:0px;
+background-color 	: #ffffff;
+color				: #666666;
+border: thin #666666 solid; 
+font-weight: normal;
+}
+.btnform {
+	BORDER-RIGHT: 0px; BORDER-TOP: 0px; FONT-SIZE: 12px; BORDER-LEFT: 0px; WIDTH: 100%; CURSOR: pointer; BORDER-BOTTOM: 0px; FONT-FAMILY: Arial, Helvetica, sans-serif; HEIGHT: 18px; BACKGROUND-COLOR: #dbeaf5; TEXT-ALIGN: center
+}
+.btn {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; BACKGROUND-COLOR: #dbeaf5; FONT-FAMILY: Arial, Helvetica, sans-serif; HEIGHT: 18px
+}
+/*
+.btnform {
+	BORDER-RIGHT: 0px; BORDER-TOP: 0px; FONT-SIZE: 12px; BORDER-LEFT: 0px; WIDTH: 100%; CURSOR: pointer; BORDER-BOTTOM: 0px; FONT-FAMILY: tahoma, verdana; HEIGHT: 18px; BACKGROUND-COLOR: #dbeaf5; TEXT-ALIGN: center
+}
+.btn {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; BACKGROUND-COLOR: #dbeaf5
+}
+*/

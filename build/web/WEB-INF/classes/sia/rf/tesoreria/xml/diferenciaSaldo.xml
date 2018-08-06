@@ -1,0 +1,71 @@
+<dml>
+<submodulo id="catalogos">
+<select id="rfTcEstatusDiferencia">
+select 
+    ID_ESTATUS_DIF,DESCRIPCION  
+from  
+    RF_TC_ESTATUS_DIFERENCIA 
+</select>
+</submodulo>
+<submodulo id="criterios">
+<select id="listaDiferencias">
+select dif.fecha_inicio, dif.fecha_fin, dif.id_cuenta, dif.id_saldo_diario, dif.id_estatus_dif, 
+       dif.diferencia_real, dif.operaciones_calculado, dif.operaciones_banco, dia.fecha,
+       cta.num_cuenta, cta.nombre_cta, cta.id_banco, cta.id_tipo_programa, est.descripcion,
+       to_char(dif.fecha_inicio,'yyyymmdd') fechaInicioF,
+       to_char(dif.fecha_fin,'yyyymmdd') fechaFinF 
+from 
+  RF_TR_DIFERENCIAS_CUENTAS dif, RF_TR_SALDOS_DIARIOS dia, RF_TR_CUENTAS_BANCARIAS cta, RF_TC_ESTATUS_DIFERENCIA est 
+where 
+    (dif.id_cuenta = dia.id_cuenta and dif.id_saldo_diario = dia.id_saldo_diario)
+    and dif.id_cuenta        = cta.id_cuenta
+    and dif.id_estatus_dif   = est.id_estatus_dif
+    and dif.id_estatus_dif = :estatus and  cta.id_tipo_programa = :programa
+</select>
+<select id="detalleDiferencia">
+select dif.fecha_inicio, dif.fecha_fin, dif.id_cuenta, dif.id_saldo_diario, dif.id_estatus_dif, 
+       dif.diferencia_real, dif.operaciones_calculado, dif.operaciones_banco, dia.fecha,
+       cta.num_cuenta, cta.nombre_cta, cta.id_banco, cta.id_tipo_programa, est.descripcion,
+       to_char(dif.fecha_inicio,'yyyymmdd') fechaInicioF,
+       to_char(dif.fecha_fin,'yyyymmdd') fechaFinF 
+from 
+  RF_TR_DIFERENCIAS_CUENTAS dif, RF_TR_SALDOS_DIARIOS dia, RF_TR_CUENTAS_BANCARIAS cta, RF_TC_ESTATUS_DIFERENCIA est 
+where 
+    (dif.id_cuenta = dia.id_cuenta and dif.id_saldo_diario = dia.id_saldo_diario)
+    and dif.id_cuenta        = cta.id_cuenta
+    and dif.id_estatus_dif   = est.id_estatus_dif 
+    and dif.id_estatus_dif = :estatus and  cta.id_tipo_programa = :programa 
+    and dif.id_cuenta = :idCuenta and dif.id_saldo_diario = :idSaldoD 
+</select>
+<select id="obtenSeguimiento">
+select 
+       SD.ID_SEGUIMIENTO, SD.OBSERVACIONES,
+       to_char(SD.FECHA,'DD/MM/YYYY') as SDFecha ,
+       SD.ID_CUENTA, SD.ID_SALDO_DIARIO, CB.ID_CUENTA, CB.NUM_CUENTA, CB.ID_TIPO_PROGRAMA  
+from RF_TR_SEGUIMIENTO_DIFERENCIAS SD,
+     RF_TR_CUENTAS_BANCARIAS CB 
+where
+  SD.ID_CUENTA = CB.ID_CUENTA and CB.id_cuenta = :idCuenta and
+  CB.ID_TIPO_PROGRAMA = :idProg and SD.ID_SALDO_DIARIO = :idSaldoDiario 
+order by SD.FECHA, SD.ID_SEGUIMIENTO
+</select>
+<select id="idSeguimientoAct">
+select 
+  nvl(max(ID_SEGUIMIENTO)+1,1) id_seguimiento 
+from 
+  RF_TR_SEGUIMIENTO_DIFERENCIAS 
+where 
+ id_cuenta=:idCuenta and id_saldo_diario=:idSaldoD 
+</select>
+<select id="modificarActividad">
+select 
+ ID_SEGUIMIENTO,OBSERVACIONES,FECHA,ID_CUENTA,ID_SALDO_DIARIO,NUM_EMPLEADO,ID_ESTATUS_DIF  
+from 
+ RF_TR_SEGUIMIENTO_DIFERENCIAS  
+where 
+ id_cuenta=:idCuenta and 
+ ID_SEGUIMIENTO=:idSeguimiento and 
+ ID_SALDO_DIARIO=:idSaldoD 
+</select>
+</submodulo>
+</dml>

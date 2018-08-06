@@ -1,0 +1,28 @@
+
+<jsp:useBean id="fechaAfectacion" class="sia.rf.contabilidad.registroContable.servicios.FechaAfectacion" scope="page"/>
+<jsp:useBean id="controlRegistro" class="sia.rf.contabilidad.registroContable.acciones.ControlRegistro" scope="session"/>
+<%
+    
+    if ( controlRegistro.getFechaAfectacion()==null){
+       fechaAfectacion.establecerFechaAfectacion(request,fechaAfectacion.obtenerFechaAfectacion());           
+       
+       //request.getSession().setAttribute("fechaAfectacion", "20071015");
+    }        
+%>
+
+        <table align="left">
+          <tr>
+            <td>
+              <strong><label>
+                  Fecha actual:
+                </label></strong>
+            </td>
+            <td>
+              [
+              <%=sia.libs.formato.Fecha.formatear(sia.libs.formato.Fecha.FECHA_CORTA,controlRegistro.getFechaAfectacion())%>
+              ]
+            </td>
+          </tr>
+        </table>
+     
+

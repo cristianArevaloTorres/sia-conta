@@ -1,0 +1,42 @@
+<dml>
+  <submodulo id="criterios">
+    <select id="saldosDiarios">
+select 
+  ctas.num_cuenta,ctas.nombre_cta descripcion, sd.saldo_calculado, sd.saldo_banco,sd.saldo_banco - sd.saldo_calculado diferencia,
+  sd.fecha, ctas.Id_Tipo_Programa 
+from RF_TR_SALDOS_DIARIOS sd, RF_TR_CUENTAS_BANCARIAS ctas 
+where sd.id_cuenta = ctas.id_cuenta and 
+      trunc(sd.fecha) = to_date(':fecha','dd/mm/yyyy') and ctas.ID_TIPO_PROGRAMA = :programa and ID_ESTATUS_CTA_PROG = 1 
+order by num_cuenta
+   </select>
+  </submodulo>
+<submodulo id="reporte">
+<select id="diferenciaSD">
+select 
+ ctas.num_cuenta, ue.descripcion, dif.operaciones_calculado, dif.operaciones_banco, dif.fecha_inicio, diferencia_real
+from 
+ RF_TR_DIFERENCIAS_CUENTAS dif, RF_TR_CUENTAS_BANCARIAS ctas, rh_tc_uni_ejecutoras ue 
+where
+ dif.id_cuenta = ctas.id_cuenta and 
+ ctas.unidad_ejecutora = ue.unidad_ejecutora and 
+ dif.id_saldo_diario in 
+(select ID_SALDO_DIARIO
+from RF_TR_SALDOS_DIARIOS s, RF_TR_CUENTAS_BANCARIAS c
+where s.id_cuenta=c.id_cuenta 
+      and trunc(fecha) = to_date(':fecha','dd/mm/yyyy')
+      and id_tipo_programa = :programa
+      and saldo_calculado != saldo_banco)
+and ID_ESTATUS_DIF = 2 
+<!-- 
+select 
+ ctas.num_cuenta, ue.descripcion, dif.operaciones_calculado, dif.operaciones_banco, dif.fecha_inicio, diferencia_real 
+from 
+ RF_TR_DIFERENCIAS_CUENTAS dif, RF_TR_CUENTAS_BANCARIAS ctas, SIA_CATALOGOS.TC_UNI_EJECUTORAS ue 
+where
+ dif.id_cuenta = ctas.id_cuenta and 
+ ctas.unidad_ejecutora = ue.unidad_ejecutora and 
+ trunc(dif.fecha_inicio) = to_date(':fecha', 'dd/mm/yyyy') 
+ and ctas.ID_TIPO_PROGRAMA = :programa and id_estatus_dif = 2 -->
+</select>
+</submodulo>
+</dml>

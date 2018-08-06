@@ -1,0 +1,130 @@
+<dml>
+<submodulo id="catalogos">
+<select id="RfTrCuentasBancarias">
+select
+ ID_CUENTA,NUM_CUENTA,ENTIDAD,NOMBRE_CTA,UNIDAD_EJECUTORA,AMBITO
+from 
+ RF_TR_CUENTAS_BANCARIAS
+where 
+ id_tipo_programa = 7 and (id_tipo_cta = 1 or id_cuenta = 1050)
+ and fecha_fin_operacion is null
+ :regional
+ :estatal 
+</select> 
+<select id="RfTrEstatusCheque">
+select 
+      ID_ESTATUS_CHEQUE,DESCRIPCION 
+from 
+      RF_TC_ESTATUS_CHEQUE
+</select> 
+</submodulo>
+<submodulo id="reportes">
+<select id="ChqNominativoDetalle">
+select c.id_cuenta,
+       c.num_cuenta,
+       c.nombre_cta,
+       q.consecutivo numcheque,
+       q.fechacheque fechaemision,
+       decode(m.id_movimiento,null,decode(q.estatus, 3, 3, 5, 4, 2),1) numEstatus,
+       ec.descripcion estatus,
+       to_date(decode(m.fecha_hora,null,decode(q.estatus,3,decode(q.fecha_cance_manual,null,trunc(p.fecha),q.fecha_cance_manual),null),m.fecha_hora)) fechaestatus,
+       floor(decode(m.fecha_hora,null,decode(q.estatus,3,decode(q.fecha_cance_manual,null,trunc(p.fecha),q.fecha_cance_manual)-trunc(q.fechacheque),trunc(sysdate) - trunc(q.fechacheque)), trunc(m.fecha_hora)-trunc(q.fechacheque))) antiguedad,
+       m.referencia,
+       q.importe importe_cheque,
+       q.beneficiario,
+       (case when pc.origen like 'N%' then q.referencia else mo.consecutivo ||' '|| mo.descripcion end) concepto,  
+       decode(q.origen_operacion,0,'Sin operación',od.descripcion) origen_operacion,
+       decode(q.origen_operacion,0,q.operacion_pago,q.operacion_pago|| (case when q.operacion_pago!=q.operacion_pago_sup then decode(q.operacion_pago_sup,null,'',' al '||q.operacion_pago_sup) else '' end) ) operacion_pago,  
+       decode(m.id_movimiento,null,null,decode(q.importe,-m.monto,null,to_char(-m.monto,'99,999,990.00'))) dif_importe
+  from (select h.*, ch.id_cuenta 
+        from rf_tr_cheques h, rf_tc_cuentas_cheques ch
+        where ch.cuenta_cheques_id = h.cuenta_cheques_id) q,
+       (select TO_NUMBER(decode(mm.id_clave_trans,291,REPLACE(mm.DESCRIPCION,'COBRO DE CHEQUE NUMERO ', ''),REPLACE(mm.DESCRIPCION, 'CHEQUE CERTIFICADO NUMERO ', ''))) numcheque, mm.* 
+        from rf_tr_movimientos_cuenta mm 
+        where mm.fecha_hora > to_date('2011/12/30','yyyy/mm/(dd') and mm.id_clave_trans in (291,308) ) m,
+       rf_tr_cuentas_bancarias c,
+       rf_tr_polizas p, rf_tc_estatus_cheque ec, rf_tr_polizas pc,
+       rf_tc_maestro_operaciones mo, rf_tc_origen_docto od
+   where m.id_cuenta(+) = q.id_cuenta
+   and q.consecutivo =  m.numcheque(+)
+   and c.id_cuenta(+) = q.id_cuenta
+   and p.poliza_referencia(+) = q.poliza_id and pc.poliza_id(+) = q.poliza_id 
+   and mo.maestro_operacion_id(+) = pc.maestro_operacion_id
+   and p.clasificacion_poliza_id(+) = 3 and q.origen_operacion = od.id_origen(+)
+   and ec.id_estatus_cheque = decode(m.id_movimiento,null,decode(q.estatus, 3, 3, 5, 4, 2),1) 
+   and c.id_cuenta in (:idCuenta) 
+   :beneficiario
+   :rangoChq
+   :estatus
+   and (trunc(q.fechacheque) >= to_date(':fechaInicial','dd/mm/yyyy') and  trunc(q.fechacheque) &lt;= to_date(':fechaFinal','dd/mm/yyyy'))
+ order by 1, 4 
+</select>
+<select id="ChqSinReferenciaCont">
+select cb.NUM_CUENTA, cb.NOMBRE_CTA, FECHA_HORA,
+       TO_NUMBER(REPLACE(m.DESCRIPCION, 'COBRO DE CHEQUE NUMERO ', '')) NUM_CHEQUE, 
+       decode(clave_trans_recla, null, ' ', clave_trans_recla) || ' ' || decode(descripcion, null, ' ', descripcion) DESCRIPCION,
+       nvl(decode(id_tipo_trans, 'D', monto, 0), 0) CARGO, nvl(decode(id_tipo_trans, 'C', monto, 0), 0) ABONO,
+       decode(m.referencia, null, ' ', m.referencia) REFERENCIA, cb.ID_CUENTA, nvl(saldo, 0) SALDO
+from RF_TR_CUENTAS_BANCARIAS cb, RF_TR_MOVIMIENTOS_CUENTA m,
+       (select h.*, ch.id_cuenta
+        from rf_tr_cheques h, rf_tc_cuentas_cheques ch
+        where ch.cuenta_cheques_id = h.cuenta_cheques_id) q 
+where m.id_clave_trans = 291
+   and m.id_cuenta = q.id_cuenta(+)
+   and q.consecutivo(+) = TO_NUMBER(REPLACE(m.DESCRIPCION, 'COBRO DE CHEQUE NUMERO ', ''))
+   and q.id_cuenta is null
+   and q.consecutivo is null
+   and cb.id_cuenta = m.id_cuenta
+   and cb.id_cuenta in (:idCuenta)  
+   and m.fecha_hora >= to_date(':fechaInicial','dd/mm/yyyy') AND m.fecha_hora &lt; to_date(':fechaFinal','dd/mm/yyyy')+1
+   :rangoChq 
+order by cb.num_cuenta, fecha_hora, num_cheque
+</select>
+<select id="ChqNominativoDetallexls">
+select q.consecutivo NUM_CHEQUE,  to_char(q.fechacheque,'dd/mm/yyyy') FECHA_EMISION,
+       ec.descripcion ESTATUS, 
+       nvl(to_char(decode(m.fecha_hora,null,decode(q.estatus,3,decode(q.fecha_cance_manual,null,trunc(p.fecha),q.fecha_cance_manual),null),m.fecha_hora),'dd/mm/yyyy'),' ')  FECHA_ESTATUS,
+       decode(floor(decode(m.fecha_hora,null,decode(q.estatus,3,decode(q.fecha_cance_manual,null,trunc(p.fecha),q.fecha_cance_manual)-trunc(q.fechacheque),trunc(sysdate) - trunc(q.fechacheque)), trunc(m.fecha_hora)-trunc(q.fechacheque))),null,' ',floor(decode(m.fecha_hora,null,decode(q.estatus,3,decode(q.fecha_cance_manual,null,trunc(p.fecha),q.fecha_cance_manual)-trunc(q.fechacheque),trunc(sysdate) - trunc(q.fechacheque)), trunc(m.fecha_hora)-trunc(q.fechacheque)))) ANTIGUEDAD,
+       q.importe IMPORTE_CHEQUE,      
+       decode(q.beneficiario,null,' ',q.beneficiario) BENEFICIARIO,
+       (case when pc.origen like 'N%' then q.referencia else mo.consecutivo ||' '|| mo.descripcion end) CONCEPTO, 
+       decode(decode(q.origen_operacion,0,'Sin operación',od.descripcion),null,' ',decode(q.origen_operacion,0,'Sin operación',od.descripcion)) ORIGEN,
+       nvl(decode(q.origen_operacion,0,q.operacion_pago,q.operacion_pago|| (case when q.operacion_pago!=q.operacion_pago_sup then decode(q.operacion_pago_sup,null,' ',' al '||q.operacion_pago_sup) else ' ' end) ),' ') OPERACION_PAGO,
+       decode(m.id_movimiento,null,' ', decode(q.importe,-m.monto,' ',to_char(-m.monto,'99999990.00'))) DIFERENCIA,
+       c.id_cuenta, c.num_cuenta CUENTA, c.nombre_cta NOMBRE_CUENTA,
+       decode(m.referencia,null,' ',m.referencia) referencia,
+       decode(m.id_movimiento,null,decode(q.estatus, 3, 3, 5, 4, 2),1) numEstatus 
+  from (select h.*, ch.id_cuenta 
+        from rf_tr_cheques h, rf_tc_cuentas_cheques ch
+        where ch.cuenta_cheques_id = h.cuenta_cheques_id) q,
+       (select TO_NUMBER(decode(mm.id_clave_trans,291,REPLACE(mm.DESCRIPCION,'COBRO DE CHEQUE NUMERO ', ''),REPLACE(mm.DESCRIPCION, 'CHEQUE CERTIFICADO NUMERO ', ''))) numcheque, mm.* 
+        from rf_tr_movimientos_cuenta mm 
+        where mm.fecha_hora > to_date('2011/12/30','yyyy/mm/(dd') and mm.id_clave_trans in (291,308) ) m,
+       rf_tr_cuentas_bancarias c,
+       rf_tr_polizas p, rf_tc_estatus_cheque ec, rf_tr_polizas pc,
+       rf_tc_maestro_operaciones mo, rf_tc_origen_docto od
+   where m.id_cuenta(+) = q.id_cuenta
+   and q.consecutivo =  m.numcheque(+)
+   and c.id_cuenta(+) = q.id_cuenta
+   and p.poliza_referencia(+) = q.poliza_id and pc.poliza_id(+) = q.poliza_id 
+   and mo.maestro_operacion_id(+) = pc.maestro_operacion_id
+   and p.clasificacion_poliza_id(+) = 3 and q.origen_operacion = od.id_origen(+)
+   and ec.id_estatus_cheque = decode(m.id_movimiento,null,decode(q.estatus, 3, 3, 5, 4, 2),1) 
+   and c.id_cuenta in (:idCuenta) 
+   :beneficiario
+   :rangoChq
+   :estatus
+   and (trunc(q.fechacheque) >= to_date(':fechaInicial','dd/mm/yyyy') and  trunc(q.fechacheque) &lt;= to_date(':fechaFinal','dd/mm/yyyy'))
+ order by 12, 1 
+</select>
+<select id="resumenCheques">
+select c.num_cuenta CUENTA, c.nombre_cta NOMBRE_CTA, ch.consecutivo EXPEDIDOS,
+       nvl(ch.folio_final-ch.consecutivo,0) EN_EXISTENCIA,
+       nvl(ch.folio_final-ch.folio_inicial+1,0) TOTAL, c.id_cuenta 
+from rf_tc_cuentas_cheques ch, Rf_Tr_Cuentas_Bancarias c 
+WHERE ch.id_cuenta = c.id_cuenta and 
+      ch.estatus_cheque_id = 1 and 
+      c.id_cuenta in (:idCuenta)
+</select>
+</submodulo>
+</dml>

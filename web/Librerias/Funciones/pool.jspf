@@ -1,0 +1,10 @@
+<%@page import="java.sql.*, sia.db.dao.DaoFactory"%>
+<% 
+   Connection conection       = null;
+   Statement statement        = null;
+   try {
+     conection= DaoFactory.getConnection();
+  	 if (conection!=null) {
+       statement= conection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+%>   
+  

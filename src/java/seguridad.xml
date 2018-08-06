@@ -1,0 +1,795 @@
+<dml>
+  <submodulo id = "mensajes">
+    <insert id="insertarMensaje">
+insert into rh_tr_mensajes 
+  (id_mensaje, descripcion, fecha_vig_ini, fecha_vig_fin, id_tipo_mensaje, num_empleado, 
+  id_area, url_seguimiento) 
+values (:idMensaje, ':descripcion', to_date(':fechaVigIni', 'dd/MM/yyyy HH24MI'), 
+  to_date(':fechaVigFin', 'dd/MM/yyyy HH24MI'), :idTipoMensaje, :numEmpleado, 
+  :idArea, ':urlSeguimiento') 
+    </insert> 
+    <insert id="insertarGrupo">
+insert into rh_tr_mensajes_grupo 
+  (id_mensaje, cve_grupo) 
+values (:idMensaje, :cveGrupo) 
+    </insert>     
+    <insert id="insertarPerfil">
+insert into rh_tr_mensajes_perfil 
+  (id_mensaje, cve_perfil) 
+values (:idMensaje, :cvePerfil) 
+    </insert>         
+    <insert id="insertarMenu">
+insert into rh_tr_mensajes_menu 
+  (id_mensaje, consecutivo) 
+values (:idMensaje, :consecutivo) 
+    </insert>             
+    <insert id="insertarEmpleado">
+insert into rh_tr_mensajes_empleados 
+  (id_mensaje, num_empleado) 
+values (:idMensaje, :numEmpleado) 
+    </insert>                 
+    <insert id="insertarProceso">
+insert into rh_tr_mensajes_procesos 
+  (id_mensaje, id_proceso) 
+values (:idMensaje, :idProceso) 
+    </insert>                     
+    <update id="modificarMensaje">
+update rh_tr_mensajes 
+set descripcion=':descripcion', 
+  fecha_vig_ini=to_date(':fechaVigIni', 'dd/MM/yyyy HH24MI'), 
+  fecha_vig_fin=to_date(':fechaVigFin', 'dd/MM/yyyy HH24MI'), 
+  id_tipo_mensaje=:idTipoMensaje, 
+  id_area=:idArea, 
+  url_seguimiento=':urlSeguimiento' 
+where id_mensaje=:idMensaje
+    </update>
+    <update id="modificarGrupo">
+update rh_tr_mensajes_grupo 
+  set cve_grupo =:cveGrupo 
+where id_mensaje =:idMensaje
+    </update>
+    <update id="modificarPerfil">
+update rh_tr_mensajes_perfil 
+  set cve_perfil =:cvePerfil 
+where id_mensaje =:idMensaje
+    </update>    
+    <update id="modificarMenu">
+update rh_tr_mensajes_menu 
+  set consecutivo =:consecutivo 
+where id_mensaje =:idMensaje
+    </update>        
+    <update id="modificarEmpleado">
+update rh_tr_mensajes_empleados 
+  set num_empleado =:numEmpleado 
+where id_mensaje =:idMensaje
+    </update>
+    <update id="modificarProceso">
+update rh_tr_mensajes_procesos 
+  set id_proceso =:idProceso 
+where id_mensaje =:idMensaje    
+    </update>
+    <select id = "getCveGrupo">
+select cve_grupo  
+from rh_tr_perfil 
+where cve_perfil = :cvePerfil
+    </select>
+    <delete id="eliminarMensaje">
+delete from rh_tr_mensajes 
+where id_mensaje =:idMensaje
+    </delete>
+    <delete id="eliminarGrupo">
+delete rh_tr_mensajes_grupo 
+where id_mensaje =:idMensaje
+    </delete>
+    <delete id="eliminarPerfil">
+delete rh_tr_mensajes_perfil 
+where id_mensaje =:idMensaje
+    </delete>    
+    <delete id="eliminarMenu">
+delete rh_tr_mensajes_menu 
+where id_mensaje =:idMensaje
+    </delete>        
+    <delete id="eliminarEmpleado">
+delete rh_tr_mensajes_empleados 
+where id_mensaje =:idMensaje
+    </delete>
+    <delete id="eliminarProceso">
+delete rh_tr_mensajes_procesos 
+where id_mensaje =:idMensaje    
+    </delete>    
+  </submodulo>
+  
+  
+  <submodulo id = "ws">
+    <select id = "getNombre">
+select nombres, apellido_pat, apellido_mat 
+from rh_tr_empleados 
+where num_empleado =:numEmpleado
+    </select>
+    <select id = "getApellidos">
+select nombres, apellido_pat, apellido_mat 
+from rh_tr_empleados 
+where num_empleado =:numEmpleado and nombres =':nombre'
+    </select>    
+    <select id = "getWs">
+select * 
+from rh_tc_servicios_web 
+where nombre =':nombre'
+    </select>
+  </submodulo>
+  
+  
+  <submodulo id="catalogos">
+    <select id="RhTcUniEjecutoras">
+select 
+  UNIDAD_EJECUTORA,DESCRIPCION,AMBITO,NOMBRE_CORTO,INICIALES,VIGENCIA_DESDE,VIGENCIA_HASTA,ESTATUS
+from 
+  RH_TC_UNI_EJECUTORAS where unidad_ejecutora = '001'
+    </select>
+  </submodulo>
+
+  
+  <submodulo id="registros">
+    <select id="RhTrEmpleados">
+SELECT 
+  "CURP","NOMBRES","APELLIDO_PAT","APELLIDO_MAT",E.PLAZA PLAZA,E.EJERCICIO EJERCICIO,E.PERIODO PERIODO,"NUM_EMPLEADO",P.UNIDAD_EJECUTORA UNIDAD_EJECUTORA,P.AMBITO AMBITO,P.ENTIDAD ENTIDAD
+FROM 
+  rh_tr_empleados e
+  inner join RH_TR_PLAZAS p on p.plaza=e.plaza and p.ejercicio=e.ejercicio and p.periodo=e.periodo
+    </select>
+    <select id="RhTrFirmasDocsTesoreria">
+select res.*, rownum id from (
+SELECT distinct nombre,tipo_firma, puesto_esp, documento, num_empleado from (
+           select distinct(e.nombres||' '||e.apellido_pat||' '||e.apellido_mat) as nombre,fd.num_empleado,fd.tipo_firma,fd.documento, fd.activo, fa.puesto_esp
+           from rh_tr_firmas_docs fd, rh_tr_empleados e, RH_TC_FIRMAS_AUTORIZADAS fa
+           where (
+           fd.unidad_ejecutora='109'
+          and fd.ambito=1 
+          and fd.entidad=1
+          and fd.pais=147 
+          and fd.num_empleado=e.num_empleado
+          and fd.num_empleado=fa.num_empleado
+          and fd.activo=1
+          and e.plaza is not null
+          and e.periodo is not null
+          and e.ejercicio is not null)
+       union all    
+       select distinct(e.nombres||' '||e.apellido_pat||' '||e.apellido_mat) as nombre,f.num_empleado,f.tipo_firma, f.documento, f.activo, fa.puesto_esp
+       from rh_tr_empleados e, rh_tr_firmas_docs f, RH_TC_FIRMAS_AUTORIZADAS fa
+       where (
+       f.unidad_ejecutora='109'
+       and f.ambito=1 
+       and f.entidad=1
+       and f.pais=147 
+       and f.num_empleado=e.num_empleado
+       and f.num_empleado=fa.num_empleado
+       and f.activo=1
+       and e.plaza is not null
+       and e.periodo is not null
+       and e.ejercicio is not null))) res
+</select>
+<select id="RhTrFirmasDocsTesoreriaTransferencia">
+select NOMBRE,TIPO_FIRMA, PUESTO_ESP, DOCUMENTO, NUM_EMPLEADO, rownum id from (
+SELECT distinct nombre,tipo_firma, puesto_esp, documento, num_empleado from (
+           select distinct(e.nombres||' '||e.apellido_pat||' '||e.apellido_mat) as nombre,fd.num_empleado,fd.tipo_firma,fd.documento, fd.activo, fa.puesto_esp
+           from rh_tr_firmas_docs fd, rh_tr_empleados e, RH_TC_FIRMAS_AUTORIZADAS fa
+           where (
+           fd.unidad_ejecutora='109'
+          and fd.ambito=1 
+          and fd.entidad=1
+          and fd.pais=147 
+          and fd.num_empleado=e.num_empleado
+          and fd.num_empleado=fa.num_empleado
+          and fd.activo=1
+          and e.plaza is not null
+          and e.periodo is not null
+          and e.ejercicio is not null)
+       union all    
+       select distinct(e.nombres||' '||e.apellido_pat||' '||e.apellido_mat) as nombre,f.num_empleado,f.tipo_firma, f.documento, f.activo, fa.puesto_esp
+       from rh_tr_empleados e, rh_tr_firmas_docs f, RH_TC_FIRMAS_AUTORIZADAS fa
+       where (
+       f.unidad_ejecutora='109'
+       and f.ambito=1 
+       and f.entidad=1
+       and f.pais=147 
+       and f.num_empleado=e.num_empleado
+       and f.num_empleado=fa.num_empleado
+       and f.activo=1
+       and e.plaza is not null
+       and e.periodo is not null
+       and e.ejercicio is not null))) res
+where documento=':docto' AND tipo_firma =':tipo' :numEmpleado
+</select>
+  </submodulo>
+  
+  
+  <submodulo id="mensajitos">
+    <select id="bienvenue">
+select * from (
+select m.id_mensaje, to_char(m.registro, 'dd/MM/yyyy') fecha, to_char(registro, 'HH24:MI:SS') hora, 
+  m.id_tipo_mensaje relacion, 
+  m.descripcion_1 mensaje, m.id_tipo_mensaje, tm.descripcion tipo_mensaje, 
+  a.id_area, a.descripcion area, 
+  'http://intranet.wapp.senado.gob.mx/intranet/servicios/directorios/telefonico/?donde=Nombre+completo'||'&amp;'||'condicion=contiene'||'&amp;'||'dirtexto='
+  ||e.nombres||'+'||e.apellido_pat||'+'||e.apellido_mat||'#resultado' destino, m.url_seguimiento, g.cve_grupo, p.cve_perfil, me.num_empleado, mu.consecutivo 
+from rh_tr_mensajes m --mensajes generales
+  left join rh_tr_mensajes_grupo g on g.id_mensaje = m.id_mensaje --mensajes x grupo
+  left join rh_tr_mensajes_perfil p on p.id_mensaje = m.id_mensaje --mensajes x perfil
+  left join rh_tr_mensajes_empleados me on me.id_mensaje = m.id_mensaje --mensajes x empleado
+  left join rh_tr_mensajes_procesos mp on mp.id_mensaje = m.id_mensaje --mensajes x proceso
+  left join rh_tr_mensajes_menu mu on mu.ID_MENSAJE = m.id_mensaje --mensajes x opcion del menu
+  inner join rh_tc_areas_responsables a on a.id_area=m.id_area 
+  inner join rh_tc_tipo_mensajes tm on m.id_tipo_mensaje=tm.id_tipo_mensaje 
+  inner join rh_tr_empleados e on m.num_empleado=e.num_empleado   
+where --m.id_tipo_mensaje=1 and 
+  sysdate between m.fecha_vig_ini and m.fecha_vig_fin
+) where (cve_grupo=:cveGrupo or cve_perfil=:cvePerfil or num_empleado = :numEmpleado or id_tipo_mensaje=1 or 
+      consecutivo in (
+      SELECT distinct mg.consecutivo
+      FROM rh_tr_usuarios u, sia_admin.rh_tr_perfiles_usuario up, rh_tr_perfil p,
+       rh_tr_modulos_perfil mp, rh_tr_modulos_grupo mg, rh_tc_arbol_menu am
+      WHERE u.num_empleado = :numEmpleado and u.num_empleado = up.num_empleado 
+      and up.cve_perfil = p.cve_perfil and p.CVE_PERFIL=mp.cve_perfil
+      and am.CONSECUTIVO=mg.consecutivo and mp.consecutivo=am.consecutivo
+      and mg.CVE_GRUPO=mp.cve_grupo and mg.CVE_GRUPO=p.cve_grupo
+    )
+)
+order by id_area
+    </select>
+    <select id="RhTrMensajes">
+select * from (
+select m.id_mensaje, to_char(m.registro, 'dd/MM/yyyy') fecha, to_char(registro, 'HH24:mi:ss') hora, descripcion_corta, i.grupo, i.perfil, i.opcion, i.empleado,
+case when m.fecha_vig_fin>= sysdate and sysdate >= m.fecha_vig_ini then 's3.gif' else 's1.gif' end estatus,
+to_char(m.fecha_vig_fin,'dd/MM/yyyy HH24:mi:ss') fecha_vig_fin, to_char(m.fecha_vig_ini,'dd/MM/yyyy HH24:mi:ss') fecha_vig_ini,fecha_vig_fin fecha_fin, fecha_vig_ini fecha_ini,
+  m.id_tipo_mensaje relacion, 
+  m.descripcion mensaje, m.id_tipo_mensaje, tm.descripcion tipo_mensaje, 
+  a.id_area, a.descripcion area, 
+  m.url_seguimiento
+from rh_tr_mensajes m
+  left join ( select m. id_mensaje, g.grupo, p.perfil, mu.opcion, me.empleado from rh_tr_mensajes m --mensajes generales
+    left join (select id_mensaje, count(cve_grupo) grupo from rh_tr_mensajes_grupo group by id_mensaje) g on g.id_mensaje = m.id_mensaje --mensajes x grupo
+    left join (select id_mensaje, count(cve_perfil) perfil from rh_tr_mensajes_perfil group by id_mensaje) p on p.id_mensaje = m.id_mensaje --mensajes x perfil
+    left join (select id_mensaje, count(num_empleado) empleado from rh_tr_mensajes_empleados group by id_mensaje) me on me.id_mensaje = m.id_mensaje --mensajes x empleado
+    --left join (select id_mensaje, count(cve_perfil) perfil from rh_tr_mensajes_procesos group by id_mensaje) mp on mp.id_mensaje = m.id_mensaje --mensajes x proceso
+    left join (select id_mensaje, count(consecutivo) opcion from rh_tr_mensajes_menu group by id_mensaje) mu on mu.ID_MENSAJE = m.id_mensaje --mensajes x opcion del menu
+  ) i on m.id_mensaje = i.id_mensaje
+  inner join rh_tc_areas_responsables a on a.id_area=m.id_area 
+  inner join rh_tc_tipo_mensajes tm on m.id_tipo_mensaje=tm.id_tipo_mensaje 
+--where --m.id_tipo_mensaje=1 and 
+  --sysdate between m.fecha_vig_ini and m.fecha_vig_fin
+)
+order by fecha_fin desc
+    </select>
+    <select id='RhTcAreasResponsables'>
+select * from rh_tc_areas_responsables
+    </select>
+    <select id='Mensajes_Detalle'>
+select '1' tipo, mg.cve_grupo cve, g.descripcion
+from 
+  rh_tr_mensajes_grupo mg
+  inner join sia_admin.rh_tr_grupo g on g.cve_grupo = mg.cve_grupo
+where 1=1 :idMensaje
+union
+select '2' tipo, mp.cve_perfil, np.descripcion
+from 
+  RH_TR_MENSAJES_PERFIL mp
+  inner join rh_tr_perfil p on p.cve_perfil = mp.cve_perfil
+  inner join sia_admin.RH_Tc_Nombre_perfil np on p.cve_nombre_perfil = np.cve_nombre_perfil
+where 1=1 :idMensaje
+union
+select '3' tipo, mm.consecutivo, am.des
+from 
+  RH_TR_MENSAJES_MENU mm
+  inner join rh_tc_arbol_menu am on am.consecutivo = mm.consecutivo
+where 1=1 :idMensaje
+union
+select '4' tipo, me.num_empleado, e.nombres || ' ' || e.apellido_pat || e.apellido_mat nombre
+from 
+  RH_TR_MENSAJES_EMPLEADOS me
+  inner join sia_admin.rh_tr_empleados e on e.num_empleado = me.num_empleado
+where 1=1 :idMensaje
+    </select>
+  </submodulo>
+  
+  <submodulo id="Admin">
+      <select id="RhTrUsuarios">
+select  
+  e.num_empleado, apellido_pat || ' ' || apellido_mat || ' ' || nombres || ' ' || curp  nombre
+from 
+  sia_admin.rh_tr_empleados e, sia_admin.rh_tr_usuarios u
+where e.num_empleado = u.num_empleado
+  :nombre
+order by apellido_pat
+    </select>
+    <select id="RhTrGrupo">
+select 
+  cve_grupo, descripcion, cve_grupo || ' ' || descripcion desc_completa 
+from 
+  sia_admin.RH_TR_GRUPO
+order by 
+  cve_grupo
+    </select>
+    <select id="RhTrPerfil">
+select 
+  p.cve_perfil, np.descripcion, cve_perfil || ' ' || descripcion desc_completa
+from 
+  sia_admin.rh_tr_perfil p,
+  rh_tc_nombre_perfil np
+where
+  p.cve_nombre_perfil = np.cve_nombre_perfil 
+  :cveGrupo
+order by cve_perfil
+    </select>
+    <select id="RhTrUsuariosPerfil">
+select 
+  p.cve_grupo, p.cve_perfil, g.descripcion nombre_grupo, np.descripcion nombre_perfil
+from 
+  sia_admin.rh_tr_perfiles_usuario up, sia_admin.rh_tr_perfil p,
+  rh_tc_nombre_perfil np, sia_admin.rh_tr_grupo g
+where 
+  up.cve_perfil = p.cve_perfil and p.cve_grupo = g.cve_grupo
+  and p.cve_nombre_perfil = np.cve_nombre_perfil 
+  :numEmpleado
+  :cvePerfil
+    </select>
+    <select id="RhTrUsuariosPerfil-UsuariosPorPerfil">
+select 
+  e.num_empleado, e.nombres, e.apellido_pat, e.apellido_mat
+from 
+  sia_admin.rh_tr_perfiles_usuario up, sia_admin.rh_tr_empleados e
+where cve_perfil = :cvePerfil and
+  up.num_empleado = e.num_empleado
+Order by
+  e.apellido_pat
+    </select>
+    <select id="RhTrUsuariosPerfil-tabla">
+select 
+  up.num_empleado,up.cve_perfil
+from 
+  sia_admin.rh_tr_perfiles_usuario up
+where 1=1
+  :numEmpleado
+    </select>
+    <select id="RhTcArbolMenu-AbolIdentado">
+select t.consecutivo, 
+  decode(substr(t.clave,11,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(t.clave,9,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(t.clave,7,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(t.clave,5,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(t.clave,3,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;') espacios, 
+  decode(ruta,null,'cerrado.gif','table.jsp','cerrado.gif','hoja.gif') imagen, 
+  t.des descripcion,
+  rpad(substr(rtrim(t.clave,'0'),1,
+  length(rtrim(t.clave,'0'))-decode(length(rtrim(t.clave,'0'))/2-trunc(length(rtrim(t.clave,'0'))/2),0.5,1,2)),14,'0') padre,
+  decode(ruta,null,0,'table.jsp',0,1) mostrar, decode(os.clave,null,0,1) en_servidor,t.* 
+from sia_admin.rh_tc_arbol_menu t, (
+  SELECT DISTINCT
+    rpad(substr(am.clave,1,2)||substr(am.clave,3,2)||substr(am.clave,5,2)||
+         substr(am.clave,7,2)||substr(am.clave,9,2)||substr(am.clave,11,2)||substr(am.clave,13,2),14,'0') clave
+  FROM 
+    rh_tc_arbol_menu am,
+    rh_tr_opciones_servidor os
+  WHERE 
+    publicar = '1' :idAplicacion
+    and os.consecutivo(+) = am.consecutivo 
+  group by 
+    rollup(substr(am.clave,1,2),substr(am.clave,3,2),substr(am.clave,5,2),
+           substr(am.clave,7,2),substr(am.clave,9,2),substr(am.clave,11,2),substr(am.clave,13,2))     
+) os
+where os.clave(+) = t.clave and publicar='1'
+order by t.clave
+    </select>
+    <select id="RhTcAplicaciones">
+select 
+  NOMBRE_APLICACION,ID_APLICACION 
+from 
+  RH_TC_APLICACIONES
+    </select>
+    
+  </submodulo>
+  
+  <submodulo id="arbol">
+    <select id="RhTcArbolMenu-Inicial">
+select 
+  amf.consecutivo,
+  amf.clave,
+  amf.des,
+  :ruta,
+  amf.publicar,
+  amf.id_servidor,
+  amf.imagen_in,
+  amf.imagen_out,
+  amf.imagen_over
+from (
+SELECT DISTINCT
+  rpad(substr(am.clave,1,2)||substr(am.clave,3,2)||substr(am.clave,5,2)||
+       substr(am.clave,7,2)||substr(am.clave,9,2)||substr(am.clave,11,2)||substr(am.clave,13,2),14,'0') clave
+FROM rh_tr_usuarios u,
+  sia_admin.rh_tr_perfiles_usuario up,
+  rh_tr_perfil p,
+  rh_tr_modulos_perfil mp,
+  rh_tc_arbol_menu am,
+  rh_tr_opciones_servidor os
+WHERE u.num_empleado = up.num_empleado
+AND up.cve_perfil = p.cve_perfil
+AND mp.cve_perfil = p.cve_perfil
+AND mp.consecutivo = am.consecutivo
+AND login = ':login'
+AND publicar = '1'
+and os.consecutivo(+) = am.consecutivo
+group by 
+rollup(substr(am.clave,1,2),substr(am.clave,3,2),substr(am.clave,5,2),
+       substr(am.clave,7,2),substr(am.clave,9,2),substr(am.clave,11,2),substr(am.clave,13,2))     
+) f, rh_tc_arbol_menu amf
+where f.clave = amf.clave                                                                                  
+ORDER BY clave
+    </select>
+    <select id="RhTcArbolMenu-UsuariosPorOpcion">
+select 
+  amf.consecutivo,
+  amf.clave,
+  amf.des,
+  amf.ruta,
+  amf.publicar,
+  amf.id_servidor,
+  decode(substr(amf.clave,11,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(amf.clave,9,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(amf.clave,7,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(amf.clave,5,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;')||
+  decode(substr(amf.clave,3,2),'00','','&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;') espacios, 
+  decode(ruta,null,'cerrado.gif','table.jsp','cerrado.gif','hoja.gif') imagen, 
+  amf.des descripcion,
+  rpad(substr(rtrim(amf.clave,'0'),1,
+  length(rtrim(amf.clave,'0'))-decode(length(rtrim(amf.clave,'0'))/2-trunc(length(rtrim(amf.clave,'0'))/2),0.5,1,2)),14,'0') padre
+from (
+SELECT DISTINCT
+  rpad(substr(am.clave,1,2)||substr(am.clave,3,2)||substr(am.clave,5,2)||
+       substr(am.clave,7,2)||substr(am.clave,9,2)||substr(am.clave,11,2)||substr(am.clave,13,2),14,'0') clave
+FROM 
+  sia_admin.rh_tr_perfiles_usuario up,
+  rh_tr_modulos_perfil mp,
+  rh_tc_arbol_menu am
+WHERE 
+mp.cve_perfil = up.cve_perfil
+AND mp.consecutivo = am.consecutivo
+:numEmpleado
+AND publicar = '1'
+group by 
+rollup(substr(am.clave,1,2),substr(am.clave,3,2),substr(am.clave,5,2),
+       substr(am.clave,7,2),substr(am.clave,9,2),substr(am.clave,11,2),substr(am.clave,13,2))     
+) f, rh_tc_arbol_menu amf
+where f.clave = amf.clave                                                                                  
+ORDER BY clave
+    </select>
+    <select id="RhTrEmpleados-UsuariosPorOpcion">
+select distinct nombres, apellido_pat, apellido_mat, e.num_empleado,
+  nombres_perfiles, claves_perfiles, u.iniciales from (
+select 
+  up.num_empleado,
+  string_agg(mp.descripcion) nombres_perfiles, string_agg(mp.cve_perfil) claves_perfiles
+FROM 
+  sia_admin.rh_tr_perfiles_usuario up,
+  (
+    select np.descripcion, p.cve_perfil, consecutivo 
+    from sia_admin.rh_tr_modulos_perfil mp, sia_admin.rh_tr_perfil p, sia_admin.RH_TC_NOMBRE_PERFIL np
+    where mp.CVE_PERFIL = p.cve_perfil 
+    :consecutivo --and consecutivo =   2129 
+    and p.cve_nombre_perfil = np.cve_nombre_perfil
+  ) mp
+where
+  mp.CVE_PERFIL = up.CVE_PERFIL
+group by mp.cve_perfil, up.num_empleado
+) u, sia_admin.rh_tr_empleados e, sia_admin.rh_tr_plazas pl, sia_admin.rh_tc_uni_ejecutoras u
+where
+  u.NUM_EMPLEADO = e.num_empleado
+  and e.plaza = pl.plaza and e.ejercicio = pl.ejercicio and e.periodo = pl.periodo
+  and pl.unidad_ejecutora = u.unidad_Ejecutora
+order by apellido_pat, apellido_mat, nombres
+    </select>
+    <select id="RhTcArbolMenu-OpcionesAsignadas">
+SELECT distinct a.consecutivo, a.clave, a.des, a.ruta, a.publicar, a.id_servidor, 
+        a.imagen_in, a.imagen_out, a.imagen_over, a.visible, a.bloquear
+FROM rh_tc_arbol_menu a,
+  rh_tr_modulos_perfil b,
+  sia_admin.rh_tr_perfiles_usuario up
+WHERE a.clave LIKE ':padre'
+ :union--and up.cve_perfil = b.cve_perfil
+ AND a.consecutivo = b.consecutivo
+ :numEmpleado -- and num_empleado = 47373
+ :cvePerfil   --AND b.cve_perfil = 823
+ORDER BY clave
+    </select>
+    <select id="RhTcArbolMenu-tieneHijos">
+select  
+  a.clave 
+from  
+  rh_tc_arbol_menu a , rh_tr_modulos_perfil b,
+  sia_admin.rh_tr_perfiles_usuario up
+where  1=1
+:padre--a.clave like ? 
+and up.cve_perfil(+) = b.cve_perfil
+:nodo--and  a.clave != ?  
+and a.consecutivo= b.consecutivo 
+:numEmpleado -- and num_empleado = 47373
+:cvePerfil--and b.cve_perfil= 823 
+order by  a.clave
+    </select>
+  
+  </submodulo>
+
+  <submodulo id="exceptions">
+    <select id="mensajeError">
+
+
+&lt;div align="left">
+	
+&lt;table style="page-break-before: auto; page-break-after: auto; page-break-inside: auto" cellpadding="4" cellspacing="0" width="100%">
+		&lt;colgroup>&lt;col>
+		
+&lt;/colgroup>
+&lt;tbody>
+&lt;tr>
+			
+&lt;td style="border: 1px solid #2323dc; padding: 0.1cm" bgcolor="#280099" valign="TOP">
+				
+&lt;p>&lt;font color="#ffffff">&lt;font face="FreeSans, sans-serif">&lt;b>Ocurri&amp;oacute;
+				el siguiente error&lt;/b>&lt;/font>&lt;/font>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		
+&lt;tr>
+			
+&lt;td style="border-top: none; border-bottom: 1px solid #2323dc; border-left: 1px solid #2323dc; border-right: 1px solid #2323dc; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" valign="TOP" colspan='2'>
+				
+&lt;p>&lt;b>:error&lt;/b>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		
+&lt;tr>
+			
+&lt;td style="border: 1px solid #2323dc; padding: 0.1cm" bgcolor="#280099" valign="TOP">
+				
+&lt;p>&lt;font color="#ffffff">&lt;b>Causa&lt;/b>&lt;/font>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		
+&lt;tr>
+			
+&lt;td style="border-top: none; border-bottom: 1px solid #2323dc; border-left: 1px solid #2323dc; border-right: 1px solid #2323dc; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" valign="TOP" colspan='2'>
+				
+&lt;p>:causa&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+	
+
+&lt;br />
+
+
+	
+	
+	
+
+
+
+&lt;tr valign="TOP">
+		
+&lt;td style="border-top: 1px solid #2323dc; border-bottom: 1px solid #2323dc; border-left: 1px solid #2323dc; border-right: none; padding-top: 0.1cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" bgcolor="#280099" width="50%">
+			
+&lt;p>&lt;font color="#ffffff">&lt;font face="FreeSans, sans-serif">&lt;b>Usuario&lt;/b>&lt;/font>&lt;/font>&lt;/p>
+		&lt;/td>
+		
+&lt;td style="border: 1px solid #ffffff; padding: 0.1cm" bgcolor="#280099" width="50%">
+			
+&lt;p>&lt;font color="#ffffff">&lt;b>Servidor&lt;/b>&lt;/font>&lt;/p>
+		&lt;/td>
+	&lt;/tr>
+	
+&lt;tr valign="TOP">
+		
+&lt;td style="border-top: none; border-bottom: 1px solid #2323dc; border-left: 1px solid #2323dc; border-right: none; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0cm" width="50%">
+			
+&lt;p>:usuario&lt;/p>
+		&lt;/td>
+		
+&lt;td style="border-top: none; border-bottom: 1px solid #2323dc; border-left: 1px solid #2323dc; border-right: 1px solid #2323dc; padding-top: 0cm; padding-bottom: 0.1cm; padding-left: 0.1cm; padding-right: 0.1cm" width="50%">
+			
+&lt;p>:servidor&lt;/p>
+		&lt;/td>
+	&lt;/tr>
+&lt;/tbody>&lt;/table>
+&lt;/div>
+&lt;br /> 
+&lt;p>&lt;font color='#000000' size='2'>A continuacion se muestran los detalles&amp;nbsp; .....&lt;/font>&lt;/p>
+&lt;blockquote dir='ltr' style='MARGIN-RIGHT: 0px'>&lt;p>&lt;font size='2'>:detalle&lt;/font>&lt;/p> &lt;/blockquote>
+&lt;p>&lt;font size='2'>Favor de verificar su programaci&amp;oacute;n&lt;/font>&lt;/p>
+&lt;p>&lt;font size='2'>atte:&lt;/font> &lt;br />&lt;font size='2'>&lt;strong>Administrador del sistema&lt;/strong>&lt;/font>&lt;/p>
+    </select>
+    <select id="mensajeErrorMorado">
+&lt;html>
+  &lt;head>
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+    &lt;title>bordes&lt;/title>
+    &lt;style type="text/css">
+      body {
+        background-image:ruta/Librerias/Imagenes/fondo.gif
+        background-position: top center; 
+        background-repeat: repeat-y;
+        font-family:Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+        font-size:7pt;font-weight:normal;text-decoration:none;
+      }
+      td
+         {
+          font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+          font-size 	   	: 8pt;
+          text-decoration   : none;
+         }
+    &lt;/style>
+  &lt;/head>
+  &lt;body style="">
+    &lt;table align="center" width="90%" cellpadding="0" cellspacing="0" border=1>
+      &lt;thead>&lt;/thead>
+      &lt;tbody>
+        &lt;tr>
+          <!--&lt;td>&lt;img src=":ruta/Librerias/Imagenes/LogoSIA.jpg" height="50px" width="60px">&lt;/td>-->
+          
+        &lt;/tr>
+      &lt;/tbody>
+    &lt;/table>
+    
+    &lt;br>&lt;br>
+    &lt;img src=":ruta/Librerias/Imagenes/mail.jpeg" height="100px" width="100px" style="position:absolute; right:80px; top:10px;">
+    &lt;table align="center" width="90%" cellpadding="0" cellspacing="0">
+      &lt;thead>&lt;/thead>
+      &lt;tbody>
+        &lt;tr>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/esiz.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+          &lt;td width="100px" background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/esde.gif">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td height="30px" background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+          &lt;td height="30px" background="ruta/Librerias/Imagenes/borde/supsup.gif" style="color:White;">
+            
+            
+            &lt;font style="font-size:10pt;">&lt;b>Ocurrio el siguiente error:&lt;/b>&lt;/font>&lt;font style="font-size:8pt;">:error&lt;/font>&lt;br>
+            &lt;font style="font-size:10pt;">&lt;b>Causa:&lt;/b>&lt;/font>&lt;font style="font-size:8pt;">:causa&lt;/font>&lt;br>&lt;br>&lt;br>
+            &lt;font style="font-size:10pt;">&lt;b>Usuario:&lt;/b>&lt;/font>&lt;font style="font-size:8pt;">:usuario&lt;/font>&lt;br>&lt;br>
+            &lt;font style="font-size:10pt;">&lt;b>Servidor:&lt;/b>&lt;/font>&lt;font style="font-size:8pt;">:servidor&lt;/font>&lt;br>
+            
+            
+          &lt;/td>
+          &lt;td colspan="2" height="30px" background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/supinfiz.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/supinf.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/supinf.gif">&lt;/td>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/supinfde.gif">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td background="ruta/Librerias/Imagenes/borde/iz.gif" width="10px">&lt;/td>
+          &lt;td colspan="2">&lt;table align="center" >
+            &lt;thead>&lt;/thead>
+            &lt;tbody>
+              &lt;tr>
+                &lt;td height="300px">
+                
+                A continuacion se muestran los detalles&amp;nbsp; .....&lt;br>
+                &lt;br>
+                :detalle&lt;br>
+                &lt;br>
+                Favor de verificar su programaci&amp;oacute;n&lt;br>
+                &lt;br>
+                atte: &lt;b>El Administrador.&lt;/b>
+                
+                &lt;/td>
+              &lt;/tr>
+            &lt;/tbody>
+          &lt;/table>&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/de.gif" width="10px">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/infiz.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/inf.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/inf.gif">&lt;/td>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/infde.gif">&lt;/td>
+        &lt;/tr>
+      &lt;/tbody>
+    &lt;/table>
+  &lt;/body>
+&lt;/html>
+    </select>
+    <select id="mensajeMorado">
+&lt;html>
+  &lt;head>
+    &lt;meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+    &lt;title>bordes&lt;/title>
+    &lt;style type="text/css">
+      body {
+        background-image:ruta/Librerias/Imagenes/fondo.gif
+        background-position: top center; 
+        background-repeat: repeat-y;
+        font-family:Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+        font-size:7pt;font-weight:normal;text-decoration:none;
+      }
+      td
+         {
+          font-family       : Verdana, Arial, Helvetica, sans-serif, Lucida, Dialog;
+          font-size 	   	: 8pt;
+          text-decoration   : none;
+         }
+    &lt;/style>
+  &lt;/head>
+  &lt;body style="">
+    &lt;table align="center" width="90%" cellpadding="0" cellspacing="0" border=1>
+      &lt;thead>&lt;/thead>
+      &lt;tbody>
+        &lt;tr>
+          <!--&lt;td>&lt;img src=":ruta/Librerias/Imagenes/LogoSIA.jpg" height="50px" width="60px">&lt;/td>-->
+          
+        &lt;/tr>
+      &lt;/tbody>
+    &lt;/table>
+    
+    &lt;br>&lt;br>
+    &lt;img src=":ruta/Librerias/Imagenes/mail.jpeg" height="100px" width="100px" style="position:absolute; right:80px; top:10px;">
+    &lt;table align="center" width="90%" cellpadding="0" cellspacing="0">
+      &lt;thead>&lt;/thead>
+      &lt;tbody>
+        &lt;tr>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/esiz.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+          &lt;td width="100px" background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/esde.gif">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td height="30px" background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+          &lt;td height="30px" background="ruta/Librerias/Imagenes/borde/supsup.gif" style="color:White;">
+            
+            
+            :titulo
+            
+            
+          &lt;/td>
+          &lt;td colspan="2" height="30px" background="ruta/Librerias/Imagenes/borde/supsup.gif">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/supinfiz.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/supinf.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/supinf.gif">&lt;/td>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/supinfde.gif">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td background="ruta/Librerias/Imagenes/borde/iz.gif" width="10px">&lt;/td>
+          &lt;td colspan="2">&lt;table align="center" >
+            &lt;thead>&lt;/thead>
+            &lt;tbody>
+              &lt;tr>
+                &lt;td height="300px">
+                
+                &lt;br>
+                :detalle&lt;br>
+                &lt;br>
+                
+                &lt;/td>
+              &lt;/tr>
+            &lt;/tbody>
+          &lt;/table>&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/de.gif" width="10px">&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/infiz.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/inf.gif">&lt;/td>
+          &lt;td background="ruta/Librerias/Imagenes/borde/inf.gif">&lt;/td>
+          &lt;td width="10px">&lt;img src=":ruta/Librerias/Imagenes/borde/infde.gif">&lt;/td>
+        &lt;/tr>
+      &lt;/tbody>
+    &lt;/table>
+  &lt;/body>
+&lt;/html>
+    </select>
+  </submodulo>
+  
+  
+</dml>
